@@ -7,10 +7,10 @@
 #include <string>
 #include <memory>
 #include <mysql_driver.h>
-#include "Router.hpp"
-#include "HomeController.hpp"
-#include "HelloController.hpp"
-#include "User.cpp"
+#include "Router/Router.hpp"
+#include "Controllers/HomeController.hpp"
+#include "Controllers/HelloController.hpp"
+#include "Database/Models/User.cpp"
 #include "map"
 
 namespace beast = boost::beast;
