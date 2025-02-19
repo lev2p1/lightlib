@@ -6,6 +6,7 @@
 #include <iostream>
 #include <string>
 #include <memory>
+#include <mysql_driver.h>
 #include "Router.hpp"
 #include "HomeController.hpp"
 #include "HelloController.hpp"

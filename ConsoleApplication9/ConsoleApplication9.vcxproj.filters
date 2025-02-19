@@ -33,6 +33,9 @@
     <ClCompile Include="HelloController.cpp">
       <Filter>Исходные файлы\Controllers</Filter>
     </ClCompile>
+    <ClCompile Include="Database.cpp">
+      <Filter>Исходные файлы\Database</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Router.hpp">
@@ -46,6 +49,9 @@
     </ClInclude>
     <ClInclude Include="HelloController.hpp">
       <Filter>Исходные файлы\Controllers</Filter>
+    </ClInclude>
+    <ClInclude Include="Database.hpp">
+      <Filter>Исходные файлы\Database</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>
