@@ -10,6 +10,21 @@ void Router::post(const std::string& path, Handler handler) {
     routes_[http::verb::post][path] = handler;
 }
 
+// Добавление маршрута для PUT-запросов
+void Router::put(const std::string& path, Handler handler) {
+    routes_[http::verb::put][path] = handler;
+}
+
+// Добавление маршрута для PATCH-запросов
+void Router::patch(const std::string& path, Handler handler) {
+    routes_[http::verb::patch][path] = handler;
+}
+
+// Добавление маршрута для DELETE-запросов
+void Router::delete_(const std::string& path, Handler handler) {
+    routes_[http::verb::delete_][path] = handler;
+}
+
 // Обработка входящего запроса
 void Router::handle_request(const Request& req, Response& res) {
     auto method = req.method();

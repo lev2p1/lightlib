@@ -22,6 +22,15 @@ public:
     // Добавление маршрута для POST-запросов
     void post(const std::string& path, Handler handler);
 
+    // Добавление маршрута для PUT-запросов
+    void put(const std::string& path, Handler handler);
+
+    // Добавление маршрута для PATCH-запросов
+    void patch(const std::string& path, Handler handler);
+
+    // Добавление маршрута для DELETE-запросов
+    void delete_(const std::string& path, Handler handler);
+
     // Обработка входящего запроса
     void handle_request(const Request& req, Response& res);
 

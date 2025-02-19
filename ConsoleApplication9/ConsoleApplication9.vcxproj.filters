@@ -19,6 +19,9 @@
     <Filter Include="Исходные файлы\Database">
       <UniqueIdentifier>{4b59d83f-d637-4873-ae68-c68712d8b980}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Исходные файлы\Models">
+      <UniqueIdentifier>{36200190-d57f-4af0-a0a7-36de1a30d979}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Main.cpp">
@@ -36,6 +39,12 @@
     <ClCompile Include="Database.cpp">
       <Filter>Исходные файлы\Database</Filter>
     </ClCompile>
+    <ClCompile Include="Model.cpp">
+      <Filter>Исходные файлы\Models</Filter>
+    </ClCompile>
+    <ClCompile Include="User.cpp">
+      <Filter>Исходные файлы\Models</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Router.hpp">
@@ -52,6 +61,9 @@
     </ClInclude>
     <ClInclude Include="Database.hpp">
       <Filter>Исходные файлы\Database</Filter>
+    </ClInclude>
+    <ClInclude Include="Model.hpp">
+      <Filter>Исходные файлы\Models</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

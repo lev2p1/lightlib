@@ -10,6 +10,8 @@
 #include "Router.hpp"
 #include "HomeController.hpp"
 #include "HelloController.hpp"
+#include "User.cpp"
+#include "map"
 
 namespace beast = boost::beast;
 namespace http = beast::http;
@@ -33,6 +35,11 @@ int main() {
         // Объявление контроллеров
         auto homeController = std::make_shared<HomeController>();
         auto helloController = std::make_shared<HelloController>();
+
+        auto user = std::make_shared<User>();
+        std::map<std::string, std::string> m1;
+        m1["asdads"] = "f54y5ug65h";
+        user->create(m1);
 
         // Маршрут для GET-запроса на главную страницу
         router.get("/", [homeController](const Router::Request& req, Router::Response& res) {

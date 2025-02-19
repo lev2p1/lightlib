@@ -106,12 +106,12 @@
       <PreprocessorDefinitions>_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <LanguageStandard>stdcpp20</LanguageStandard>
-      <AdditionalIncludeDirectories>C:\boost_1_87_0\boost_1_87_0;C:\Program Files\MySQL\MySQL Connector C++ 9.2\include\jdbc;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>C:\boost_1_87_0;C:\Program Files\MySQL\MySQL Connector C++ 9.2\include\jdbc;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalLibraryDirectories>C:\boost_1_87_0\boost_1_87_0\stage\lib;C:\Program Files\MySQL\MySQL Connector C++ 9.2\lib64\vs14;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>C:\boost_1_87_0\stage\lib;C:\Program Files\MySQL\MySQL Connector C++ 9.2\lib64\vs14;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <AdditionalDependencies>libboost_system-vc143-mt-gd-x64-1_87.lib;libboost_filesystem-vc143-mt-gd-x64-1_87.lib;ws2_32.lib;mysqlcppconn.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
@@ -136,13 +136,16 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="Model.cpp" />
     <ClCompile Include="Database.cpp" />
     <ClCompile Include="HelloController.cpp" />
     <ClCompile Include="Main.cpp" />
     <ClCompile Include="HomeController.cpp" />
     <ClCompile Include="Router.cpp" />
+    <ClCompile Include="User.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="Model.hpp" />
     <ClInclude Include="Controller.hpp" />
     <ClInclude Include="Database.hpp" />
     <ClInclude Include="HelloController.hpp" />
