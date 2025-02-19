@@ -106,12 +106,12 @@
       <PreprocessorDefinitions>_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <LanguageStandard>stdcpp20</LanguageStandard>
-      <AdditionalIncludeDirectories>C:\boost_1_87_0;C:\Program Files\MySQL\MySQL Connector C++ 9.2\include\jdbc;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>C:\boost_1_87_0\boost_1_87_0;C:\Program Files\MySQL\MySQL Connector C++ 9.2\include\jdbc;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalLibraryDirectories>C:\boost_1_87_0\stage\lib;C:\Program Files\MySQL\MySQL Connector C++ 9.2\lib64\vs14;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>C:\Program Files\MySQL\MySQL Connector C++ 9.2\lib64\vs14;C:\boost_1_87_0\boost_1_87_0\stage\lib</AdditionalLibraryDirectories>
       <AdditionalDependencies>libboost_system-vc143-mt-gd-x64-1_87.lib;libboost_filesystem-vc143-mt-gd-x64-1_87.lib;ws2_32.lib;mysqlcppconn.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
@@ -131,7 +131,7 @@
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalLibraryDirectories>C:\boost_1_87_0\boost_1_87_0\stage\lib;C:\Program Files\MySQL\MySQL Connector C++ 9.2\lib64\vs14;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>C:\Program Files\MySQL\MySQL Connector C++ 9.2\lib64\vs14;C:\boost_1_87_0\boost_1_87_0\stage\lib</AdditionalLibraryDirectories>
       <AdditionalDependencies>libboost_system-vc143-mt-gd-x64-1_87.lib;libboost_filesystem-vc143-mt-gd-x64-1_87.lib;ws2_32.lib;mysqlcppconn.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
