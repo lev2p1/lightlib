@@ -111,7 +111,7 @@
     <Link>
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalLibraryDirectories>C:\Program Files\MySQL\MySQL Connector C++ 9.2\lib64\vs14;C:\boost_1_87_0\boost_1_87_0\stage\lib</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>C:\boost_1_87_0\boost_1_87_0\stage\lib;C:\Program Files\MySQL\MySQL Connector C++ 9.2\lib64\vs14;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <AdditionalDependencies>libboost_system-vc143-mt-gd-x64-1_87.lib;libboost_filesystem-vc143-mt-gd-x64-1_87.lib;ws2_32.lib;mysqlcppconn.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
@@ -131,25 +131,25 @@
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalLibraryDirectories>C:\Program Files\MySQL\MySQL Connector C++ 9.2\lib64\vs14;C:\boost_1_87_0\boost_1_87_0\stage\lib</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>C:\boost_1_87_0\boost_1_87_0\stage\lib;C:\Program Files\MySQL\MySQL Connector C++ 9.2\lib64\vs14;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <AdditionalDependencies>libboost_system-vc143-mt-gd-x64-1_87.lib;libboost_filesystem-vc143-mt-gd-x64-1_87.lib;ws2_32.lib;mysqlcppconn.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="Model.cpp" />
     <ClCompile Include="Database.cpp" />
     <ClCompile Include="HelloController.cpp" />
     <ClCompile Include="Main.cpp" />
     <ClCompile Include="HomeController.cpp" />
+    <ClCompile Include="Models\Model.cpp" />
+    <ClCompile Include="Models\User.cpp" />
     <ClCompile Include="Router.cpp" />
-    <ClCompile Include="User.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="Model.hpp" />
     <ClInclude Include="Controller.hpp" />
     <ClInclude Include="Database.hpp" />
     <ClInclude Include="HelloController.hpp" />
     <ClInclude Include="HomeController.hpp" />
+    <ClInclude Include="Models\Model.hpp" />
     <ClInclude Include="Router.hpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

@@ -39,10 +39,10 @@
     <ClCompile Include="Database.cpp">
       <Filter>Исходные файлы\Database</Filter>
     </ClCompile>
-    <ClCompile Include="Model.cpp">
+    <ClCompile Include="Models\Model.cpp">
       <Filter>Исходные файлы\Models</Filter>
     </ClCompile>
-    <ClCompile Include="User.cpp">
+    <ClCompile Include="Models\User.cpp">
       <Filter>Исходные файлы\Models</Filter>
     </ClCompile>
   </ItemGroup>
@@ -62,7 +62,7 @@
     <ClInclude Include="Database.hpp">
       <Filter>Исходные файлы\Database</Filter>
     </ClInclude>
-    <ClInclude Include="Model.hpp">
+    <ClInclude Include="Models\Model.hpp">
       <Filter>Исходные файлы\Models</Filter>
     </ClInclude>
   </ItemGroup>
