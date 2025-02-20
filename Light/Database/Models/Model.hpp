@@ -16,15 +16,18 @@ public:
 
     // Заполняет модель данными
     static std::shared_ptr<Model> create(const std::map<std::string, std::string>& data) {
+        auto model = std::make_shared<Derived>();
         for (const auto& [key, value] : data) {
-            if (isFillable(key)) {
-                attributes[key] = value;
+            if (Derived::isFillable(key)) {
+                model->attributes[key] = value; // Используем неконстантный доступ
+                std::cout << key << " = " << value << std::endl;
             }
             else {
                 std::cerr << "Field '" << key << "' is not fillable." << std::endl;
+                return nullptr;
             }
         }
-        return std::make_shared<Derived>();
+        return model;
     }
 
     // Проверяет, является ли поле fillable

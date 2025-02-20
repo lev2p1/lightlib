@@ -37,7 +37,10 @@ int main() {
         auto helloController = std::make_shared<HelloController>();
 
         // Создание пользователя
-        auto concreate_user = User::create({ {"id", "john_doe"}, {"name", "john@example.com"}, {"password", "123456"} });
+        auto concreate_user = User::create({ {"id", "john_doe"}, {"name", "john@example.com"}, {"password", "123456"}});
+        if (!concreate_user) {
+            std::cout << "null";
+        }
 
         // Чтение пользователя
         auto user = User::read(1);
