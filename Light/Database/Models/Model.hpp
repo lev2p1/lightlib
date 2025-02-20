@@ -9,12 +9,57 @@
 // Базовый класс Model с использованием CRTP
 template <typename Derived>
 class Model {
+protected:
+    std::map<std::string, std::string> attributes; // Атрибуты модели
+    static inline std::vector<std::string> fillable; // Список fillable полей
 public:
+
+    // Заполняет модель данными
+    static std::shared_ptr<Model> create(const std::map<std::string, std::string>& data) {
+        for (const auto& [key, value] : data) {
+            if (isFillable(key)) {
+                attributes[key] = value;
+            }
+            else {
+                std::cerr << "Field '" << key << "' is not fillable." << std::endl;
+            }
+        }
+        return std::make_shared<Derived>();
+    }
+
+    // Проверяет, является ли поле fillable
+    static bool isFillable(const std::string& field) {
+        return std::find(Derived::fillable.begin(), Derived::fillable.end(), field) != Derived::fillable.end();
+    }
+
+    // Возвращает значение атрибута
+    std::string getAttribute(const std::string& key) const{
+        if (attributes.find(key) != attributes.end()) {
+            return attributes.at(key);
+        }
+        throw std::invalid_argument("Attribute '" + key + "' not found.");
+    }
+
+    // Устанавливает значение атрибута
+    void setAttribute(const std::string& key, const std::string& value) {
+        if (isFillable(key)) {
+            attributes[key] = value;
+        }
+        else {
+            std::cerr << "Field '" << key << "' is not fillable." << std::endl;
+        }
+    }
+
+    // Выводит все атрибуты
+    void printAttributes() const {
+        for (const auto& [key, value] : attributes) {
+            std::cout << key << ": " << value << std::endl;
+        }
+    }
     virtual ~Model() = default;
 
-    // Атрибуты
-    virtual std::string getAttribute(const std::string& key) const = 0;
-    virtual void setAttribute(const std::string& key, const std::string& value) = 0;
+    // Статическая переменная для хранения имени таблицы
+    static inline std::string table_name = "default_table";
 
     // Работа с данными
     virtual void load(int id) = 0;
@@ -28,18 +73,6 @@ public:
     // Метаданные
     virtual std::vector<std::string> getFieldNames() const = 0;
     virtual std::string getFieldType(const std::string& fieldName) const = 0;
-
-    // Статическая переменная для хранения имени таблицы
-    static inline std::string table_name = "default_table";
-
-    // Статические CRUD-операции
-    static void create(const std::map<std::string, std::string>& data) {
-        std::cout << "Creating record in table: " << Derived::table_name << std::endl;
-        for (const auto& [key, value] : data) {
-            std::cout << key << "=" << value << " ";
-        }
-        std::cout << std::endl;
-    }
 
     static std::shared_ptr<Derived> read(int id) {
         std::cout << "Reading record from table: " << Derived::table_name << " with id: " << id << std::endl;

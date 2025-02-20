@@ -36,12 +36,13 @@ int main() {
         auto homeController = std::make_shared<HomeController>();
         auto helloController = std::make_shared<HelloController>();
 
-        auto user = std::make_shared<User>();
-        std::map<std::string, std::string> m1;
-        m1["name"] = "Nikolay";
-        user->create(m1);
+        // Создание пользователя
+        auto concreate_user = User::create({ {"id", "john_doe"}, {"name", "john@example.com"}, {"password", "123456"} });
 
-        User::read(1);  
+        // Чтение пользователя
+        auto user = User::read(1);
+        //std::cout << "User JSON: " << user->toJson() << std::endl;
+
 
 
         // Маршрут для GET-запроса на главную страницу

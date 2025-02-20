@@ -27,43 +27,43 @@
     <ClCompile Include="Main.cpp">
       <Filter>Исходные файлы</Filter>
     </ClCompile>
-    <ClCompile Include="Router.cpp">
+    <ClCompile Include="Controllers\HelloController.cpp">
       <Filter>Исходные файлы</Filter>
     </ClCompile>
-    <ClCompile Include="HomeController.cpp">
-      <Filter>Исходные файлы\Controllers</Filter>
+    <ClCompile Include="Controllers\HomeController.cpp">
+      <Filter>Исходные файлы</Filter>
     </ClCompile>
-    <ClCompile Include="HelloController.cpp">
-      <Filter>Исходные файлы\Controllers</Filter>
+    <ClCompile Include="Database\Database.cpp">
+      <Filter>Исходные файлы</Filter>
     </ClCompile>
-    <ClCompile Include="Database.cpp">
-      <Filter>Исходные файлы\Database</Filter>
+    <ClCompile Include="Database\Models\Model.cpp">
+      <Filter>Исходные файлы</Filter>
     </ClCompile>
-    <ClCompile Include="Models\Model.cpp">
-      <Filter>Исходные файлы\Models</Filter>
+    <ClCompile Include="Database\Models\User.cpp">
+      <Filter>Исходные файлы</Filter>
     </ClCompile>
-    <ClCompile Include="Models\User.cpp">
-      <Filter>Исходные файлы\Models</Filter>
+    <ClCompile Include="Router\Router.cpp">
+      <Filter>Исходные файлы</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="Router.hpp">
-      <Filter>Исходные файлы</Filter>
+    <ClInclude Include="Controllers\Controller.hpp">
+      <Filter>Файлы заголовков</Filter>
     </ClInclude>
-    <ClInclude Include="HomeController.hpp">
-      <Filter>Исходные файлы\Controllers</Filter>
+    <ClInclude Include="Controllers\HelloController.hpp">
+      <Filter>Файлы заголовков</Filter>
     </ClInclude>
-    <ClInclude Include="Controller.hpp">
-      <Filter>Исходные файлы\Controllers</Filter>
+    <ClInclude Include="Controllers\HomeController.hpp">
+      <Filter>Файлы заголовков</Filter>
     </ClInclude>
-    <ClInclude Include="HelloController.hpp">
-      <Filter>Исходные файлы\Controllers</Filter>
+    <ClInclude Include="Database\Database.hpp">
+      <Filter>Файлы заголовков</Filter>
     </ClInclude>
-    <ClInclude Include="Database.hpp">
-      <Filter>Исходные файлы\Database</Filter>
+    <ClInclude Include="Database\Models\Model.hpp">
+      <Filter>Файлы заголовков</Filter>
     </ClInclude>
-    <ClInclude Include="Models\Model.hpp">
-      <Filter>Исходные файлы\Models</Filter>
+    <ClInclude Include="Router\Router.hpp">
+      <Filter>Файлы заголовков</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

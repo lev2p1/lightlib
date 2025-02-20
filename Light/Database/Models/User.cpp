@@ -4,13 +4,7 @@ class User : public Model<User> {
 public:
     // Переопределяем статическую переменную
     static inline std::string table_name = "users";
-
-    std::string getAttribute(const std::string& key) const override {
-        return "123";
-    };
-    void setAttribute(const std::string& key, const std::string& value) override {
-        
-    }
+    static inline std::vector<std::string> fillable = {"id", "name", "password"}; // Список fillable полей
 
     void load(int id) override {
 
