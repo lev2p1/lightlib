@@ -38,10 +38,11 @@ int main() {
 
         auto user = std::make_shared<User>();
         std::map<std::string, std::string> m1;
-        m1["asdads"] = "f54y5ug65h";
+        m1["name"] = "Nikolay";
         user->create(m1);
 
-        User::show();
+        User::read(1);  
+
 
         // Маршрут для GET-запроса на главную страницу
         router.get("/", [homeController](const Router::Request& req, Router::Response& res) {
