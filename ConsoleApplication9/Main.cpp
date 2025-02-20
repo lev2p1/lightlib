@@ -41,6 +41,8 @@ int main() {
         m1["asdads"] = "f54y5ug65h";
         user->create(m1);
 
+        User::show();
+
         // Маршрут для GET-запроса на главную страницу
         router.get("/", [homeController](const Router::Request& req, Router::Response& res) {
                 homeController.get()->handle(req, res);
