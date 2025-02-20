@@ -6,7 +6,8 @@
 #include <stdexcept>
 #include <iostream>
 
-// Абстрактный класс Model
+// Базовый класс Model с использованием CRTP
+template <typename Derived>
 class Model {
 public:
     virtual ~Model() = default;
@@ -28,23 +29,25 @@ public:
     virtual std::vector<std::string> getFieldNames() const = 0;
     virtual std::string getFieldType(const std::string& fieldName) const = 0;
 
+    // Статическая переменная для хранения имени таблицы
+    static inline std::string table_name = "default_table";
+
     // Статические CRUD-операции
     static void create(const std::map<std::string, std::string>& data) {
-        // Используем статическую переменную table_name
-        std::cout << "Creating record in table: " << table_name << std::endl;
+        std::cout << "Creating record in table: " << Derived::table_name << std::endl;
         for (const auto& [key, value] : data) {
             std::cout << key << "=" << value << " ";
         }
         std::cout << std::endl;
     }
 
-    static std::shared_ptr<Model> read(int id) {
-        std::cout << "Reading record from table: " << table_name << " with id: " << id << std::endl;
+    static std::shared_ptr<Derived> read(int id) {
+        std::cout << "Reading record from table: " << Derived::table_name << " with id: " << id << std::endl;
         return nullptr; // В реальной реализации возвращаем объект модели
     }
 
     static void update(int id, const std::map<std::string, std::string>& data) {
-        std::cout << "Updating record in table: " << table_name << " with id: " << id << std::endl;
+        std::cout << "Updating record in table: " << Derived::table_name << " with id: " << id << std::endl;
         for (const auto& [key, value] : data) {
             std::cout << key << "=" << value << " ";
         }
@@ -52,10 +55,6 @@ public:
     }
 
     static void delete_(int id) {
-        std::cout << "Deleting record from table: " << table_name << " with id: " << id << std::endl;
+        std::cout << "Deleting record from table: " << Derived::table_name << " with id: " << id << std::endl;
     }
-
-protected:
-    // Статическая переменная для хранения имени таблицы
-    static inline std::string table_name = "default_table";
 };
