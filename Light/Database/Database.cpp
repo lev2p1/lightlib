@@ -5,8 +5,7 @@
 // Конструктор (подключается к базе данных)
 Database::Database(const std::string& host, const std::string& user, const std::string& password, const std::string& database) {
         std::setlocale(LC_ALL, "UTF-8");
-        SetConsoleOutputCP(CP_UTF8);
-        std::cout << password << "123хуй" << std::endl;
+        std::cout << password << std::endl;
     try {
         driver_ = sql::mysql::get_mysql_driver_instance();
         std::cout << host << ' ' << user << std::endl;
