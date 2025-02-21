@@ -15,7 +15,7 @@ void HelloController::index(const Request& req, Response& res)
 
 void HelloController::store(const Request& req, Response& res)
 {
-	Database db("tcp://127.0.0.1:3306", "root", "", "light");
+	Database db("tcp://127.0.0.1:3306?charset=utf8mb4", "kirill", "qwerty123", "light");
 
 	std::string message = req.body();
 

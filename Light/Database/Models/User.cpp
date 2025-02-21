@@ -4,7 +4,7 @@ class User : public Model<User> {
 public:
     // Переопределяем статическую переменную
     static inline std::string table_name = "users";
-    static inline std::vector<std::string> fillable = {"id", "name", "password"}; // Список fillable полей
+    static inline std::vector<std::string> fillable = { "id", "name", "password" }; // Список fillable полей
 
     void load(int id) override {
 
@@ -20,8 +20,8 @@ public:
     std::string toJson() const override {
         return "123";
     };
-    void fromJson(const std::string& json) override{
-        
+    void fromJson(const std::string& json) override {
+
     }
 
     std::vector<std::string> getFieldNames() const override {

@@ -1,10 +1,15 @@
 #include "Database.hpp"
 #include <iostream>
+#include <windows.h>
 
 // Конструктор (подключается к базе данных)
 Database::Database(const std::string& host, const std::string& user, const std::string& password, const std::string& database) {
+        std::setlocale(LC_ALL, "UTF-8");
+        SetConsoleOutputCP(CP_UTF8);
+        std::cout << password << "123хуй" << std::endl;
     try {
         driver_ = sql::mysql::get_mysql_driver_instance();
+        std::cout << host << ' ' << user << std::endl;
         conn_.reset(driver_->connect(host, user, password));
         conn_->setSchema(database);
         std::cout << "Connected to MySQL database successfully!" << std::endl;
