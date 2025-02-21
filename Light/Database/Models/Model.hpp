@@ -24,6 +24,7 @@ public:
             }
             else {
                 std::cerr << "Field '" << key << "' is not fillable." << std::endl;
+                return nullptr;
             }
         }
         return model;
