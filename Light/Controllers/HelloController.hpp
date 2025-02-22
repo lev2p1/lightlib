@@ -14,6 +14,8 @@ public:
 
 	void handle(const Request& req, Response& res);
 
+	void getAttr(const Request& req, Response& res);
+
 	static void index(const Request& req, Response& res);
 
 	static void store(const Request& req, Response& res);
