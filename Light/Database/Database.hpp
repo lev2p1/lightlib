@@ -1,6 +1,5 @@
 #pragma once
 
-#include <pqxx/pqxx> // Подключаем libpqxx
 #include <string>
 #include <stdexcept>
 #include <memory>
