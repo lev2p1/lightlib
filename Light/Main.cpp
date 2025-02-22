@@ -12,6 +12,7 @@
 #include "Controllers/HelloController.hpp"
 #include "Database/Models/User.cpp"
 #include "map"
+#include "Database/Models/User.cpp"
 #include "vendor/Debug/Logger.hpp"
 
 namespace beast = boost::beast;
@@ -49,13 +50,13 @@ int main() {
         auto helloController = std::make_shared<HelloController>();
 
         // Создание пользователя
-        auto concreate_user = User::create({ {"id", "john_doe"}, {"name", "john@example.com"}, {"password", "123456"}});
-        if (!concreate_user) {
-            std::cout << "null";
-        }
+        //auto concreate_user = User::create({ {"id", "john_doe"}, {"name", "john@example.com"}, {"password", "123456"}});
+        //if (!concreate_user) {
+        //    std::cout << "null";
+        //}
 
         // Чтение пользователя
-        auto user = User::read(1);
+        //auto user = User::read(1);
         //std::cout << "User JSON: " << user->toJson() << std::endl;
 
 
@@ -74,9 +75,15 @@ int main() {
             helloController.get()->index(req, res);
             });
 
+        router.get("/user", [helloController](const Router::Request& req, Router::Response& res) {
+            helloController.get()->getAttr(req, res);
+            });
+
         router.post("/hello-store", [helloController](const Router::Request& req, Router::Response& res) {
             helloController.get()->store(req, res);
             });
+
+        //User::read(1);
 
         while (true) {
             // Ожидаем входящего соединения

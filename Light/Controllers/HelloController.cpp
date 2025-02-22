@@ -1,7 +1,7 @@
 #include "HelloController.hpp"
 #include "../Database/Database.hpp"
+#include "../Database/Models/User.cpp"
 #include "../vendor/Debug/Logger.hpp"
-
 void HelloController::handle(const Request& req, Response& res)
 {
 	res.result(http::status::ok);
@@ -35,4 +35,20 @@ void HelloController::store(const Request& req, Response& res)
 	//db->~Database();
    
 	
+}
+
+void HelloController::getAttr(const Request& req, Response& res) {
+	try {
+	//auto user = User::create({ {"id", "1"}, {"name", "Alice"}, {"email", "alice@example.com"} });
+	auto user = User::read(13);
+	//std::cout << "Here";
+	if (user) {
+		//user->save();
+		//user->printAttributes();
+		std::cout << user->getAttribute("id");
+	}
+	}
+	catch (const std::exception& e) {
+		std::cerr << "Error: " << e.what() << std::endl;
+	}
 }
