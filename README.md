@@ -67,4 +67,6 @@ db->execute("INSERT INTO users (name, age) VALUES ('Bob', 30);");
 ```bash
 std::string result = db->query("SELECT * FROM users");
 std::cout << result << std::endl;
-```    
+```  
+### Система логирования
+Логгер является статическим классом и хранит логи по пути Storage/Debug/debug.log  
