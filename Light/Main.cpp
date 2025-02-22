@@ -13,6 +13,7 @@
 #include "Database/Models/User.cpp"
 #include "map"
 #include "Database/Models/User.cpp"
+#include "vendor/Debug/Logger.hpp"
 
 namespace beast = boost::beast;
 namespace http = beast::http;
@@ -21,7 +22,17 @@ using tcp = net::ip::tcp;
 
 int main() {
     setlocale(LC_ALL, "Russian_Russia.1251");
+
     try {
+        // Инициализация логгера
+        Logger::init("debug.log");
+
+        // Регистрация обработчиков сигналов
+        Logger::registerSignalHandlers();
+
+        // Логирование сообщений
+        Logger::log("Application started", "INFO");
+
         // Порт
         const unsigned short port = 8080;
 
@@ -103,8 +114,10 @@ int main() {
     }
     catch (const std::exception& e) {
         std::cerr << "Error: " << e.what() << std::endl;
+        Logger::log("Error: " + std::string(e.what()), "ERROR");
         return 1;
     }
 
+    Logger::log("Application finished", "INFO");
     return 0;
 }
