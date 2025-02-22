@@ -1,13 +1,11 @@
 #pragma once
 
-#include <mysql_driver.h>
-#include <mysql_connection.h>
-#include <cppconn/statement.h>
-#include <cppconn/resultset.h>
-#include <cppconn/exception.h>
+#include <pqxx/pqxx> // Подключаем libpqxx
 #include <string>
 #include <stdexcept>
 #include <memory>
+#include <iostream>
+#include <libpq-fe.h>
 
 class Database {
 public:
@@ -24,6 +22,7 @@ public:
     std::string query(const std::string& sql);
 
 private:
-    sql::mysql::MySQL_Driver* driver_; // Драйвер MySQL
-    std::unique_ptr<sql::Connection> conn_; // Соединение с базой данных
+    PGconn* conn_; // Соединение с базой данных
 };
+
+//5433 | 5432

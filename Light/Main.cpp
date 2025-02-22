@@ -19,7 +19,7 @@ namespace net = boost::asio;
 using tcp = net::ip::tcp;
 
 int main() {
-    std::setlocale(LC_ALL, "UTF-8");
+    setlocale(LC_ALL, "Russian_Russia.1251");
     try {
         // Порт
         const unsigned short port = 8080;
