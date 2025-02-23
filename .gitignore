@@ -17,7 +17,8 @@
 mono_crash.*
 
 # Build results
-[Dd]ebug/
+/[Dd]ebug/
+/Light/[Dd]ebug/
 [Dd]ebugPublic/
 [Rr]elease/
 [Rr]eleases/
@@ -90,7 +91,6 @@ StyleCopReport.xml
 *.tmp
 *.tmp_proj
 *_wpftmp.csproj
-*.log
 *.vspscc
 *.vssscc
 .builds
