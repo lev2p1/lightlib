@@ -38,15 +38,12 @@ void HelloController::store(const Request& req, Response& res)
 }
 
 void HelloController::getAttr(const Request& req, Response& res) {
+	
 	try {
-	//auto user = User::create({ {"id", "1"}, {"name", "Alice"}, {"email", "alice@example.com"} });
-	auto user = User::read(13);
-	//std::cout << "Here";
-	if (user) {
-		//user->save();
-		//user->printAttributes();
-		std::cout << user->getAttribute("id");
-	}
+		setlocale(LC_ALL, "ru");
+		User::delete_(16);
+		res.result(http::status::ok);
+		res.body() = "Данные сохранены успешно";
 	}
 	catch (const std::exception& e) {
 		std::cerr << "Error: " << e.what() << std::endl;
