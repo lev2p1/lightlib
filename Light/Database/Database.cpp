@@ -1,9 +1,10 @@
 #include "Database.hpp"
 #include <iostream>
 
+
 // Конструктор (подключается к базе данных)
-Database::Database(const std::string& host, const std::string& user, const std::string& password, const std::string& database) {
-    std::string connection_string = "host=" + host + " user=" + user + " password=" + password + " dbname=" + database;
+Database::Database() {
+    std::string connection_string = "host=" + ENV::env_variables["DB_HOST"] + " user=" + ENV::env_variables["DB_USERNAME"] + " password=" + ENV::env_variables["DB_PASSWORD"] + " dbname=" + ENV::env_variables["DB_DATABASE"];
     conn_ = PQconnectdb(connection_string.c_str());
 
     if (PQstatus(conn_) != CONNECTION_OK) {

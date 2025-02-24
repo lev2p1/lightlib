@@ -5,11 +5,12 @@
 #include <memory>
 #include <iostream>
 #include <libpq-fe.h>
+#include "../vendor/Handlers/ENV.hpp"
 
 class Database {
 public:
     // Конструктор (подключается к базе данных)
-    Database(const std::string& host, const std::string& user, const std::string& password, const std::string& database);
+    Database();
 
     // Деструктор (закрывает соединение)
     ~Database();
