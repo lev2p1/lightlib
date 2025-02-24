@@ -2,6 +2,8 @@
 #include "../Database/Database.hpp"
 #include "../Database/Models/User.cpp"
 #include "../vendor/Debug/Logger.hpp"
+
+
 void HelloController::handle(const Request& req, Response& res)
 {
 	res.result(http::status::ok);
@@ -32,7 +34,6 @@ void HelloController::store(const Request& req, Response& res)
 		Logger::log("Error: " + std::string(e.what()), "ERROR");
 	}
 	
-	//db->~Database();
    
 	
 }
