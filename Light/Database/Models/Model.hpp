@@ -22,7 +22,7 @@ public:
     // Метод save
     void save() {
         // Создаём подключение к базе данных
-        auto database = std::make_shared<Database>("127.0.0.1", "postgres", "qwerty123", "light");
+        auto database = std::make_shared<Database>();
 
         // Проверяем, есть ли атрибуты для сохранения
         if (attributes.empty()) {
@@ -144,7 +144,7 @@ public:
     static std::shared_ptr<Derived> find(int id) {
         try {
             // Подключение к базе данных
-            auto database = std::make_shared<Database>("127.0.0.1", "postgres", "qwerty123", "light");
+            auto database = std::make_shared<Database>();
 
             // Формируем список полей
             std::string fields_;
@@ -195,7 +195,7 @@ public:
 
     static void delete_(int id) {
         try {
-            auto database = std::make_shared<Database>("127.0.0.1", "postgres", "qwerty123", "light");
+            auto database = std::make_shared<Database>();
 
             std::string query = "DELETE FROM " + Derived::table_name + " WHERE id = " + std::to_string(id) + ";";
             database->execute(query);
