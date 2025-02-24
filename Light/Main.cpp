@@ -51,8 +51,6 @@ int main() {
         tcp::acceptor acceptor(ioc, { tcp::v4(), port });
         std::cout << "Server is running on port " << port << std::endl;
 
-        Router router;
-
         // Объявление контроллеров
         auto homeController = std::make_shared<HomeController>();
         auto helloController = std::make_shared<HelloController>();
@@ -70,24 +68,24 @@ int main() {
 
 
         // Маршрут для GET-запроса на главную страницу
-        router.get("/", [homeController](const Router::Request& req, Router::Response& res) {
+        Router::get("/", [homeController](const Router::Request& req, Router::Response& res) {
                 homeController.get()->handle(req, res);
             });
 
         // Маршрут для GET-запроса на страницу "О нас"
-        router.get("/about", [homeController](const Router::Request& req, Router::Response& res) {
+        Router::get("/about", [homeController](const Router::Request& req, Router::Response& res) {
             homeController.get()->about(req, res);
             });
 
-        router.get("/hello", [helloController](const Router::Request& req, Router::Response& res) {
+        Router::get("/hello", [helloController](const Router::Request& req, Router::Response& res) {
             helloController.get()->index(req, res);
             });
 
-        router.get("/user", [helloController](const Router::Request& req, Router::Response& res) {
+        Router::get("/user", [helloController](const Router::Request& req, Router::Response& res) {
             helloController.get()->getAttr(req, res);
             });
 
-        router.post("/hello-store", [helloController](const Router::Request& req, Router::Response& res) {
+        Router::post("/hello-store", [helloController](const Router::Request& req, Router::Response& res) {
             helloController.get()->store(req, res);
             });
 
@@ -111,7 +109,7 @@ int main() {
             res.set(http::field::server, "Simple C++ Web Server");
 
             // Обрабатываем запрос с помощью роутера
-            router.handle_request(req, res);
+            Router::handle_request(req, res);
 
             // Отправляем ответ клиенту
             http::write(socket, res);
