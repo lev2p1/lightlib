@@ -159,8 +159,8 @@
     <ClInclude Include="vendor\Facades\DatabaseFacade.hpp" />
   </ItemGroup>
   <ItemGroup>
-    <None Include=".env" />
     <None Include=".env.example" />
+    <None Include=".gitignore" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
