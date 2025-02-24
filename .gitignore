@@ -98,7 +98,7 @@ StyleCopReport.xml
 *.svclog
 *.scc
 
-#
+# Ignore files from project Visual Studio
 *.vcxproj
 *.vcxproj.filters
 *.vcxproj.user

@@ -72,4 +72,7 @@
       <Filter>Файлы заголовков</Filter>
     </ClInclude>
   </ItemGroup>
+  <ItemGroup>
+    <None Include=".env" />
+  </ItemGroup>
 </Project>

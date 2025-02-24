@@ -6,7 +6,6 @@
 #include <iostream>
 #include <string>
 #include <memory>
-#include <mysql_driver.h>
 #include "Router/Router.hpp"
 #include "Controllers/HomeController.hpp"
 #include "Controllers/HelloController.hpp"
@@ -14,16 +13,25 @@
 #include "map"
 #include "Database/Models/User.cpp"
 #include "vendor/Debug/Logger.hpp"
+#include "vendor/Handlers/ENV.hpp"
 
 namespace beast = boost::beast;
 namespace http = beast::http;
 namespace net = boost::asio;
 using tcp = net::ip::tcp;
 
+// Инициализация статических членов класса
+bool ENV::initialized = false;
+const std::string ENV::env_file_path = ".env"; // Путь к .env файлу
+
 int main() {
     setlocale(LC_ALL, "Russian_Russia.1251");
 
     try {
+        ENV::initialize();
+
+        std::cout << ENV::get("DB_HOST");
+
         // Инициализация логгера
         Logger::init("debug.log");
 
