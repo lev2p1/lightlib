@@ -157,6 +157,7 @@
     <ClInclude Include="Router\Router.hpp" />
     <ClInclude Include="vendor\Debug\Logger.hpp" />
     <ClInclude Include="vendor\Facades\DatabaseFacade.hpp" />
+    <ClInclude Include="vendor\Handlers\ENV.hpp" />
   </ItemGroup>
   <ItemGroup>
     <None Include=".env.example" />
