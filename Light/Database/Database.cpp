@@ -4,9 +4,8 @@
 
 // Конструктор (подключается к базе данных)
 Database::Database() {
-    std::string connection_string = "host=" + ENV::env_variables["DB_HOST"] + " user=" + ENV::env_variables["DB_USERNAME"] + " password=" + ENV::env_variables["DB_PASSWORD"] + " dbname=" + ENV::env_variables["DB_DATABASE"];
+    std::string connection_string = "host=" + ENV::env_variables["DB_HOST"] + " user=" + ENV::env_variables["DB_USERNAME"] + " password=" + ENV::env_variables["DB_PASSWORD"] + " dbname=" + ENV::env_variables["DB_DATABASE"] + " client_encoding=UTF8";
     conn_ = PQconnectdb(connection_string.c_str());
-
     if (PQstatus(conn_) != CONNECTION_OK) {
         throw std::runtime_error("Connection failed: " + std::string(PQerrorMessage(conn_)));
     }
@@ -19,6 +18,7 @@ Database::~Database() {
 }
 
 void Database::execute(const std::string& sql) {
+    setlocale(LC_ALL, "ru");
     PGresult* res = PQexec(conn_, sql.c_str());
 
     if (PQresultStatus(res) != PGRES_COMMAND_OK) {

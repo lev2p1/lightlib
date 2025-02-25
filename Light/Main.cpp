@@ -25,7 +25,9 @@ bool ENV::initialized = false;
 const std::string ENV::env_file_path = ".env"; // Путь к .env файлу
 
 int main() {
-    setlocale(LC_ALL, "Russian_Russia.1251");
+
+    SetConsoleCP(65001);
+    SetConsoleOutputCP(65001);
 
     try {
         ENV::initialize();
