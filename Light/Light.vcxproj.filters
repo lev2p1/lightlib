@@ -45,6 +45,9 @@
     <ClCompile Include="vendor\Debug\Logger.cpp">
       <Filter>Исходные файлы</Filter>
     </ClCompile>
+    <ClCompile Include="Tests\Test.cpp">
+      <Filter>Исходные файлы</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Controllers\Controller.hpp">
@@ -71,8 +74,12 @@
     <ClInclude Include="vendor\Debug\Logger.hpp">
       <Filter>Файлы заголовков</Filter>
     </ClInclude>
+    <ClInclude Include="vendor\Handlers\ENV.hpp">
+      <Filter>Файлы заголовков</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <None Include=".env" />
+    <None Include=".env.example" />
+    <None Include=".gitignore" />
   </ItemGroup>
 </Project>
