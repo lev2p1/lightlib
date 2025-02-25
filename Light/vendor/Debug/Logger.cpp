@@ -23,7 +23,15 @@ void Logger::rotateLogs() {
 
     // Переименовываем текущий файл
     std::filesystem::path oldLogPath = logFilePath;
-    oldLogPath.replace_filename("debug_old.log");
+
+    std::string result = oldLogPath.filename().string(); // Копируем основную строку
+    size_t pos = result.find(oldLogPath.extension().string()); // Ищем подстроку
+
+    if (pos != std::string::npos) { // Если подстрока найдена
+        result.erase(pos, oldLogPath.extension().string().length()); // Удаляем подстроку
+    }
+
+    oldLogPath.replace_filename(result + "_old" + oldLogPath.extension().string());
 
     // Удаляем старый файл, если он существует
     if (std::filesystem::exists(oldLogPath)) {
