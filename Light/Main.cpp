@@ -14,6 +14,7 @@
 #include "Database/Models/User.cpp"
 #include "vendor/Debug/Logger.hpp"
 #include "vendor/Handlers/ENV.hpp"
+#include "vendor/Facades/Hash.hpp"
 
 namespace beast = boost::beast;
 namespace http = beast::http;
@@ -23,6 +24,7 @@ using tcp = net::ip::tcp;
 // Инициализация статических членов класса
 bool ENV::initialized = false;
 const std::string ENV::env_file_path = ".env"; // Путь к .env файлу
+std::vector<BYTE> Hash::self_salt;
 
 int main() {
 
@@ -31,8 +33,8 @@ int main() {
 
     try {
         ENV::initialize();
-
-        std::cout << ENV::get("DB_HOST");
+        
+        Hash::self_salt = Hash::hexStringToBytes(ENV::env_variables["APP_KEY"]);
 
         // Инициализация логгера
         Logger::init("debug.log");
@@ -80,6 +82,13 @@ int main() {
             helloController.get()->store(req, res);
             });
 
+        Router::post("/login", [helloController](const Router::Request& req, Router::Response& res) {
+            helloController.get()->login(req, res);
+            });
+
+        Router::post("/register", [helloController](const Router::Request& req, Router::Response& res) {
+            helloController.get()->reg(req, res);
+            });
         //User::read(1);
 
         while (true) {
