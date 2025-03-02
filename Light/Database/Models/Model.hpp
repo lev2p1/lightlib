@@ -13,11 +13,12 @@
 template <typename Derived>
 class Model {
 protected:
-    std::map<std::string, std::string> attributes; // Атрибуты модели
     static inline std::vector<std::string> fillable; // Список полей для заполнения
     static inline std::vector<std::string> fields; // Список всех полей
 
 public:
+    std::map<std::string, std::string> attributes;
+
     virtual ~Model() = default;
 
     // Метод save
@@ -207,4 +208,49 @@ public:
             std::cerr << "Error deleting record with id " << id << ": " << e.what() << std::endl;
         }
     }
+
+    static std::vector<std::shared_ptr<Derived>> where(const std::string& condition) {
+        std::vector<std::shared_ptr<Derived>> results;
+
+        try {
+            // Подключение к базе данных
+            auto database = std::make_shared<Database>();
+
+            // Формируем список полей
+            std::string fields_;
+            for (size_t i = 0; i < Derived::fields.size(); ++i) {
+                fields_ += Derived::fields[i];
+                if (i < Derived::fields.size() - 1) {
+                    fields_ += ", "; // Добавляем запятую только между полями
+                }
+            }
+
+            // Формируем SQL-запрос
+            std::string sql = "SELECT " + fields_ + " FROM " + Derived::table_name + " WHERE " + condition;
+            std::string data = database->query(sql);
+
+            // Проверяем, что данные не пустые
+            if (data.empty()) {
+                std::cerr << "No data found for condition: " << condition << std::endl;
+                return results;
+            }
+
+            // Разбиваем данные на строки (предполагаем, что каждая строка — это отдельная запись)
+            std::istringstream iss(data);
+            std::string line;
+            while (std::getline(iss, line)) {
+                auto model = Derived::create(line);
+                if (model) {
+                    results.push_back(model);
+                }
+            }
+        }
+        catch (const std::exception& e) {
+            std::cerr << "Error in where: " << e.what() << std::endl;
+        }
+
+        return results;
+    }
+
+
 };
