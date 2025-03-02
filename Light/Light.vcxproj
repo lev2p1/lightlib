@@ -155,6 +155,7 @@
     <ClInclude Include="Database\Database.hpp" />
     <ClInclude Include="Database\Models\Model.hpp" />
     <ClInclude Include="Router\Router.hpp" />
+    <ClInclude Include="Service\AuthService.hpp" />
     <ClInclude Include="vendor\Debug\Logger.hpp" />
     <ClInclude Include="vendor\Facades\DatabaseFacade.hpp" />
   </ItemGroup>

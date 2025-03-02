@@ -20,5 +20,6 @@ public:
 
 	static void store(const Request& req, Response& res);
 
+	static void login(const Request& req, Response& res);
 
 };
