@@ -71,8 +71,12 @@
     <ClInclude Include="vendor\Debug\Logger.hpp">
       <Filter>Файлы заголовков</Filter>
     </ClInclude>
+    <ClInclude Include="vendor\Handlers\ENV.hpp">
+      <Filter>Файлы заголовков</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <None Include=".env" />
+    <None Include=".env.example" />
+    <None Include=".gitignore" />
   </ItemGroup>
 </Project>
