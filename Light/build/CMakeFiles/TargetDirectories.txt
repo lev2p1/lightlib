@@ -1,4 +1,0 @@
-C:/Users/aniru/source/repos/Light/Light/build/CMakeFiles/MyApp.dir
-C:/Users/aniru/source/repos/Light/Light/build/CMakeFiles/Tests.dir
-C:/Users/aniru/source/repos/Light/Light/build/CMakeFiles/ALL_BUILD.dir
-C:/Users/aniru/source/repos/Light/Light/build/CMakeFiles/ZERO_CHECK.dir

@@ -14,6 +14,7 @@
 #include "Database/Models/User.cpp"
 #include "vendor/Debug/Logger.hpp"
 #include "vendor/Handlers/ENV.hpp"
+#include <../include/libpq-fe.h>
 
 namespace beast = boost::beast;
 namespace http = beast::http;
