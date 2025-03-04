@@ -1,29 +1,18 @@
+#Минимальная версия CMake
 cmake_minimum_required(VERSION 3.10)
-project(MyProject)
 
-set(CMAKE_CXX_STANDARD 20)
+#Название проекта
+project(Light)
 
-# Указываем путь к Boost
-set(BOOST_ROOT "D:/boost/boost_1_87_0/boost_1_87_0")
-set(BOOST_LIBRARYDIR "D:/boost/boost_1_87_0/boost_1_87_0/stage/lib")
+#Указываем путь к vcpkg
+set(CMAKE_TOOLCHAIN_FILE "C:/Tools/vcpkg-master/scripts/buildsystems/vcpkg.cmake" CACHE STRING "")
 
-# Ищем Boost
-find_package(Boost REQUIRED COMPONENTS system filesystem unit_test_framework)
+set(CMAKE_CXX_STANDART 20)
+#Ищем hiredis
+find_package(hiredis REQUIRED PATHS "C:/Tools/vcpkg-master/installed/x64-windows/share/hiredis")
 
-if(Boost_FOUND)
-    include_directories(${Boost_INCLUDE_DIRS})
-    link_directories(${Boost_LIBRARY_DIRS})
-endif()
+#Добавляем исполняемый файл
+add_executable(Light Main.cpp)
 
-# Определение _WIN32_WINNT
-add_definitions(-D_WIN32_WINNT=0x0601)
-
-# Основное приложение
-add_executable(MyApp Main.cpp)
-target_include_directories(MyApp PRIVATE .)
-target_link_libraries(MyApp PRIVATE Boost::system Boost::filesystem)
-
-# Тесты
-add_executable(Tests Tests/Test.cpp)
-target_include_directories(Tests PRIVATE .)
-target_link_libraries(Tests PRIVATE Boost::system Boost::filesystem Boost::unit_test_framework)
+#Подключаем hiredis к проекту
+target_link_libraries(Light PRIVATE hiredis::hiredis)
