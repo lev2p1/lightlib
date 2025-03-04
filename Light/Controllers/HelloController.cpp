@@ -19,9 +19,7 @@ void HelloController::store(const Request& req, Response& res)
 {
 	try {
 		auto db = std::make_shared<Database>();
-
-		db->execute("CREATE TABLE IF NOT EXISTS users (id SERIAL PRIMARY KEY, name VARCHAR(255), age INT, password VARCHAR(255));");
-		User::create({ {"name", "kirill"}, {"age", "20"}, {"password", "sha-0001"} })->save();
+		User::create({ {"name", "kolyan"}, {"age", "20"}, {"password", "sha-0001"} })->save();
 		res.result(http::status::ok);
 		res.body() = "Данные отправлены на таблицу Light";
 		std::cout << "Operations completed successfully!" << std::endl;
