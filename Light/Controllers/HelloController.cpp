@@ -29,10 +29,10 @@ void HelloController::store(const Request& req, Response& res)
 		Logger::log("Error: " + std::string(e.what()), "ERROR");
 	}
 	
-   
+    
 	
 }
-
+ 
 void HelloController::login(const Request& req, Response& res)
 {
 	try {
