@@ -14,6 +14,8 @@
 #include "Database/Models/User.cpp"
 #include "vendor/Debug/Logger.hpp"
 #include "vendor/Handlers/ENV.hpp"
+#include "vendor/Facades/Hash.hpp"
+#include "Database/Queue.hpp"
 
 namespace beast = boost::beast;
 namespace http = beast::http;
@@ -24,6 +26,7 @@ using tcp = net::ip::tcp;
 bool ENV::initialized = false;
 const std::string ENV::env_file_path = ".env"; // Путь к .env файлу
 std::vector<BYTE> Hash::self_salt;
+redisContext* Queue::context_ = nullptr;
 
 int main() {
 
@@ -41,6 +44,7 @@ int main() {
         // Регистрация обработчиков сигналов
         Logger::registerSignalHandlers();
 
+        Queue::connect(ENV::env_variables["REDIS_HOST"], stoi(ENV::env_variables["REDIS_PORT"]));
         // Логирование сообщений
         Logger::log("Application started", "INFO");
 
@@ -85,10 +89,13 @@ int main() {
             helloController.get()->login(req, res);
             });
 
+        Router::get("/test-queue", [helloController](const Router::Request& req, Router::Response& res) {
+            helloController.get()->testQueue(req, res);
+            });
+
         Router::post("/register", [helloController](const Router::Request& req, Router::Response& res) {
             helloController.get()->reg(req, res);
             });
-        //User::read(1);
 
         while (true) {
             // Ожидаем входящего соединения

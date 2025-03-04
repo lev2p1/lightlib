@@ -19,9 +19,7 @@ void HelloController::store(const Request& req, Response& res)
 {
 	try {
 		auto db = std::make_shared<Database>();
-
-		db->execute("CREATE TABLE IF NOT EXISTS users (id SERIAL PRIMARY KEY, name VARCHAR(255), age INT, password VARCHAR(255));");
-		User::create({ {"name", "kirill"}, {"age", "20"}, {"password", "sha-0001"} })->save();
+		User::create({ {"name", "kolyan"}, {"age", "20"}, {"password", "sha-0001"} })->save();
 		res.result(http::status::ok);
 		res.body() = "Данные отправлены на таблицу Light";
 		std::cout << "Operations completed successfully!" << std::endl;
@@ -31,10 +29,10 @@ void HelloController::store(const Request& req, Response& res)
 		Logger::log("Error: " + std::string(e.what()), "ERROR");
 	}
 	
-   
+    
 	
 }
-
+ 
 void HelloController::login(const Request& req, Response& res)
 {
 	try {
@@ -102,6 +100,22 @@ void HelloController::getAttr(const Request& req, Response& res) {
 		res.body() = "Данные сохранены успешно";
 	}
 	catch (const std::exception& e) {
+		std::cerr << "Error: " << e.what() << std::endl;
+	}
+}
+
+void HelloController::testQueue(const Request& req, Response& res) {
+	try {
+
+		Queue::push("kolyan_queue", "Kolyan kolyan");
+
+		std::string popa = Queue::pop("kolyan_queue");
+		std::cout << popa << std::endl;
+		res.body() = popa;
+		
+	}
+	catch (const std::exception& e) {
+		Logger::log("Error: " + std::string(e.what()), "ERROR");
 		std::cerr << "Error: " << e.what() << std::endl;
 	}
 }

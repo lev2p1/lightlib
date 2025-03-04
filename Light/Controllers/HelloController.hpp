@@ -8,6 +8,7 @@
 #include <nlohmann/json.hpp>
 #include "../vendor/Facades/Hash.hpp"
 #include "../Service/AuthService.hpp"
+#include "../Database/Queue.hpp"
 
 namespace beast = boost::beast;
 namespace http = beast::http;
@@ -29,5 +30,7 @@ public:
 	static void login(const Request& req, Response& res);
 
 	static void reg(const Request& req, Response& res);
+
+	static void testQueue(const Request& req, Response& res);
 
 };
