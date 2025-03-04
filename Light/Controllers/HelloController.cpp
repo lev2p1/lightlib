@@ -104,3 +104,19 @@ void HelloController::getAttr(const Request& req, Response& res) {
 	}
 }
 
+void HelloController::testQueue(const Request& req, Response& res) {
+	try {
+
+		Queue::push("kolyan_queue", "Kolyan kolyan");
+
+		std::string popa = Queue::pop("kolyan_queue");
+		std::cout << popa << std::endl;
+		res.body() = popa;
+		
+	}
+	catch (const std::exception& e) {
+		Logger::log("Error: " + std::string(e.what()), "ERROR");
+		std::cerr << "Error: " << e.what() << std::endl;
+	}
+}
+

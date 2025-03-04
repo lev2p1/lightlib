@@ -1,0 +1,3 @@
+C:/Users/ggjdg/source/repos/ConsoleApplication9/Light/Build/CMakeFiles/Light.dir
+C:/Users/ggjdg/source/repos/ConsoleApplication9/Light/Build/CMakeFiles/ALL_BUILD.dir
+C:/Users/ggjdg/source/repos/ConsoleApplication9/Light/Build/CMakeFiles/ZERO_CHECK.dir
