@@ -1,0 +1,8 @@
+C:/Users/Admin/source/repos/Light/Light/vcpkg_installed/vcpkg/blds/hiredis/x64-windows-dbg/CMakeFiles/hiredis.dir
+C:/Users/Admin/source/repos/Light/Light/vcpkg_installed/vcpkg/blds/hiredis/x64-windows-dbg/CMakeFiles/hiredis-test.dir
+C:/Users/Admin/source/repos/Light/Light/vcpkg_installed/vcpkg/blds/hiredis/x64-windows-dbg/CMakeFiles/test.dir
+C:/Users/Admin/source/repos/Light/Light/vcpkg_installed/vcpkg/blds/hiredis/x64-windows-dbg/CMakeFiles/edit_cache.dir
+C:/Users/Admin/source/repos/Light/Light/vcpkg_installed/vcpkg/blds/hiredis/x64-windows-dbg/CMakeFiles/rebuild_cache.dir
+C:/Users/Admin/source/repos/Light/Light/vcpkg_installed/vcpkg/blds/hiredis/x64-windows-dbg/CMakeFiles/list_install_components.dir
+C:/Users/Admin/source/repos/Light/Light/vcpkg_installed/vcpkg/blds/hiredis/x64-windows-dbg/CMakeFiles/install.dir
+C:/Users/Admin/source/repos/Light/Light/vcpkg_installed/vcpkg/blds/hiredis/x64-windows-dbg/CMakeFiles/install/local.dir

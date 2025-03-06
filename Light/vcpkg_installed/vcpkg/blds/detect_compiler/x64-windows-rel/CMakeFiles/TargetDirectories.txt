@@ -1,0 +1,2 @@
+C:/Users/Admin/source/repos/Light/Light/vcpkg_installed/vcpkg/blds/detect_compiler/x64-windows-rel/CMakeFiles/edit_cache.dir
+C:/Users/Admin/source/repos/Light/Light/vcpkg_installed/vcpkg/blds/detect_compiler/x64-windows-rel/CMakeFiles/rebuild_cache.dir
