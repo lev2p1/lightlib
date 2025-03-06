@@ -45,6 +45,9 @@
     <ClCompile Include="vendor\Debug\Logger.cpp">
       <Filter>Исходные файлы</Filter>
     </ClCompile>
+    <ClCompile Include="Database\SQLBuilder.hpp">
+      <Filter>Исходные файлы</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Controllers\Controller.hpp">

@@ -1,0 +1,186 @@
+#pragma once
+
+#include <string>
+#include <vector>
+#include <map>
+#include <sstream>
+#include <memory>
+
+class SQLQueryBuilder {
+private:
+    std::string table;
+    std::vector<std::string> selectColumns;
+    std::vector<std::string> whereConditions;
+    std::vector<std::string> orderByColumns;
+    std::vector<std::string> groupByColumns;
+    std::string limit;
+    std::string offset;
+    std::map<std::string, std::string> joins;
+    std::map<std::string, std::string> insertValues;
+    bool isFirstConditionInGroup = true; // Флаг для отслеживания первого условия в группе
+
+public:
+    // Конструктор
+    explicit SQLQueryBuilder(const std::string& table) : table(table) {}
+
+    // Добавление столбцов для SELECT
+    SQLQueryBuilder& Select(const std::vector<std::string>& columns) {
+        selectColumns = columns;
+        return *this;
+    }
+
+    // Добавление условия WHERE
+    SQLQueryBuilder& Where(const std::string& condition, const std::string& logicalOperator = "AND") {
+        if (!whereConditions.empty() && !isFirstConditionInGroup) {
+            whereConditions.push_back(logicalOperator + " " + condition);
+        }
+        else {
+            whereConditions.push_back(condition); // Первое условие в группе не требует оператора
+            isFirstConditionInGroup = false; // Сбрасываем флаг после первого условия
+        }
+        return *this;
+    }
+
+    // Начало группы условий
+    SQLQueryBuilder& BeginGroup(const std::string& logicalOperator = "AND") {
+        if (!whereConditions.empty()) {
+            whereConditions.push_back(logicalOperator + " (");
+        }
+        else {
+            whereConditions.push_back("("); // Первая группа не требует оператора
+        }
+        isFirstConditionInGroup = true; // Устанавливаем флаг для первого условия в группе
+        return *this;
+    }
+
+    // Конец группы условий
+    SQLQueryBuilder& EndGroup() {
+        whereConditions.push_back(")");
+        isFirstConditionInGroup = false; // Сбрасываем флаг после завершения группы
+        return *this;
+    }
+
+    // Добавление сортировки ORDER BY
+    SQLQueryBuilder& OrderBy(const std::vector<std::string>& columns) {
+        orderByColumns = columns;
+        return *this;
+    }
+
+    // Добавление группировки GROUP BY
+    SQLQueryBuilder& GroupBy(const std::vector<std::string>& columns) {
+        groupByColumns = columns;
+        return *this;
+    }
+
+    // Добавление LIMIT
+    SQLQueryBuilder& Limit(int value) {
+        limit = " LIMIT " + std::to_string(value);
+        return *this;
+    }
+
+    // Добавление OFFSET
+    SQLQueryBuilder& Offset(int value) {
+        offset = " OFFSET " + std::to_string(value);
+        return *this;
+    }
+
+    // Добавление JOIN
+    SQLQueryBuilder& Join(const std::string& table, const std::string& onCondition, const std::string& joinType = "INNER") {
+        joins[table] = joinType + " JOIN " + table + " ON " + onCondition;
+        return *this;
+    }
+
+    // Добавление данных для INSERT
+    SQLQueryBuilder& Insert(const std::map<std::string, std::string>& values) {
+        insertValues = values;
+        return *this;
+    }
+
+    // Построение SQL-запроса
+    std::string get() {
+        std::ostringstream query;
+
+        if (!insertValues.empty()) {
+            // Формируем INSERT-запрос
+            query << "INSERT INTO " << table << " (";
+            for (auto it = insertValues.begin(); it != insertValues.end(); ++it) {
+                query << it->first;
+                if (std::next(it) != insertValues.end()) {
+                    query << ", ";
+                }
+            }
+            query << ") VALUES (";
+            for (auto it = insertValues.begin(); it != insertValues.end(); ++it) {
+                query << it->second;
+                if (std::next(it) != insertValues.end()) {
+                    query << ", ";
+                }
+            }
+            query << ")";
+        }
+        else {
+            // Формируем SELECT-запрос
+            query << "SELECT ";
+            if (selectColumns.empty()) {
+                query << "*";
+            }
+            else {
+                for (size_t i = 0; i < selectColumns.size(); ++i) {
+                    query << selectColumns[i];
+                    if (i < selectColumns.size() - 1) {
+                        query << ", ";
+                    }
+                }
+            }
+            query << " FROM " << table;
+
+            // JOIN
+            for (const auto& [table, joinClause] : joins) {
+                query << " " << joinClause;
+            }
+
+            // WHERE
+            if (!whereConditions.empty()) {
+                query << " WHERE ";
+                for (size_t i = 0; i < whereConditions.size(); ++i) {
+                    query << whereConditions[i];
+                    if (i < whereConditions.size() - 1) {
+                        query << " "; // Условия уже содержат операторы (AND/OR)
+                    }
+                }
+            }
+
+            // GROUP BY
+            if (!groupByColumns.empty()) {
+                query << " GROUP BY ";
+                for (size_t i = 0; i < groupByColumns.size(); ++i) {
+                    query << groupByColumns[i];
+                    if (i < groupByColumns.size() - 1) {
+                        query << ", ";
+                    }
+                }
+            }
+
+            // ORDER BY
+            if (!orderByColumns.empty()) {
+                query << " ORDER BY ";
+                for (size_t i = 0; i < orderByColumns.size(); ++i) {
+                    query << orderByColumns[i];
+                    if (i < orderByColumns.size() - 1) {
+                        query << ", ";
+                    }
+                }
+            }
+
+            // LIMIT и OFFSET
+            if (!limit.empty()) {
+                query << limit;
+            }
+            if (!offset.empty()) {
+                query << offset;
+            }
+        }
+
+        return query.str();
+    }
+};
