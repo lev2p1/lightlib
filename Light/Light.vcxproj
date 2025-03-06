@@ -105,7 +105,7 @@
       <PreprocessorDefinitions>_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <LanguageStandard>stdcpp20</LanguageStandard>
-      <AdditionalIncludeDirectories>C:\boost_1_87_0\boost_1_87_0;C:\Program Files\MySQL\MySQL Connector C++ 9.2\include\jdbc;D:\boost_1_87_0;C:\Program Files\PostgreSQL\17\include;%(AdditionalIncludeDirectories);C:\Users\ggjdg\source\repos\ConsoleApplication9\Light\vendor\Libs\jwt-cpp\include;C:\Users\ggjdg\source\repos\ConsoleApplication9\Light\vendor\Libs\json\include;C:\Users\ggjdg\source\repos\ConsoleApplication9\Light\vendor\Libs\hiredis;C:\Users\ggjdg\source\repos\ConsoleApplication9\Light\vendor\Libs\hiredis\build\Release;C:\Users\ggjdg\source\repos\ConsoleApplication9\Light\vendor\Libs\redis-cplusplus-client</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>C:\Users\aniru\source\repos\Light\Light\vendor\Libs\jwt-cpp\include;C:\Users\aniru\source\repos\Light\Light\vendor\Libs\json\include;D:\govno\hiredis\include\hiredis;D:\govno\hiredis\include;D:\boost\boost_1_87_0\boost_1_87_0;C:\boost_1_87_0\boost_1_87_0;C:\Program Files\MySQL\MySQL Connector C++ 9.2\include\jdbc;D:\boost_1_87_0;C:\Program Files\PostgreSQL\17\include;%(AdditionalIncludeDirectories);C:\Users\ggjdg\source\repos\ConsoleApplication9\Light\vendor\Libs\jwt-cpp\include;C:\Users\ggjdg\source\repos\ConsoleApplication9\Light\vendor\Libs\json\include;C:\Users\ggjdg\source\repos\ConsoleApplication9\Light\vendor\Libs\hiredis;C:\Users\ggjdg\source\repos\ConsoleApplication9\Light\vendor\Libs\hiredis\build\Release;C:\Users\ggjdg\source\repos\ConsoleApplication9\Light\vendor\Libs\redis-cplusplus-client</AdditionalIncludeDirectories>
       <LanguageStandard_C>Default</LanguageStandard_C>
       <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
       <FunctionLevelLinking>true</FunctionLevelLinking>
@@ -113,7 +113,7 @@
     <Link>
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalLibraryDirectories>D:\boost_1_87_0\stage\lib;C:\boost_1_87_0\boost_1_87_0\stage\lib;C:\Program Files\MySQL\MySQL Connector C++ 9.2\lib64\vs14;C:\Program Files\PostgreSQL\17\lib;%(AdditionalLibraryDirectories);C:\Users\ggjdg\source\repos\ConsoleApplication9\Light\vendor\Libs\hiredis\build\Release</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>D:\govno\hiredis\mocha\Release;D:\boost\boost_1_87_0\boost_1_87_0\stage\lib;D:\boost_1_87_0\stage\lib;C:\boost_1_87_0\boost_1_87_0\stage\lib;C:\Program Files\MySQL\MySQL Connector C++ 9.2\lib64\vs14;C:\Program Files\PostgreSQL\17\lib;%(AdditionalLibraryDirectories);C:\Users\ggjdg\source\repos\ConsoleApplication9\Light\vendor\Libs\hiredis\build\Release</AdditionalLibraryDirectories>
       <AdditionalDependencies>libboost_system-vc143-mt-gd-x64-1_87.lib;libboost_filesystem-vc143-mt-gd-x64-1_87.lib;ws2_32.lib;ucrtd.lib;vcruntimed.lib;msvcrtd.lib;libpq.lib;%(AdditionalDependencies);hiredis.lib</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
@@ -144,6 +144,7 @@
     <ClCompile Include="Controllers\HomeController.cpp" />
     <ClCompile Include="Database\Database.cpp" />
     <ClCompile Include="Database\Models\User.cpp" />
+    <ClCompile Include="Database\SQLBuilder.hpp" />
     <ClCompile Include="Main.cpp" />
     <ClCompile Include="Router\Router.cpp" />
     <ClCompile Include="vendor\Debug\Logger.cpp" />
