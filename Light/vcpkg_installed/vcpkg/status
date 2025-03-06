@@ -1,8 +1,0 @@
-Package: hiredis
-Version: 1.0.0
-Architecture: x64-windows
-Multi-Arch: same
-Abi: 10acb914e4f2196a4c6a87d67f0a8697b8115f9704966cd192e2b01138f951cc
-Description: Hiredis is a minimalistic C client library for the Redis database.
-Status: purge ok not-installed
-
