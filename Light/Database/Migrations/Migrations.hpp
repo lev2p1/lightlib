@@ -1,0 +1,26 @@
+#pragma once 
+
+#include <vector>
+#include <utility>
+#include <functional>
+
+class Migration {
+	using Handler = std::function<void()>;
+	static std::vector<std::pair<Handler, bool>> migrations_;
+
+public:
+	
+	static void addMigration(Handler handle) {
+		migrations_.push_back({ handle, false }); // Используем false вместо 0
+	}
+
+	static void runMigrations() {
+		for (auto& i : migrations_) {
+			if (!i.second) {
+				i.first(); // Вызываем функцию
+				i.second = true; // Помечаем миграцию как выполненную
+			}
+		}
+	}
+
+};
