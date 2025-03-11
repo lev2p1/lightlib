@@ -4,6 +4,7 @@
 #include <memory>
 #include <vector>
 #include <stdexcept>
+#include <../include/libpq-fe.h>
 #include <iostream>
 #include <algorithm>
 #include "../Database.hpp"

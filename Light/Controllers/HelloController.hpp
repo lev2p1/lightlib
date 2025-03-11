@@ -9,6 +9,7 @@
 #include "../vendor/Facades/Hash.hpp"
 #include "../Service/AuthService.hpp"
 #include "../Database/Queue.hpp"
+#include "../Database/Cache.hpp"
 
 namespace beast = boost::beast;
 namespace http = beast::http;
@@ -32,5 +33,7 @@ public:
 	static void reg(const Request& req, Response& res);
 
 	static void testQueue(const Request& req, Response& res);
+
+	static void testCache(const Request& req, Response& res);
 
 };

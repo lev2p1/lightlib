@@ -105,7 +105,7 @@
       <PreprocessorDefinitions>_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <LanguageStandard>stdcpp20</LanguageStandard>
-      <AdditionalIncludeDirectories>C:\boost_1_87_0\boost_1_87_0;C:\Program Files\MySQL\MySQL Connector C++ 9.2\include\jdbc;D:\boost_1_87_0;C:\Program Files\PostgreSQL\17\include;%(AdditionalIncludeDirectories);C:\Users\ggjdg\source\repos\ConsoleApplication9\Light\vendor\Libs\jwt-cpp\include;C:\Users\ggjdg\source\repos\ConsoleApplication9\Light\vendor\Libs\json\include;C:\Users\ggjdg\source\repos\ConsoleApplication9\Light\vendor\Libs\hiredis;C:\Users\ggjdg\source\repos\ConsoleApplication9\Light\vendor\Libs\hiredis\build\Release;C:\Users\ggjdg\source\repos\ConsoleApplication9\Light\vendor\Libs\redis-cplusplus-client</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>C:\Users\Admin\source\repos\Light\Light\vendor\Libs\jwt-cpp\include;C:\Users\Admin\source\repos\Light\Light\vendor\Libs\json\include;C:\boost_1_87_0\boost_1_87_0;C:\Program Files\MySQL\MySQL Connector C++ 9.2\include\jdbc;D:\boost_1_87_0;C:\Program Files\PostgreSQL\17\include;%(AdditionalIncludeDirectories);C:\Users\ggjdg\source\repos\ConsoleApplication9\Light\vendor\Libs\jwt-cpp\include;C:\Users\ggjdg\source\repos\ConsoleApplication9\Light\vendor\Libs\json\include;C:\Users\ggjdg\source\repos\ConsoleApplication9\Light\vendor\Libs\hiredis;C:\Users\ggjdg\source\repos\ConsoleApplication9\Light\vendor\Libs\hiredis\build\Release;C:\Users\ggjdg\source\repos\ConsoleApplication9\Light\vendor\Libs\redis-cplusplus-client;C:\Tools\hiredis\include</AdditionalIncludeDirectories>
       <LanguageStandard_C>Default</LanguageStandard_C>
       <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
       <FunctionLevelLinking>true</FunctionLevelLinking>
@@ -113,7 +113,7 @@
     <Link>
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalLibraryDirectories>D:\boost_1_87_0\stage\lib;C:\boost_1_87_0\boost_1_87_0\stage\lib;C:\Program Files\MySQL\MySQL Connector C++ 9.2\lib64\vs14;C:\Program Files\PostgreSQL\17\lib;%(AdditionalLibraryDirectories);C:\Users\ggjdg\source\repos\ConsoleApplication9\Light\vendor\Libs\hiredis\build\Release</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>C:\Tools\hiredis\libs;D:\boost_1_87_0\stage\lib;C:\boost_1_87_0\boost_1_87_0\stage\lib;C:\Program Files\MySQL\MySQL Connector C++ 9.2\lib64\vs14;C:\Program Files\PostgreSQL\17\lib;%(AdditionalLibraryDirectories);C:\Users\ggjdg\source\repos\ConsoleApplication9\Light\vendor\Libs\hiredis\build\Release</AdditionalLibraryDirectories>
       <AdditionalDependencies>libboost_system-vc143-mt-gd-x64-1_87.lib;libboost_filesystem-vc143-mt-gd-x64-1_87.lib;ws2_32.lib;ucrtd.lib;vcruntimed.lib;msvcrtd.lib;libpq.lib;%(AdditionalDependencies);hiredis.lib</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
@@ -142,6 +142,7 @@
   <ItemGroup>
     <ClCompile Include="Controllers\HelloController.cpp" />
     <ClCompile Include="Controllers\HomeController.cpp" />
+    <ClCompile Include="Database\Cache.hpp" />
     <ClCompile Include="Database\Database.cpp" />
     <ClCompile Include="Database\Models\User.cpp" />
     <ClCompile Include="Main.cpp" />
@@ -153,8 +154,14 @@
     <ClInclude Include="Controllers\HelloController.hpp" />
     <ClInclude Include="Controllers\HomeController.hpp" />
     <ClInclude Include="Database\Database.hpp" />
+    <ClInclude Include="Database\Migrations\BaseMigration.hpp" />
+    <ClInclude Include="Database\Migrations\Initializer.hpp" />
+    <ClInclude Include="Database\Migrations\Migrations.hpp" />
+    <ClInclude Include="Database\Migrations\migration_posts_create.hpp" />
     <ClInclude Include="Database\Models\Model.hpp" />
     <ClInclude Include="Database\Queue.hpp" />
+    <ClInclude Include="Database\SQLBuilder.hpp" />
+    <ClInclude Include="Database\SQLSchemaBuilder.hpp" />
     <ClInclude Include="Router\Router.hpp" />
     <ClInclude Include="Service\AuthService.hpp" />
     <ClInclude Include="vendor\Debug\Logger.hpp" />
