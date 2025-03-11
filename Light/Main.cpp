@@ -16,6 +16,7 @@
 #include "vendor/Handlers/ENV.hpp"
 #include "vendor/Facades/Hash.hpp"
 #include "Database/Queue.hpp"
+#include "Database/Migrations/Initializer.hpp"
 
 namespace beast = boost::beast;
 namespace http = beast::http;
@@ -27,6 +28,7 @@ bool ENV::initialized = false;
 const std::string ENV::env_file_path = ".env"; // Путь к .env файлу
 std::vector<BYTE> Hash::self_salt;
 redisContext* Queue::context_ = nullptr;
+std::vector<std::pair<Migration::Handler, bool>> Migration::migrations_;
 
 int main() {
 
@@ -47,6 +49,8 @@ int main() {
         Queue::connect(ENV::env_variables["REDIS_HOST"], stoi(ENV::env_variables["REDIS_PORT"]));
         // Логирование сообщений
         Logger::log("Application started", "INFO");
+
+        Initializer::initMigrations();
 
         // Порт
         const unsigned short port = 8080;

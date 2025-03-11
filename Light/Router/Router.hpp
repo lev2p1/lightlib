@@ -60,6 +60,11 @@ public:
         res.body() = "Error 404: Page not found.";
     }
 
+    // Очистка всех маршрутов
+    static void clearRoutes() {
+        routes_.clear();
+    }
+
 private:
     // Хранение маршрутов: метод -> путь -> обработчик
     static std::unordered_map<http::verb, std::unordered_map<std::string, Handler>> routes_;

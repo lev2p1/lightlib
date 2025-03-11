@@ -153,8 +153,14 @@
     <ClInclude Include="Controllers\HelloController.hpp" />
     <ClInclude Include="Controllers\HomeController.hpp" />
     <ClInclude Include="Database\Database.hpp" />
+    <ClInclude Include="Database\Migrations\BaseMigration.hpp" />
+    <ClInclude Include="Database\Migrations\Initializer.hpp" />
+    <ClInclude Include="Database\Migrations\Migrations.hpp" />
+    <ClInclude Include="Database\Migrations\migration_posts_create.hpp" />
     <ClInclude Include="Database\Models\Model.hpp" />
     <ClInclude Include="Database\Queue.hpp" />
+    <ClInclude Include="Database\SQLBuilder.hpp" />
+    <ClInclude Include="Database\SQLSchemaBuilder.hpp" />
     <ClInclude Include="Router\Router.hpp" />
     <ClInclude Include="Service\AuthService.hpp" />
     <ClInclude Include="vendor\Debug\Logger.hpp" />
