@@ -16,6 +16,7 @@
 #include "vendor/Handlers/ENV.hpp"
 #include "vendor/Facades/Hash.hpp"
 #include "Database/Queue.hpp"
+#include "Database/Cache.hpp"
 #include "Database/Migrations/Initializer.hpp"
 
 namespace beast = boost::beast;
@@ -28,6 +29,7 @@ bool ENV::initialized = false;
 const std::string ENV::env_file_path = ".env"; // Путь к .env файлу
 std::vector<BYTE> Hash::self_salt;
 redisContext* Queue::context_ = nullptr;
+redisContext* Cache::context_ = nullptr;
 std::vector<std::pair<Migration::Handler, bool>> Migration::migrations_;
 
 int main() {
@@ -47,10 +49,11 @@ int main() {
         Logger::registerSignalHandlers();
 
         Queue::connect(ENV::env_variables["REDIS_HOST"], stoi(ENV::env_variables["REDIS_PORT"]));
+        Cache::connect(ENV::env_variables["REDIS_HOST"], stoi(ENV::env_variables["REDIS_PORT"]));
         // Логирование сообщений
         Logger::log("Application started", "INFO");
 
-        Initializer::initMigrations();
+        //Initializer::initMigrations();
 
         // Порт
         const unsigned short port = 8080;
@@ -95,6 +98,10 @@ int main() {
 
         Router::get("/test-queue", [helloController](const Router::Request& req, Router::Response& res) {
             helloController.get()->testQueue(req, res);
+            });
+
+        Router::get("/test-cache", [helloController](const Router::Request& req, Router::Response& res) {
+            helloController.get()->testCache(req, res);
             });
 
         Router::post("/register", [helloController](const Router::Request& req, Router::Response& res) {

@@ -142,6 +142,7 @@
   <ItemGroup>
     <ClCompile Include="Controllers\HelloController.cpp" />
     <ClCompile Include="Controllers\HomeController.cpp" />
+    <ClCompile Include="Database\Cache.hpp" />
     <ClCompile Include="Database\Database.cpp" />
     <ClCompile Include="Database\Models\User.cpp" />
     <ClCompile Include="Main.cpp" />

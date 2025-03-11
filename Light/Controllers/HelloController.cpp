@@ -266,4 +266,20 @@ void HelloController::testQueue(const Request& req, Response& res) {
 	}
 }
 
+void HelloController::testCache(const Request& req, Response& res) {
+    try {
+        Cache::set("my_key", "my_value", 10); // Установка значения с временем жизни 10 секунд
+        std::string value = Cache::get("my_key"); // Получение значения
+        Cache::expire("my_key", 20); // Установка времени жизни ключа на 20 секунд
+        Cache::del("my_key"); // Удаление ключа
+        std::cout << value << std::endl;
+        res.body() = value;
+
+    }
+    catch (const std::exception& e) {
+        Logger::log("Error: " + std::string(e.what()), "ERROR");
+        std::cerr << "Error: " << e.what() << std::endl;
+    }
+}
+
 
