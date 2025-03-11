@@ -176,3 +176,104 @@ Cache::expire("session:456", 120); // Установить время жизни
 ```bash
 Cache::disconnect(); // Отключение от Redis
 ```
+
+## Работа с маршрутами
+
+Динамические маршруты позволяют вам извлекать параметры из URL. Например, маршрут /users/{id} может извлечь значение id из URL /users/123.
+
+### Синтаксис:
+
+   - Динамические параметры указываются в фигурных скобках: {параметр}.
+
+   - Например: /users/{id}, /storage/{path}.
+
+### Пример добавления маршрута:
+
+```bash
+Router::get("/users/{id}", [](const Router::Request& req, Router::Response& res, const std::unordered_map<std::string, std::string>& params) {
+    std::string userId = params.at("id"); // Извлекаем параметр "id"
+    res.body() = "User ID: " + userId;
+    res.result(http::status::ok);
+});
+```
+### Обработка параметров
+
+Параметры из динамических маршрутов передаются в обработчик в виде **std::unordered_map<std::string, std::string>**. 
+
+Ключом является имя параметра (например, id), а значением — соответствующая часть URL.
+
+**Пример обработки параметров**
+```bash
+Router::get("/storage/{path}", [](const Router::Request& req, Router::Response& res, const std::unordered_map<std::string, std::string>& params) {
+    std::string path = params.at("path"); // Извлекаем параметр "path"
+    res.body() = "Requested path: " + path;
+    res.result(http::status::ok);
+});
+```
+
+### Примеры использования
+
+**Пример 1: Получение данных пользователя**
+```bash
+Router::get("/users/{id}", [](const Router::Request& req, Router::Response& res, const std::unordered_map<std::string, std::string>& params) {
+    std::string userId = params.at("id");
+    res.body() = "Fetching data for user ID: " + userId;
+    res.result(http::status::ok);
+});
+```
+   - URL: /users/123
+
+   - Результат: Fetching data for user ID: 123
+
+**Пример 2: Получение файла из хранилища**
+```bash
+Router::get("/storage/{path}", [](const Router::Request& req, Router::Response& res, const std::unordered_map<std::string, std::string>& params) {
+    std::string path = params.at("path");
+    res.body() = "Requested file: " + path;
+    res.result(http::status::ok);
+});
+```
+   - URL: /storage/images/photo.jpg
+
+   - Результат: Requested file: images/photo.jpg
+
+**Пример 3: Маршрут с несколькими параметрами**
+```bash
+Router::get("/posts/{category}/{id}", [](const Router::Request& req, Router::Response& res, const std::unordered_map<std::string, std::string>& params) {
+    std::string category = params.at("category");
+    std::string postId = params.at("id");
+    res.body() = "Category: " + category + ", Post ID: " + postId;
+    res.result(http::status::ok);
+});
+```
+   - URL: /posts/tech/456
+
+   - Результат: Category: tech, Post ID: 456
+
+### Обработка статических маршрутов
+
+Если вам не нужны параметры, вы можете использовать статические маршруты. Они работают так же, как и динамические, но без извлечения параметров.
+
+**Пример статического маршрута**
+```bash
+Router::get("/about", [](const Router::Request& req, Router::Response& res) {
+    res.body() = "About page";
+    res.result(http::status::ok);
+});
+```
+   - URL: /about
+
+   - Результат: About page
+
+### Обработка ошибок
+   - Если маршрут не найден, фреймворк автоматически возвращает ответ с кодом 404 Not Found.
+
+**Пример ошибки**
+```bash
+// Попытка доступа к несуществующему маршруту
+req.method(http::verb::get);
+req.target("/unknown");
+Router::handle_request(req, res);
+
+std::cout << res.body() << std::endl; // Вывод: "Error 404: Page not found.
+```
