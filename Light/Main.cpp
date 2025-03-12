@@ -81,38 +81,39 @@ int main() {
             res.body() = "User ID: " + userId + "\nUser name: " + userName;
             res.result(http::status::ok);
             });
-        //// Маршрут для GET-запроса на страницу "О нас"
-        //Router::get("/about", [homeController](const Router::Request& req, Router::Response& res) {
-        //    homeController.get()->about(req, res);
-        //    });
 
-        //Router::get("/hello", [helloController](const Router::Request& req, Router::Response& res) {
-        //    helloController.get()->index(req, res);
-        //    });
+        // Маршрут для GET-запроса на страницу "О нас"
+        Router::get("/about", [homeController](const Router::Request& req, Router::Response& res) {
+            homeController.get()->about(req, res);
+            });
 
-        //Router::get("/user", [helloController](const Router::Request& req, Router::Response& res) {
-        //    helloController.get()->getAttr(req, res);
-        //    });
+        Router::get("/hello", [helloController](const Router::Request& req, Router::Response& res) {
+            helloController.get()->index(req, res);
+            });
 
-        //Router::post("/hello-store", [helloController](const Router::Request& req, Router::Response& res) {
-        //    helloController.get()->store(req, res);
-        //    });
+        Router::get("/user", [helloController](const Router::Request& req, Router::Response& res) {
+            helloController.get()->getAttr(req, res);
+            });
 
-        //Router::post("/login", [helloController](const Router::Request& req, Router::Response& res) {
-        //    helloController.get()->login(req, res);
-        //    });
+        Router::post("/hello-store", [helloController](const Router::Request& req, Router::Response& res) {
+            helloController.get()->store(req, res);
+            });
 
-        //Router::get("/test-queue", [helloController](const Router::Request& req, Router::Response& res) {
-        //    helloController.get()->testQueue(req, res);
-        //    });
+        Router::post("/login", [helloController](const Router::Request& req, Router::Response& res) {
+            helloController.get()->login(req, res);
+            });
 
-        //Router::get("/test-cache", [helloController](const Router::Request& req, Router::Response& res) {
-        //    helloController.get()->testCache(req, res);
-        //    });
+        Router::get("/test-queue", [helloController](const Router::Request& req, Router::Response& res) {
+            helloController.get()->testQueue(req, res);
+            });
 
-        //Router::post("/register", [helloController](const Router::Request& req, Router::Response& res) {
-        //    helloController.get()->reg(req, res);
-        //    });
+        Router::get("/test-cache", [helloController](const Router::Request& req, Router::Response& res) {
+            helloController.get()->testCache(req, res);
+            });
+
+        Router::post("/register", [helloController](const Router::Request& req, Router::Response& res) {
+            helloController.get()->reg(req, res);
+            });
 
         while (true) {
             // Ожидаем входящего соединения
