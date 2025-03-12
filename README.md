@@ -277,3 +277,177 @@ Router::handle_request(req, res);
 
 std::cout << res.body() << std::endl; // Вывод: "Error 404: Page not found.
 ```
+
+
+## Система миграции 
+
+Фреймворк предоставляет удобный интерфейс для работы с миграциями.
+
+### Структра
+ - Database.hpp: Класс для работы с базой данных.
+
+ - SQLSchemaBuilder.hpp: Класс для построения SQL-запросов.
+
+ - MigrationManager.hpp: Класс для управления миграциями.
+
+ - migrations/: Директория с миграциями (например, migration_users_create.hpp).
+
+### Использование
+
+Миграция — это класс, который наследуется от BaseMigration и реализует методы up и down.
+
+**Пример миграции для создания таблицы users:**
+
+```bash
+#pragma once
+
+#include "BaseMigration.hpp"
+#include "SQLSchemaBuilder.hpp"
+
+class MigrationUsersCreate : public BaseMigration<MigrationUsersCreate> {
+public:
+    static std::vector<std::string> up() {
+        SQLSchemaBuilder builder("users");
+        std::vector<std::string> queries;
+
+        // Основной запрос на создание таблицы
+        queries.push_back(builder
+            .AddColumn("id SERIAL PRIMARY KEY")
+            .AddColumn("username VARCHAR(255) NOT NULL")
+            .AddColumn("email VARCHAR(255) NOT NULL")
+            .CreateTable());
+
+        // Дополнительные запросы (индексы и уникальные ограничения)
+        queries.push_back(builder.AddUniqueConstraint("uq_email", {"email"}));
+        queries.push_back(builder.AddIndex("idx_username", {"username"}));
+
+        return queries;
+    }
+
+    static std::string down() {
+        SQLSchemaBuilder builder("users");
+        return builder.DropTable();
+    }
+};
+```
+
+### Выполнение миграций
+Для выполнения миграций используйте класс MigrationManager. **Пример:**
+
+```bash
+#include "MigrationManager.hpp"
+#include "Database.hpp"
+#include "migrations/migration_users_create.hpp"
+
+int main() {
+    Database db("your_database_config_here");
+    MigrationManager manager(db);
+
+    try {
+        manager.migrateAll<
+            MigrationUsersCreate
+        >();
+        std::cout << "Migrations executed successfully." << std::endl;
+    } catch (const std::exception& e) {
+        std::cerr << "Error executing migrations: " << e.what() << std::endl;
+        return 1;
+    }
+
+    return 0;
+}
+```
+
+### Откат миграций
+Для отката миграций используйте метод rollbackAll:
+
+```bash
+manager.rollbackAll<
+    MigrationUsersCreate
+>();
+```
+**Примеры**
+Пример миграции для создания таблицы posts
+
+```bash
+#pragma once
+
+#include "BaseMigration.hpp"
+#include "SQLSchemaBuilder.hpp"
+
+class MigrationPostsCreate : public BaseMigration<MigrationPostsCreate> {
+public:
+    static std::vector<std::string> up() {
+        SQLSchemaBuilder builder("posts");
+        std::vector<std::string> queries;
+
+        queries.push_back(builder
+            .AddColumn("id SERIAL PRIMARY KEY")
+            .AddColumn("title VARCHAR(255) NOT NULL")
+            .AddColumn("content TEXT NOT NULL")
+            .AddColumn("user_id INT REFERENCES users(id)")
+            .CreateTable());
+
+        queries.push_back(builder.AddIndex("idx_title", {"title"}));
+
+        return queries;
+    }
+
+    static std::string down() {
+        SQLSchemaBuilder builder("posts");
+        return builder.DropTable();
+    }
+};
+```
+
+### API
+
+**SQLSchemaBuilder**
+Класс для построения SQL-запросов.
+
+**Основные методы:**
+ - AddColumn: Добавляет столбец.
+
+ - AddPrimaryKey: Добавляет первичный ключ.
+
+ - AddForeignKey: Добавляет внешний ключ.
+
+ - AddIndex: Добавляет индекс.
+
+ - AddUniqueConstraint: Добавляет уникальное ограничение.
+
+ - CreateTable: Возвращает SQL-запрос для создания таблицы.
+
+ - DropTable: Возвращает SQL-запрос для удаления таблицы.
+
+**MigrationManager**
+Класс для управления миграциями.
+
+**Основные методы:**
+ - migrate: Выполняет одну миграцию.
+
+ - rollback: Откатывает одну миграцию.
+
+ - migrateAll: Выполняет несколько миграций.
+
+ - rollbackAll: Откатывает несколько миграций.
+
+### Логирование и отладка
+Для отладки SQL-запросов добавлено логирование. Перед выполнением каждого запроса он выводится в консоль. **Пример вывода:**
+
+```
+[SQL Query] CREATE TABLE users (id SERIAL PRIMARY KEY, username VARCHAR(255) NOT NULL, email VARCHAR(255) NOT NULL);
+[SQL Query] CREATE INDEX idx_username ON users (username);
+[SQL Query] ALTER TABLE users ADD CONSTRAINT uq_email UNIQUE (email);
+```
+
+### Добавление миграций в очередь
+
+Для добавления миграции в очередь требуется перейти в функцию **Initialize** и прописать через запятую какие миграции должны быть выполнены.
+
+```bash
+void Initialize() {
+    this->migrateAll<
+        MigrationUsersCreate
+    >();
+}
+```
