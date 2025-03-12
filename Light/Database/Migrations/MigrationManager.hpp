@@ -133,7 +133,6 @@ public:
     }
 
     void Initialize() {
-        std::cout << "Хуйня здесь";
         this->migrateAll<
             MigrationUsersCreate
         >();
