@@ -18,7 +18,8 @@
 #include "vendor/Facades/Hash.hpp"
 #include "Database/Queue.hpp"
 #include "Database/Cache.hpp"
-#include "Database/Migrations/Initializer.hpp"
+#include "Database/Migrations/MigrationManager.hpp"
+#include "Database/Migrations/Migrations.hpp"
 
 namespace beast = boost::beast;
 namespace http = beast::http;
@@ -52,6 +53,21 @@ int main() {
 
         // Логирование сообщений
         Logger::log("Application started", "INFO");
+
+        //Initializer::initMigrations();
+        Database db;
+
+        //try {
+        //    // Создаем таблицу migrations
+        //    db.execute(MigrationMigrationsCreate::up());
+        //    std::cout << "Table 'migrations' created successfully." << std::endl;
+        //}
+        //catch (const std::exception& e) {
+        //    std::cerr << "Error creating 'migrations' table: " << e.what() << std::endl;
+        //    return 1;
+        //}
+
+        (new MigrationManager(db))->Initialize();
 
         // Порт
         const unsigned short port = 8080;

@@ -15,12 +15,13 @@ public:
 	}
 
 	static void runMigrations() {
-		for (auto& i : migrations_) {
-			if (!i.second) {
-				i.first(); // Вызываем функцию
-				i.second = true; // Помечаем миграцию как выполненную
+			for (auto& i : migrations_) {
+				if (!i.second) {
+					i.first(); // Вызываем функцию
+					i.second = true; // Помечаем миграцию как выполненную
+				}
 			}
-		}
+		
 	}
 
 };

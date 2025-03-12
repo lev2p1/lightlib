@@ -9,7 +9,11 @@ class BaseMigration {
 public: 
 	virtual ~BaseMigration() = default;
 
-	static std::string up() {
+	static std::vector<std::string> up() {
 		return Derived::up();
+	}
+
+	static std::string down() {
+		return Derived::down();
 	}
 };
