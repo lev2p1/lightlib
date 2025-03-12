@@ -1,5 +1,4 @@
-#ifndef ROUTER_HPP
-#define ROUTER_HPP
+#pragma once
 
 #include <boost/beast/http.hpp>
 #include <unordered_map>
@@ -152,5 +151,3 @@ private:
     // ’ранение динамических маршрутов: метод -> вектор пар (регул€рное выражение, RouteInfo)
     static inline std::unordered_map<http::verb, std::vector<std::pair<std::regex, RouteInfo>>> dynamic_routes_;
 };
-
-#endif // ROUTER_HPP
