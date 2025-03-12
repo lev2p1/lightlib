@@ -23,7 +23,7 @@ void HelloController::store(const Request& req, Response& res) {
 		Storage& storage = Storage::getInstance();
 
 		// Устанавливаем корневую директорию
-		storage.setRootPath("storage");
+		storage.setRootPath("storage/public");
 
 		// Сохраняем файл
 		storage.put("example.txt", "Hello, Storage!");
