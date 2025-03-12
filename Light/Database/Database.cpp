@@ -18,16 +18,18 @@ Database::~Database() {
 }
 
 void Database::execute(const std::string& sql) {
-    setlocale(LC_ALL, "ru");
     PGresult* res = PQexec(conn_, sql.c_str());
 
-    if (PQresultStatus(res) != PGRES_COMMAND_OK) {
-        throw std::runtime_error("Execution failed: " + std::string(PQerrorMessage(conn_)));
+    if (PQresultStatus(res) != PGRES_COMMAND_OK && PQresultStatus(res) != PGRES_TUPLES_OK) {
+        std::string error_message = "Query failed: " + std::string(PQerrorMessage(conn_));
+        std::cerr << "SQL Query: " << sql << std::endl;  // Логируем SQL-запрос
+        std::cerr << "Error: " << error_message << std::endl;  // Логируем ошибку
+        PQclear(res);
+        throw std::runtime_error(error_message);
     }
 
     PQclear(res);
 }
-
 // Выполнение SQL-запроса с возвратом результата
 std::string Database::query(const std::string& sql) {
     PGresult* res = PQexec(conn_, sql.c_str());
@@ -50,6 +52,42 @@ std::string Database::query(const std::string& sql) {
             result += " ";
         }
         result += "\n";
+    }
+
+    PQclear(res);
+    return result;
+}
+
+std::vector<std::map<std::string, std::string>> Database::queryToVector(const std::string& sql) {
+    PGresult* res = PQexec(conn_, sql.c_str());
+
+    // Проверяем результат выполнения запроса
+    if (PQresultStatus(res) != PGRES_TUPLES_OK) {
+        std::string error_message = "Query failed: " + std::string(PQerrorMessage(conn_));
+        PQclear(res);
+        throw std::runtime_error(error_message);
+    }
+
+    // Обрабатываем результат
+    std::vector<std::map<std::string, std::string>> result;
+    int rows = PQntuples(res);  // Количество строк в результате
+    int cols = PQnfields(res);  // Количество столбцов в результате
+
+    // Получаем имена столбцов
+    std::vector<std::string> columnNames;
+    for (int j = 0; j < cols; ++j) {
+        columnNames.push_back(PQfname(res, j));  // Имя столбца
+    }
+
+    // Заполняем результат
+    for (int i = 0; i < rows; ++i) {
+        std::map<std::string, std::string> row;
+        for (int j = 0; j < cols; ++j) {
+            std::string columnName = columnNames[j];
+            std::string value = PQgetvalue(res, i, j);  // Значение ячейки
+            row[columnName] = value;
+        }
+        result.push_back(row);
     }
 
     PQclear(res);
