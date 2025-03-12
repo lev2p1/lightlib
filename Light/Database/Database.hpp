@@ -5,6 +5,7 @@
 #include <memory>
 #include <iostream>
 #include <libpq-fe.h>
+#include <map>
 #include "../vendor/Handlers/ENV.hpp"
 
 class Database {
@@ -20,6 +21,8 @@ public:
 
     // Выполнение SQL-запроса с возвратом результата
     std::string query(const std::string& sql);
+
+    std::vector<std::map<std::string, std::string>> queryToVector(const std::string& sql);
 
 private:
     PGconn* conn_; // Соединение с базой данных

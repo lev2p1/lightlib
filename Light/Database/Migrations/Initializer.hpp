@@ -17,4 +17,5 @@ public:
 
         Migration::runMigrations();
     }
+
 };
