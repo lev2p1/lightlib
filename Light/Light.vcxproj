@@ -165,6 +165,7 @@
     <ClInclude Include="Database\SQLSchemaBuilder.hpp" />
     <ClInclude Include="Router\Router.hpp" />
     <ClInclude Include="Service\AuthService.hpp" />
+    <ClInclude Include="Storage\Storage.hpp" />
     <ClInclude Include="vendor\Debug\Logger.hpp" />
     <ClInclude Include="vendor\Facades\Hash.hpp" />
     <ClInclude Include="vendor\Facades\DatabaseFacade.hpp" />
