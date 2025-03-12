@@ -68,14 +68,212 @@ db->execute("INSERT INTO users (name, age) VALUES ('Bob', 30);");
 std::string result = db->query("SELECT * FROM users");
 std::cout << result << std::endl;
 ```  
-### Система логирования
+## Система логирования
 При первом запуске вашего приложения система создает один и единственный лог-файл по пути Storage/Debug/debug.log. Чтобы инициализировать логер для сохранения важных для вас сообщений от приложения необходимо сделать следующее:
-1. Подключение заголовчного файла логера
+### 1. Подключение заголовчного файла логера
 ```bash
 #include "vendor/Debug/Logger.hpp"
 ``` 
-2. Использование логера в вашем коде
+### 2. Использование логера в вашем коде
 ```bash
 Logger::log("Текст события", "Тип события");
 ```
+## Работа с кэшами
+Фреймворк предоставляет удобный класс Cache для работы с кэшами на основе Redis. Этот класс позволяет вам сохранять данные в кэше, извлекать их, управлять временем жизни ключей и удалять данные, когда они больше не нужны.
+Подключение к Redis
 
+Перед началом работы с кэшем необходимо подключиться к Redis. Для этого используется метод connect:
+```bash
+Cache::connect("127.0.0.1", 6379); // Подключение к Redis на localhost, порт 6379
+```
+Параметры:
+
+   - host (по умолчанию "127.0.0.1") — адрес сервера Redis.
+
+   - port (по умолчанию 6379) — порт сервера Redis.
+
+Исключения:
+
+   - Если подключение уже установлено, будет выброшено исключение runtime_error.
+
+   - Если подключение не удалось, будет выброшено исключение с описанием ошибки.
+
+### 1. Сохранение данных в кэше
+
+Для сохранения данных в кэше используется метод set. 
+Вы можете указать ключ, значение и время его жизни (опционально):
+```bash
+Cache::set("user:123", "John Doe"); // Сохранить значение "John Doe" по ключу "user:123"
+Cache::set("session:456", "active", 60); // Сохранить значение "active" по ключу "session:456" с временем жизни 60 секунд
+```
+Параметры:
+
+   - key — уникальный ключ, по которому будет сохранено значение.
+
+   - value — данные, которые нужно сохранить.
+
+   - expire_seconds (опционально) — время жизни ключа в секундах. Если не указано, ключ будет храниться бессрочно.
+
+Исключения:
+
+   - Если подключение к Redis не установлено, будет выброшено исключение std::runtime_error.
+
+### 2. Получение данных из кэша
+
+Для извлечения данных из кэша используется метод get:
+```bash
+std::string user = Cache::get("user:123"); // Получить значение по ключу "user:123"
+if (!user.empty()) {
+    std::cout << "User: " << user << std::endl;
+} else {
+    std::cout << "Key not found." << std::endl;
+}
+```
+Возвращаемое значение:
+
+   - Если ключ существует, возвращается его значение.
+
+   - Если ключ не найден, возвращается пустая строка.
+
+Исключения:
+
+   - Если подключение к Redis не установлено, будет выброшено исключение std::runtime_error.
+
+### 3. Удаление данных из кэша
+
+Для удаления данных из кэша используется метод del:
+
+```bash
+Cache::del("user:123"); // Удалить ключ "user:123" и его значение
+```
+Параметры:
+
+   - key — ключ, который нужно удалить.
+
+Исключения:
+
+   - Если подключение к Redis не установлено, будет выброшено исключение std::runtime_error.
+
+### 4. Установка времени жизни ключа
+
+Если вы хотите установить или изменить время жизни ключа, используйте метод expire:
+```bash
+Cache::expire("session:456", 120); // Установить время жизни ключа "session:456" на 120 секунд
+```
+Параметры:
+
+   - key — ключ, для которого нужно установить время жизни.
+
+   - expire_seconds — время жизни ключа в секундах.
+
+Исключения:
+
+   - Если подключение к Redis не установлено, будет выброшено исключение std::runtime_error.
+
+### 5. Отключение от Redis
+
+После завершения работы с кэшем рекомендуется отключиться от Redis с помощью метода disconnect:
+```bash
+Cache::disconnect(); // Отключение от Redis
+```
+
+## Работа с маршрутами
+
+Динамические маршруты позволяют вам извлекать параметры из URL. Например, маршрут /users/{id} может извлечь значение id из URL /users/123.
+
+### Синтаксис:
+
+   - Динамические параметры указываются в фигурных скобках: {параметр}.
+
+   - Например: /users/{id}, /storage/{path}.
+
+### Пример добавления маршрута:
+
+```bash
+Router::get("/users/{id}", [](const Router::Request& req, Router::Response& res, const std::unordered_map<std::string, std::string>& params) {
+    std::string userId = params.at("id"); // Извлекаем параметр "id"
+    res.body() = "User ID: " + userId;
+    res.result(http::status::ok);
+});
+```
+### Обработка параметров
+
+Параметры из динамических маршрутов передаются в обработчик в виде **std::unordered_map<std::string, std::string>**. 
+
+Ключом является имя параметра (например, id), а значением — соответствующая часть URL.
+
+**Пример обработки параметров**
+```bash
+Router::get("/storage/{path}", [](const Router::Request& req, Router::Response& res, const std::unordered_map<std::string, std::string>& params) {
+    std::string path = params.at("path"); // Извлекаем параметр "path"
+    res.body() = "Requested path: " + path;
+    res.result(http::status::ok);
+});
+```
+
+### Примеры использования
+
+**Пример 1: Получение данных пользователя**
+```bash
+Router::get("/users/{id}", [](const Router::Request& req, Router::Response& res, const std::unordered_map<std::string, std::string>& params) {
+    std::string userId = params.at("id");
+    res.body() = "Fetching data for user ID: " + userId;
+    res.result(http::status::ok);
+});
+```
+   - URL: /users/123
+
+   - Результат: Fetching data for user ID: 123
+
+**Пример 2: Получение файла из хранилища**
+```bash
+Router::get("/storage/{path}", [](const Router::Request& req, Router::Response& res, const std::unordered_map<std::string, std::string>& params) {
+    std::string path = params.at("path");
+    res.body() = "Requested file: " + path;
+    res.result(http::status::ok);
+});
+```
+   - URL: /storage/images/photo.jpg
+
+   - Результат: Requested file: images/photo.jpg
+
+**Пример 3: Маршрут с несколькими параметрами**
+```bash
+Router::get("/posts/{category}/{id}", [](const Router::Request& req, Router::Response& res, const std::unordered_map<std::string, std::string>& params) {
+    std::string category = params.at("category");
+    std::string postId = params.at("id");
+    res.body() = "Category: " + category + ", Post ID: " + postId;
+    res.result(http::status::ok);
+});
+```
+   - URL: /posts/tech/456
+
+   - Результат: Category: tech, Post ID: 456
+
+### Обработка статических маршрутов
+
+Если вам не нужны параметры, вы можете использовать статические маршруты. Они работают так же, как и динамические, но без извлечения параметров.
+
+**Пример статического маршрута**
+```bash
+Router::get("/about", [](const Router::Request& req, Router::Response& res) {
+    res.body() = "About page";
+    res.result(http::status::ok);
+});
+```
+   - URL: /about
+
+   - Результат: About page
+
+### Обработка ошибок
+   - Если маршрут не найден, фреймворк автоматически возвращает ответ с кодом 404 Not Found.
+
+**Пример ошибки**
+```bash
+// Попытка доступа к несуществующему маршруту
+req.method(http::verb::get);
+req.target("/unknown");
+Router::handle_request(req, res);
+
+std::cout << res.body() << std::endl; // Вывод: "Error 404: Page not found.
+```

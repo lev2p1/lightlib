@@ -2,6 +2,14 @@
 
 #include <boost/beast/http.hpp>
 #include "Controller.hpp"
+#include "../Database/Database.hpp"
+#include "../Database/Models/User.cpp"
+#include "../vendor/Debug/Logger.hpp"
+#include <nlohmann/json.hpp>
+#include "../vendor/Facades/Hash.hpp"
+#include "../Service/AuthService.hpp"
+#include "../Database/Queue.hpp"
+#include "../Database/Cache.hpp"
 
 namespace beast = boost::beast;
 namespace http = beast::http;
@@ -20,5 +28,12 @@ public:
 
 	static void store(const Request& req, Response& res);
 
+	static void login(const Request& req, Response& res);
+
+	static void reg(const Request& req, Response& res);
+
+	static void testQueue(const Request& req, Response& res);
+
+	static void testCache(const Request& req, Response& res);
 
 };

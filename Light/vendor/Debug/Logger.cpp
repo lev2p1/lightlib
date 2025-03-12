@@ -4,7 +4,7 @@
 std::ofstream Logger::logFile;
 std::mutex Logger::logMutex;
 std::filesystem::path Logger::logFilePath;
-size_t Logger::maxLines = 10; // Максимальное количество строк
+size_t Logger::maxLines = 10000; // Максимальное количество строк
 size_t Logger::currentLineCount = 0; // Текущее количество строк
 Logger::FlushOnExit Logger::flushOnExit;
 

@@ -14,6 +14,10 @@
 #include "Database/Models/User.cpp"
 #include "vendor/Debug/Logger.hpp"
 #include "vendor/Handlers/ENV.hpp"
+#include "vendor/Facades/Hash.hpp"
+#include "Database/Queue.hpp"
+#include "Database/Cache.hpp"
+#include "Database/Migrations/Initializer.hpp"
 
 namespace beast = boost::beast;
 namespace http = beast::http;
@@ -23,6 +27,10 @@ using tcp = net::ip::tcp;
 // Инициализация статических членов класса
 bool ENV::initialized = false;
 const std::string ENV::env_file_path = ".env"; // Путь к .env файлу
+std::vector<BYTE> Hash::self_salt;
+redisContext* Queue::context_ = nullptr;
+redisContext* Cache::context_ = nullptr;
+std::vector<std::pair<Migration::Handler, bool>> Migration::migrations_;
 
 int main() {
 
@@ -31,8 +39,8 @@ int main() {
 
     try {
         ENV::initialize();
-
-        std::cout << ENV::get("DB_HOST");
+        
+        Hash::self_salt = Hash::hexStringToBytes(ENV::env_variables["APP_KEY"]);
 
         // Инициализация логгера
         Logger::init("debug.log");
@@ -40,8 +48,12 @@ int main() {
         // Регистрация обработчиков сигналов
         Logger::registerSignalHandlers();
 
+        Queue::connect(ENV::env_variables["REDIS_HOST"], stoi(ENV::env_variables["REDIS_PORT"]));
+        Cache::connect(ENV::env_variables["REDIS_HOST"], stoi(ENV::env_variables["REDIS_PORT"]));
         // Логирование сообщений
         Logger::log("Application started", "INFO");
+
+        //Initializer::initMigrations();
 
         // Порт
         const unsigned short port = 8080;
@@ -59,28 +71,48 @@ int main() {
 
 
         // Маршрут для GET-запроса на главную страницу
-        Router::get("/", [homeController](const Router::Request& req, Router::Response& res) {
+        Router::get("/", [homeController](const Router::Request& req, Router::Response& res, const std::unordered_map<std::string, std::string>& params) {
                 homeController.get()->handle(req, res);
             });
 
-        // Маршрут для GET-запроса на страницу "О нас"
-        Router::get("/about", [homeController](const Router::Request& req, Router::Response& res) {
-            homeController.get()->about(req, res);
+        Router::get("/users/{id}/{name}", [](const Router::Request& req, Router::Response& res, const std::unordered_map<std::string, std::string>& params) {
+            std::string userId = params.at("id");
+            std::string userName = params.at("name");
+            res.body() = "User ID: " + userId + "\nUser name: " + userName;
+            res.result(http::status::ok);
             });
+        //// Маршрут для GET-запроса на страницу "О нас"
+        //Router::get("/about", [homeController](const Router::Request& req, Router::Response& res) {
+        //    homeController.get()->about(req, res);
+        //    });
 
-        Router::get("/hello", [helloController](const Router::Request& req, Router::Response& res) {
-            helloController.get()->index(req, res);
-            });
+        //Router::get("/hello", [helloController](const Router::Request& req, Router::Response& res) {
+        //    helloController.get()->index(req, res);
+        //    });
 
-        Router::get("/user", [helloController](const Router::Request& req, Router::Response& res) {
-            helloController.get()->getAttr(req, res);
-            });
+        //Router::get("/user", [helloController](const Router::Request& req, Router::Response& res) {
+        //    helloController.get()->getAttr(req, res);
+        //    });
 
-        Router::post("/hello-store", [helloController](const Router::Request& req, Router::Response& res) {
-            helloController.get()->store(req, res);
-            });
+        //Router::post("/hello-store", [helloController](const Router::Request& req, Router::Response& res) {
+        //    helloController.get()->store(req, res);
+        //    });
 
-        //User::read(1);
+        //Router::post("/login", [helloController](const Router::Request& req, Router::Response& res) {
+        //    helloController.get()->login(req, res);
+        //    });
+
+        //Router::get("/test-queue", [helloController](const Router::Request& req, Router::Response& res) {
+        //    helloController.get()->testQueue(req, res);
+        //    });
+
+        //Router::get("/test-cache", [helloController](const Router::Request& req, Router::Response& res) {
+        //    helloController.get()->testCache(req, res);
+        //    });
+
+        //Router::post("/register", [helloController](const Router::Request& req, Router::Response& res) {
+        //    helloController.get()->reg(req, res);
+        //    });
 
         while (true) {
             // Ожидаем входящего соединения
