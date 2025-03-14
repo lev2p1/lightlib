@@ -28,7 +28,7 @@ public:
 
         // Проверяем, есть ли атрибуты для сохранения
         if (attributes.empty()) {
-            std::cerr << "Атрибуты пусты. Нечего сохранять." << std::endl;
+            std::cerr << "Attributes are empty" << std::endl;
             return;
         }
 
@@ -65,7 +65,7 @@ public:
             database->execute(query);
         }
         catch (const std::exception& e) {
-            std::cerr << "Ошибка при выполнении запроса: " << e.what() << std::endl;
+            std::cerr << "Bad request" << e.what() << std::endl;
         }
     }
 

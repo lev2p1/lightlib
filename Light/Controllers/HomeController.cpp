@@ -1,5 +1,4 @@
 #include "HomeController.hpp"
-#include "HelloController.hpp"
 
 void HomeController::handle(const Request& req, Response& res)
 {

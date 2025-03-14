@@ -12,7 +12,7 @@ public:
 	using Request = http::request<http::string_body>;
 	using Response = http::response<http::string_body>;
 
-	void handle(const Request& req, Response& res);
+	void handle(const Request& req, Response& res) override;
 
 	static void about(const Request& req, Response& res);
 

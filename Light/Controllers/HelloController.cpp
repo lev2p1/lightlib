@@ -119,7 +119,7 @@ void HelloController::getAttr(const Request& req, Response& res) {
 		setlocale(LC_ALL, "ru");
 		User::delete_(16);
 		res.result(http::status::ok);
-		res.body() = "Данные сохранены успешно";
+		res.body() = "Data saved";
 	}
 	catch (const std::exception& e) {
 		std::cerr << "Error: " << e.what() << std::endl;

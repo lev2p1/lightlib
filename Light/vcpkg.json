@@ -2,11 +2,21 @@
     "name": "light",
     "version": "1.0.0",
     "dependencies": [
-      "boost",
+      "hiredis",
+      "libpq",
+      "boost-beast",
+      "boost-asio",
+      "boost-filesystem",
+      "boost-system",
+      "boost-thread",
+      "boost-date-time",
+      "boost-smart-ptr",
+      "boost-optional",
+      "boost-variant",
+      "boost-algorithm",
       "fmt",
       "nlohmann-json",
       "jwt-cpp",
-      "openssl",
       "zlib"
     ]
   }
