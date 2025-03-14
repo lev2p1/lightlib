@@ -451,3 +451,59 @@ void Initialize() {
     >();
 }
 ```
+## Конструктор SQL-запросов
+
+**SQLBuilder**
+Класс SQLQueryBuilder предназначен для построения SQL-запросов, которые выполняют операции с данными в таблицах.
+
+**Основные методы:**
+- Выборки данных (SELECT).
+
+- Вставки данных (INSERT).
+
+- Обновления данных (UPDATE).
+
+- Удаления данных (DELETE).
+
+- Добавления условий (WHERE).
+
+- Сортировки (ORDER BY).
+
+- Группировки (GROUP BY).
+
+- Ограничения количества строк (LIMIT, OFFSET).
+
+- Соединения таблиц (JOIN).
+
+**Отладка**
+Метод get() в SQLQueryBuilder отвечает за формирование итогового SQL-запроса на основе всех настроек, которые были заданы с помощью других методов. **Пример использования:**
+
+```bash
+    SQLQueryBuilder builder("users");
+            std::string query = builder
+                .Select({ "users.id", "users.name", "orders.order_id" })
+                .Join("orders", "users.id = orders.user_id", "LEFT")
+                .BeginGroup()
+                .Where("users.age > 18")
+                .BeginGroup("OR")
+                .Where("users.status = 'active'")
+                .Where("orders.total > 100")
+                .EndGroup()
+                .EndGroup()
+                .Where("users.name LIKE '%John%'")
+                .OrderBy({ "users.name" })
+                .Limit(10)
+                .get();
+```
+**Результат выполнения запроса**
+
+```bash
+SELECT users.id, users.name, orders.order_id
+FROM users
+LEFT JOIN orders ON users.id = orders.user_id
+WHERE (users.age > 18 AND (users.status = 'active' OR orders.total > 100)) AND users.name LIKE '%John%'
+ORDER BY users.name
+LIMIT 10
+```
+
+
