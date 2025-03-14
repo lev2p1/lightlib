@@ -1,29 +1,48 @@
-# Минимальная версия CMake
-cmake_minimum_required(VERSION 3.10)
+cmake_minimum_required(VERSION 3.14)
+project(light VERSION 1.0.0 LANGUAGES CXX)
 
-# Название проекта
-project(Light)
+set(CMAKE_CXX_STANDARD 20)
+set(CMAKE_CXX_STANDARD_REQUIRED ON)
+set(CMAKE_CXX_EXTENSIONS OFF)
 
-# Указываем путь к vcpkg
 set(CMAKE_TOOLCHAIN_FILE "C:/Tools/vcpkg-master/scripts/buildsystems/vcpkg.cmake" CACHE STRING "")
+set(CMAKE_PREFIX_PATH "${CMAKE_SOURCE_DIR}/vcpkg_installed/x64-windows" CACHE STRING "")
 
-set(CMAKE_CXX_STANDART 20)
+if (MSVC)
+    add_compile_options(/utf-8)
+endif()
 
-# Находим и подключаем зависимости
-find_package(Boost REQUIRED)
-find_package(fmt REQUIRED)
-find_package(jwt_cpp REQUIRED)
-find_package(nlohmann_json REQUIRED)
-find_package(OpenSSL REQUIRED)
+find_package(Boost CONFIG REQUIRED COMPONENTS beast asio filesystem system thread date_time smart_ptr optional variant algorithm)
+find_package(fmt CONFIG REQUIRED)
+find_package(nlohmann_json CONFIG REQUIRED)
+find_package(jwt-cpp CONFIG REQUIRED)
+find_package(hiredis CONFIG REQUIRED)
 find_package(ZLIB REQUIRED)
+find_package(PostgreSQL REQUIRED)
 
-# Добавляем зависимости к вашему проекту
-target_link_libraries(Light
+
+add_executable(light Main.cpp)  
+
+target_include_directories(light PRIVATE ${CMAKE_SOURCE_DIR}/include)
+target_include_directories(light PRIVATE ${CMAKE_SOURCE_DIR}/vcpkg_installed/x64-windows/include)
+
+target_link_libraries(light
     PRIVATE
-    Boost::boost
+    Boost::beast  
+    Boost::asio
+    Boost::filesystem
+    Boost::system
+    Boost::thread
+    Boost::date_time
+    Boost::smart_ptr
+    Boost::optional
+    Boost::variant
+    Boost::algorithm
     fmt::fmt
-    jwt_cpp::jwt_cpp
     nlohmann_json::nlohmann_json
-    OpenSSL::SSL
+    jwt-cpp::jwt-cpp
+    hiredis::hiredis
     ZLIB::ZLIB
+    PostgreSQL::PostgreSQL
+    
 )
