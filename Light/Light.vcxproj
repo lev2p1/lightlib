@@ -148,7 +148,6 @@
     <ClCompile Include="Database\Cache.hpp" />
     <ClCompile Include="Database\Models\User.cpp" />
     <ClCompile Include="Main.cpp" />
-    <ClCompile Include="vendor\Debug\Logger.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Controllers\Controller.hpp" />

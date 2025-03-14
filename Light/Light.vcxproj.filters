@@ -30,9 +30,6 @@
     <ClCompile Include="Database\Models\User.cpp">
       <Filter>Исходные файлы</Filter>
     </ClCompile>
-    <ClCompile Include="vendor\Debug\Logger.cpp">
-      <Filter>Исходные файлы</Filter>
-    </ClCompile>
     <ClCompile Include="Database\Cache.hpp">
       <Filter>Файлы заголовков</Filter>
     </ClCompile>
