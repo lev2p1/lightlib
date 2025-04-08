@@ -17,15 +17,21 @@ private:
     std::string offset;
     std::map<std::string, std::string> joins;
     std::map<std::string, std::string> insertValues;
-    bool isFirstConditionInGroup = true; // Флаг для отслеживания первого условия в группе
+    bool isDeleteQuery = false;
+    bool isFirstConditionInGroup = true;
 
 public:
-    // Конструктор
     explicit SQLQueryBuilder(const std::string& table) : table(table) {}
 
     // Добавление столбцов для SELECT
     SQLQueryBuilder& Select(const std::vector<std::string>& columns) {
         selectColumns = columns;
+        return *this;
+    }
+
+    // Установка флага для DELETE запроса
+    SQLQueryBuilder& Delete() {
+        isDeleteQuery = true;
         return *this;
     }
 
@@ -35,8 +41,8 @@ public:
             whereConditions.push_back(logicalOperator + " " + condition);
         }
         else {
-            whereConditions.push_back(condition); // Первое условие в группе не требует оператора
-            isFirstConditionInGroup = false; // Сбрасываем флаг после первого условия
+            whereConditions.push_back(condition);
+            isFirstConditionInGroup = false;
         }
         return *this;
     }
@@ -47,16 +53,16 @@ public:
             whereConditions.push_back(logicalOperator + " (");
         }
         else {
-            whereConditions.push_back("("); // Первая группа не требует оператора
+            whereConditions.push_back("(");
         }
-        isFirstConditionInGroup = true; // Устанавливаем флаг для первого условия в группе
+        isFirstConditionInGroup = true;
         return *this;
     }
 
     // Конец группы условий
     SQLQueryBuilder& EndGroup() {
         whereConditions.push_back(")");
-        isFirstConditionInGroup = false; // Сбрасываем флаг после завершения группы
+        isFirstConditionInGroup = false;
         return *this;
     }
 
@@ -101,7 +107,7 @@ public:
         std::ostringstream query;
 
         if (!insertValues.empty()) {
-            // Формируем INSERT-запрос
+            // INSERT запрос
             query << "INSERT INTO " << table << " (";
             for (auto it = insertValues.begin(); it != insertValues.end(); ++it) {
                 query << it->first;
@@ -118,8 +124,39 @@ public:
             }
             query << ")";
         }
+        else if (isDeleteQuery) {
+            // DELETE запрос
+            query << "DELETE FROM " << table;
+
+            // WHERE условия
+            if (!whereConditions.empty()) {
+                query << " WHERE ";
+                for (size_t i = 0; i < whereConditions.size(); ++i) {
+                    query << whereConditions[i];
+                    if (i < whereConditions.size() - 1) {
+                        query << " ";
+                    }
+                }
+            }
+
+            // ORDER BY (для некоторых СУБД поддерживается в DELETE)
+            if (!orderByColumns.empty()) {
+                query << " ORDER BY ";
+                for (size_t i = 0; i < orderByColumns.size(); ++i) {
+                    query << orderByColumns[i];
+                    if (i < orderByColumns.size() - 1) {
+                        query << ", ";
+                    }
+                }
+            }
+
+            // LIMIT (для некоторых СУБД поддерживается в DELETE)
+            if (!limit.empty()) {
+                query << limit;
+            }
+        }
         else {
-            // Формируем SELECT-запрос
+            // SELECT запрос
             query << "SELECT ";
             if (selectColumns.empty()) {
                 query << "*";
@@ -145,7 +182,7 @@ public:
                 for (size_t i = 0; i < whereConditions.size(); ++i) {
                     query << whereConditions[i];
                     if (i < whereConditions.size() - 1) {
-                        query << " "; // Условия уже содержат операторы (AND/OR)
+                        query << " ";
                     }
                 }
             }
