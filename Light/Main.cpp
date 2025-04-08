@@ -83,11 +83,6 @@ int main() {
         auto homeController = std::make_shared<HomeController>();
         auto helloController = std::make_shared<HelloController>();
 
-        // Регистрация маршрутов
-        Router::get("/", [homeController](const Router::Request& req, Router::Response& res) {
-            homeController->handle(req, res);
-            });
-
         Router::get("/users/{id}/{name}", [](const Router::Request& req, Router::Response& res, const std::unordered_map<std::string, std::string>& params) {
             std::string userId = params.at("id");
             std::string userName = params.at("name");

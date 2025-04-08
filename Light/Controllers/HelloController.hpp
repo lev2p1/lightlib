@@ -22,8 +22,6 @@ public:
 	using Request = http::request<http::string_body>;
 	using Response = http::response<http::string_body>;
 
-	void handle(const Request& req, Response& res);
-
 	void getAttr(const Request& req, Response& res);
 
 	static void index(const Request& req, Response& res);
@@ -40,15 +38,7 @@ public:
 
 };
 
-
-
 using json = nlohmann::json;
-
-void HelloController::handle(const Request& req, Response& res)
-{
-	res.result(http::status::ok);
-	res.body() = "Hello from handle function";
-}
 
 void HelloController::index(const Request& req, Response& res)
 {
