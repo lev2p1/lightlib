@@ -8,6 +8,7 @@
 #include <iostream>
 #include <algorithm>
 #include "../Database.hpp"
+#include "../SQLBuilder.hpp"
 
 // Базовый класс Model с использованием CRTP
 template <typename Derived>
@@ -157,8 +158,11 @@ public:
                 }
             }
 
-            std::string sql = "SELECT " + fields_ + " FROM " + Derived::table_name + " WHERE id = " + std::to_string(id);
-            std::string data = database->query(sql);
+            SQLQueryBuilder sqlb(Derived::table_name);
+            std::string data = sqlb.Select(Derived::fields).Where("id = " + std::to_string(id)).get();
+
+            //std::string sql = "SELECT " + fields_ + " FROM " + Derived::table_name + " WHERE id = " + std::to_string(id);
+            //std::string data = database->query(sql);
 
             // Проверяем, что данные не пустые
             if (data.empty()) {
@@ -166,9 +170,9 @@ public:
                 return nullptr;
             }
 
-            std::cout << "Raw data: " << data << std::endl;
-            std::cout << "End of data for id: " << id << std::endl;
-            std::cout << "Executed SQL: " << sql << std::endl;
+            //std::cout << "Raw data: " << data << std::endl;
+            //std::cout << "End of data for id: " << id << std::endl;
+            //std::cout << "Executed SQL: " << sql << std::endl;
 
 
             return Derived::create(data);
@@ -199,8 +203,11 @@ public:
         try {
             auto database = std::make_shared<Database>();
 
-            std::string query = "DELETE FROM " + Derived::table_name + " WHERE id = " + std::to_string(id) + ";";
-            database->execute(query);
+            SQLQueryBuilder sqlb(Derived::table_name);
+            sqlb.Delete().Where("id = " + std::to_string(id)).get();
+
+            //std::string query = "DELETE FROM " + Derived::table_name + " WHERE id = " + std::to_string(id) + ";";
+            //database->execute(query);
 
             std::cout << "Record with id " << id << " deleted successfully from table: " << Derived::table_name << std::endl;
         }
@@ -226,8 +233,13 @@ public:
             }
 
             // Формируем SQL-запрос
-            std::string sql = "SELECT " + fields_ + " FROM " + Derived::table_name + " WHERE " + condition;
-            std::string data = database->query(sql);
+            SQLQueryBuilder sqlb(Derived::table_name);
+            std::string data = sqlb.Select(Derived::fields)
+                                   .Where(condition)
+                                   .get();
+
+            //std::string sql = "SELECT " + fields_ + " FROM " + Derived::table_name + " WHERE " + condition;
+            //std::string data = database->query(sql);
 
             // Проверяем, что данные не пустые
             if (data.empty()) {

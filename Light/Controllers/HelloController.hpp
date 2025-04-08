@@ -129,11 +129,12 @@ void HelloController::reg(const Request& req, Response& res)
 		// Извлекаем логин и пароль
 		std::string username = body["username"];
 		std::string password = body["password"];
-		std::string age = body["age"];
+		std::string email = body["email"];
+		//std::string age = body["age"];
 
 		std::string hashed_password = Hash::hash(password, 10);
 
-		User::create({ {"name", username}, {"age", age}, {"password", hashed_password} })->save();
+		User::create({ {"username", username}, {"password", hashed_password}, {"email", email} })->save();
 
 	}
 	catch (const std::exception& e) {
