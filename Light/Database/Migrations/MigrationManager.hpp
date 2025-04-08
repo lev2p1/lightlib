@@ -39,6 +39,7 @@ private:
     void executeQueries(const std::vector<std::string>& queries) {
         for (const auto& query : queries) {
             db.execute(query);
+
         }
     }
 

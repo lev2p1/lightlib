@@ -168,7 +168,6 @@ int main() {
                 // Создаем HTTP-ответ
                 http::response<http::string_body> res;
                 res.version(req.version());
-                res.set(http::field::server, "Simple C++ Web Server");
 
                 // Обрабатываем запрос с помощью роутера
                 Router::handle_request(req, res);
