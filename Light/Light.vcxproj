@@ -164,6 +164,7 @@
     <ClInclude Include="Database\Queue.hpp" />
     <ClInclude Include="Database\SQLBuilder.hpp" />
     <ClInclude Include="Database\SQLSchemaBuilder.hpp" />
+    <ClInclude Include="Database\SQLString.hpp" />
     <ClInclude Include="Router\Router.hpp" />
     <ClInclude Include="Service\AuthService.hpp" />
     <ClInclude Include="Storage\Storage.hpp" />

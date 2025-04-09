@@ -20,11 +20,13 @@
 #include "Database/Cache.hpp"
 #include "Database/Migrations/MigrationManager.hpp"
 #include "Database/Migrations/Migrations.hpp"
+#include "Database/SQLString.hpp"
 
 namespace beast = boost::beast;
 namespace http = beast::http;
 namespace net = boost::asio;
 using tcp = net::ip::tcp;
+
 
 // Инициализация статических членов класса
 bool ENV::initialized = false;
@@ -68,6 +70,28 @@ int main() {
 
         (new MigrationManager(db))->Initialize();
 
+        // #########################################################
+        // ТЕСТИРОВАНИЕ SQLString
+        // #########################################################
+        {
+            std::cout << "\n=== Testing SQLString ===\n";
+            
+            auto testEscape = [](const std::string& input, const std::string& expected) {
+                std::string result = SQLString::Escape(input);
+                std::cout << "Input:    " << input << "\n"
+                          << "Expected: " << expected << "\n"
+                          << "Result:   " << result 
+                          << (result == expected ? " да\n" : " ИДИ НАААХУУУЙ\n")
+                          << "-----------------------------\n";
+            };
+
+            // Тест-кейсы
+            testEscape("test'value", "test\\'value");
+            testEscape("path\\to\\file", "path\\\\to\\\\file");
+            testEscape("'; DROP TABLE users;--", "\\'\\; DROP TABLE users\\;\\--");
+            testEscape("Café_2024", "Café\\_2024");
+            testEscape("", "");
+        }
         // Порт
         const unsigned short port = 8080;
 
