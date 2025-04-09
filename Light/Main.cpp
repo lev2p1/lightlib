@@ -56,7 +56,6 @@ int main() {
 
         //Initializer::initMigrations();
         Database db;
-
         //try {
         //    // Создаем таблицу migrations
         //    db.execute(MigrationMigrationsCreate::up());
@@ -187,7 +186,7 @@ int main() {
     }
     catch (const std::exception& e) {
         std::cerr << "Error: " << e.what() << std::endl;
-        Logger::log("Error: " + std::string(e.what()), "ERROR");
+        Logger::log(std::string(e.what()), "ERROR");
         return 1;
     }
 
