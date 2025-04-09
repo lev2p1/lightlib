@@ -8,6 +8,7 @@
 #include <map>
 #include <iostream>
 #include "../vendor/Handlers/ENV.hpp"
+#include "../vendor/Debug/Logger.hpp"
 
 class Database {
 public:
@@ -35,7 +36,9 @@ private:
 inline Database::Database() {
     std::string connection_string = "host=" + ENV::env_variables["DB_HOST"] + " user=" + ENV::env_variables["DB_USERNAME"] + " password=" + ENV::env_variables["DB_PASSWORD"] + " dbname=" + ENV::env_variables["DB_DATABASE"] + " client_encoding=UTF8";
     conn_ = PQconnectdb(connection_string.c_str());
+    Logger::log("Successfuly connected to database " + ENV::env_variables["DB_DATABASE"], "INFO");
     if (PQstatus(conn_) != CONNECTION_OK) {
+        Logger::log("Connection failed: " + std::string(PQerrorMessage(conn_)), "ERROR");
         throw std::runtime_error("Connection failed: " + std::string(PQerrorMessage(conn_)));
     }
 }
@@ -48,13 +51,11 @@ inline Database::~Database() {
 
 inline void Database::execute(const std::string& sql) {
     PGresult* res = PQexec(conn_, sql.c_str());
-
+    Logger::log("SQL Query: " + sql, "INFO");
     if (PQresultStatus(res) != PGRES_COMMAND_OK && PQresultStatus(res) != PGRES_TUPLES_OK) {
-        std::string error_message = "Query failed: " + std::string(PQerrorMessage(conn_));
-        std::cerr << "SQL Query: " << sql << std::endl;  // Логируем SQL-запрос
-        std::cerr << "Error: " << error_message << std::endl;  // Логируем ошибку
+        Logger::log(std::string(PQerrorMessage(conn_)), "ERROR");
         PQclear(res);
-        throw std::runtime_error(error_message);
+        throw std::runtime_error(std::string(PQerrorMessage(conn_)));
     }
 
     PQclear(res);
@@ -65,9 +66,9 @@ inline std::string Database::query(const std::string& sql) {
 
     // Проверяем результат выполнения запроса
     if (PQresultStatus(res) != PGRES_TUPLES_OK) {
-        std::string error_message = "Query failed: " + std::string(PQerrorMessage(conn_));
+        Logger::log(std::string(PQerrorMessage(conn_)), "ERROR");
         PQclear(res);
-        throw std::runtime_error(error_message);
+        throw std::runtime_error(std::string(PQerrorMessage(conn_)));
     }
 
     // Обрабатываем результат
@@ -84,6 +85,7 @@ inline std::string Database::query(const std::string& sql) {
     }
 
     PQclear(res);
+    Logger::log("Successfull query execution", "INFO");
     return result;
 }
 
@@ -92,9 +94,9 @@ inline std::vector<std::map<std::string, std::string>> Database::queryToVector(c
 
     // Проверяем результат выполнения запроса
     if (PQresultStatus(res) != PGRES_TUPLES_OK) {
-        std::string error_message = "Query failed: " + std::string(PQerrorMessage(conn_));
+        Logger::log(std::string(PQerrorMessage(conn_)), "ERROR");
         PQclear(res);
-        throw std::runtime_error(error_message);
+        throw std::runtime_error(std::string(PQerrorMessage(conn_)));
     }
 
     // Обрабатываем результат

@@ -187,5 +187,3 @@ void HelloController::testCache(const Request& req, Response& res) {
 		std::cerr << "Error: " << e.what() << std::endl;
 	}
 }
-
-
