@@ -155,7 +155,6 @@
     <ClInclude Include="Controllers\HomeController.hpp" />
     <ClInclude Include="Database\Database.hpp" />
     <ClInclude Include="Database\Migrations\BaseMigration.hpp" />
-    <ClInclude Include="Database\Migrations\Initializer.hpp" />
     <ClInclude Include="Database\Migrations\MigrationManager.hpp" />
     <ClInclude Include="Database\Migrations\Migrations.hpp" />
     <ClInclude Include="Database\Migrations\migration_migrations_table.hpp" />
