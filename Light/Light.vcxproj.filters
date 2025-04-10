@@ -98,6 +98,9 @@
     <ClInclude Include="Storage\Storage.hpp">
       <Filter>Файлы заголовков</Filter>
     </ClInclude>
+    <ClInclude Include="Router\RouterRegisterer.hpp">
+      <Filter>Файлы заголовков</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include=".env" />
