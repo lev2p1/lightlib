@@ -155,7 +155,6 @@
     <ClInclude Include="Controllers\HomeController.hpp" />
     <ClInclude Include="Database\Database.hpp" />
     <ClInclude Include="Database\Migrations\BaseMigration.hpp" />
-    <ClInclude Include="Database\Migrations\Initializer.hpp" />
     <ClInclude Include="Database\Migrations\MigrationManager.hpp" />
     <ClInclude Include="Database\Migrations\Migrations.hpp" />
     <ClInclude Include="Database\Migrations\migration_migrations_table.hpp" />
@@ -166,6 +165,7 @@
     <ClInclude Include="Database\SQLSchemaBuilder.hpp" />
     <ClInclude Include="Database\SQLString.hpp" />
     <ClInclude Include="Router\Router.hpp" />
+    <ClInclude Include="Router\RouterRegisterer.hpp" />
     <ClInclude Include="Service\AuthService.hpp" />
     <ClInclude Include="Storage\Storage.hpp" />
     <ClInclude Include="vendor\Debug\Logger.hpp" />

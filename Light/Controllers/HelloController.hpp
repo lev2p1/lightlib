@@ -102,7 +102,6 @@ void HelloController::login(const Request& req, Response& res)
 		auto data = User::where("name = '" + username + "'");
 
 		for (const auto& user : data) {
-			user->printAttributes();
 			std::cout << user->attributes["name"];
 		}
 
@@ -147,7 +146,7 @@ void HelloController::getAttr(const Request& req, Response& res) {
 
 	try {
 		setlocale(LC_ALL, "ru");
-		User::delete_(16);
+		User::find(16)->delete_();
 		res.result(http::status::ok);
 		res.body() = "Data saved";
 	}

@@ -23,6 +23,7 @@ public:
 
     // Выполнение SQL-запроса с возвратом результата
     std::string query(const std::string& sql);
+    std::map<std::string, std::string> queryMap(const std::string& sql);
 
     std::vector<std::map<std::string, std::string>> queryToVector(const std::string& sql);
 
@@ -127,4 +128,29 @@ inline std::vector<std::map<std::string, std::string>> Database::queryToVector(c
 
     PQclear(res);
     return result;
+}
+
+inline std::map<std::string, std::string> Database::queryMap(const std::string& sql) {
+    PGresult* res = PQexec(conn_, sql.c_str());
+    std::map<std::string, std::string> row;
+
+    if (PQresultStatus(res) != PGRES_TUPLES_OK) {
+        std::cerr << "Query failed: " << PQerrorMessage(conn_) << std::endl;
+        PQclear(res);
+        return row; // Возвращаем пустой map
+    }
+
+    if (PQntuples(res) == 0) {
+        PQclear(res);
+        return row; // Нет результатов
+    }
+
+    for (int i = 0; i < PQnfields(res); i++) {
+        const char* name = PQfname(res, i);
+        const char* value = PQgetvalue(res, 0, i);
+        row[name] = value ? value : "";
+    }
+
+    PQclear(res);
+    return row;
 }
