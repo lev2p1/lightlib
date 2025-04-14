@@ -26,6 +26,10 @@ public:
 
     std::vector<std::map<std::string, std::string>> queryToVector(const std::string& sql);
 
+    PGconn* getConnection() const {
+        return conn_;
+    }
+
 private:
     PGconn* conn_; // Соединение с базой данных
 };

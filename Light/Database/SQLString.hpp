@@ -1,17 +1,28 @@
 ﻿#pragma once
 #include <string>
-#include <regex>
+#include <libpq-fe.h>
 
 class SQLString {
 public:
-    static std::string Escape(const std::string& input) {
-        static const std::regex dangerousChars(R"(['"\\%;_])");
-        return std::regex_replace(
-            input,
-            dangerousChars,
-            R"(\\$&)",
-            std::regex_constants::match_default |
-            std::regex_constants::format_sed
-        );
+    // Экранирование строки через существующее подключение
+    static std::string EscapeString(PGconn* conn, const std::string& input) {
+        char* escaped = PQescapeLiteral(conn, input.c_str(), input.size());
+        if (!escaped) {
+            return "'ERROR: FAILED TO ESCAPE STRING'";
+        }
+        std::string result(escaped);
+        PQfreemem(escaped);
+        return result;
+    }
+
+    // Экранирование идентификатора через существующее подключение
+    static std::string EscapeIdentifier(PGconn* conn, const std::string& input) {
+        char* escaped = PQescapeIdentifier(conn, input.c_str(), input.size());
+        if (!escaped) {
+            return "\"ERROR: FAILED TO ESCAPE IDENTIFIER\"";
+        }
+        std::string result(escaped);
+        PQfreemem(escaped);
+        return result;
     }
 };
