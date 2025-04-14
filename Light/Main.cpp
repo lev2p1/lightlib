@@ -69,7 +69,7 @@ int main() {
         //}
 
         (new MigrationManager(db))->Initialize();
-
+   
         // Порт
         const unsigned short port = 8080;
 
