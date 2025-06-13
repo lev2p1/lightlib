@@ -1,4 +1,4 @@
-#pragma once
+п»ї#pragma once
 
 #include <hiredis/hiredis.h>
 #include <iostream>
@@ -8,7 +8,7 @@
 
 class Queue {
 public:
-    // Подключение к Redis
+    // пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅ Redis
     static void connect(const std::string& host = "127.0.0.1", int port = 6379) {
         if (context_) {
             throw std::runtime_error("Already connected to Redis.");
@@ -31,7 +31,7 @@ public:
         Logger::log("Succesfuly connect to Redis " + host + ':' + std::to_string(port), "INFO");
     }
 
-    // Отключение от Redis
+    // пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅ Redis
     static void disconnect() {
         if (context_) {
             redisFree(context_);
@@ -40,7 +40,7 @@ public:
         }
     }
 
-    // Добавление элемента в очередь
+    // пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ
     static void push(const std::string& queue_name, const std::string& value) {
         if (!context_) {
             Logger::log("Not connected to Redis.", "ERROR");
@@ -57,7 +57,7 @@ public:
         std::cout << "Pushed '" << value << "' to queue '" << queue_name << "'." << std::endl;
     }
 
-    // Извлечение элемента из очереди
+    // пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ
     static std::string pop(const std::string& queue_name) {
         if (!context_) {
             Logger::log("Not connected to Redis.", "ERROR");
@@ -75,7 +75,7 @@ public:
             result = std::string(reply->str, reply->len);
         }
         else if (reply->type == REDIS_REPLY_NIL) {
-            result = ""; // Очередь пуста
+            result = ""; // пїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅ
         }
         else {
             freeReplyObject(reply);
@@ -88,7 +88,7 @@ public:
         return result;
     }
 
-    // Получение длины очереди
+    // пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ
     static int length(const std::string& queue_name) {
         if (!context_) {
             Logger::log("Not connected to Redis.", "ERROR");
@@ -108,5 +108,5 @@ public:
     }
 
 private:
-    static redisContext* context_; // Контекст подключения к Redis
+    static redisContext* context_; // пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅ Redis
 };
