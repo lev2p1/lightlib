@@ -20,11 +20,13 @@
 #include "Database/Cache.hpp"
 #include "Database/Migrations/MigrationManager.hpp"
 #include "Database/Migrations/Migrations.hpp"
+#include "Database/SQLString.hpp"
 
 namespace beast = boost::beast;
 namespace http = beast::http;
 namespace net = boost::asio;
 using tcp = net::ip::tcp;
+
 
 // Инициализация статических членов класса
 bool ENV::initialized = false;
@@ -67,7 +69,7 @@ int main() {
         //}
 
         (new MigrationManager(db))->Initialize();
-
+   
         // Порт
         const unsigned short port = 8080;
 

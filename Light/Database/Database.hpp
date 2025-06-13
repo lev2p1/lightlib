@@ -6,7 +6,7 @@
 #include <iostream>
 #include <libpq-fe.h>
 #include <map>
-#include <iostream>
+#include "SQLString.hpp"
 #include "../vendor/Handlers/ENV.hpp"
 #include "../vendor/Debug/Logger.hpp"
 
@@ -23,9 +23,11 @@ public:
 
     // Выполнение SQL-запроса с возвратом результата
     std::string query(const std::string& sql);
-    std::map<std::string, std::string> queryMap(const std::string& sql);
 
-    std::vector<std::map<std::string, std::string>> queryToVector(const std::string& sql);
+    std::map<std::string, std::string> queryMap(const std::string& sql_template, const std::vector<std::string>& params);
+    std::vector<std::map<std::string, std::string>> queryToVector(const std::string& sql_template, const std::vector<std::string>& params);
+
+    PGconn* getConnection() const { return conn_; }
 
 private:
     PGconn* conn_; // Соединение с базой данных
@@ -90,34 +92,52 @@ inline std::string Database::query(const std::string& sql) {
     return result;
 }
 
-inline std::vector<std::map<std::string, std::string>> Database::queryToVector(const std::string& sql) {
-    PGresult* res = PQexec(conn_, sql.c_str());
+inline std::vector<std::map<std::string, std::string>> Database::queryToVector(
+    const std::string& sql_template,
+    const std::vector<std::string>& params = {})  // Необязательный параметр
+{
+    // Проверка соответствия количества параметров
+    size_t param_count = std::count(sql_template.begin(), sql_template.end(), '?');
+    if (param_count != params.size()) {
+        throw std::runtime_error("Parameter count mismatch. Expected " +
+            std::to_string(param_count) +
+            ", got " + std::to_string(params.size()));
+    }
 
-    // Проверяем результат выполнения запроса
+    // Формируем итоговый запрос
+    std::string sql = sql_template;
+    for (const auto& param : params) {
+        size_t pos = sql.find("?");
+        if (pos != std::string::npos) {
+            std::string escaped_param = SQLString::EscapeString(conn_, param);
+            sql.replace(pos, 1, escaped_param);
+        }
+    }
+
+    PGresult* res = PQexec(conn_, sql.c_str());
+    Logger::log("SQL Query: " + sql, "INFO");
+
+    // Проверяем результат выполнения
     if (PQresultStatus(res) != PGRES_TUPLES_OK) {
         Logger::log(std::string(PQerrorMessage(conn_)), "ERROR");
         PQclear(res);
         throw std::runtime_error(std::string(PQerrorMessage(conn_)));
     }
 
-    // Обрабатываем результат
+    // Обработка результатов (без изменений)
     std::vector<std::map<std::string, std::string>> result;
-    int rows = PQntuples(res);  // Количество строк в результате
-    int cols = PQnfields(res);  // Количество столбцов в результате
+    int rows = PQntuples(res);
+    int cols = PQnfields(res);
 
-    // Получаем имена столбцов
     std::vector<std::string> columnNames;
     for (int j = 0; j < cols; ++j) {
-        columnNames.push_back(PQfname(res, j));  // Имя столбца
+        columnNames.push_back(PQfname(res, j));
     }
 
-    // Заполняем результат
     for (int i = 0; i < rows; ++i) {
         std::map<std::string, std::string> row;
         for (int j = 0; j < cols; ++j) {
-            std::string columnName = columnNames[j];
-            std::string value = PQgetvalue(res, i, j);  // Значение ячейки
-            row[columnName] = value;
+            row[columnNames[j]] = PQgetvalue(res, i, j) ? PQgetvalue(res, i, j) : "";
         }
         result.push_back(row);
     }
@@ -126,25 +146,42 @@ inline std::vector<std::map<std::string, std::string>> Database::queryToVector(c
     return result;
 }
 
-inline std::map<std::string, std::string> Database::queryMap(const std::string& sql) {
+inline std::map<std::string, std::string> Database::queryMap(
+    const std::string& sql_template,
+    const std::vector<std::string>& params = {})  // Необязательный параметр
+{
+    // Проверка соответствия количества параметров
+    size_t param_count = std::count(sql_template.begin(), sql_template.end(), '?');
+    if (param_count != params.size()) {
+        throw std::runtime_error("Parameter count mismatch. Expected " +
+            std::to_string(param_count) +
+            ", got " + std::to_string(params.size()));
+    }
+
+    // Формируем итоговый запрос
+    std::string sql = sql_template;
+    for (const auto& param : params) {
+        size_t pos = sql.find("?");
+        if (pos != std::string::npos) {
+            std::string escaped_param = SQLString::EscapeString(conn_, param);
+            sql.replace(pos, 1, escaped_param);
+        }
+    }
+
     PGresult* res = PQexec(conn_, sql.c_str());
+    Logger::log("SQL Query: " + sql, "INFO");
     std::map<std::string, std::string> row;
 
     if (PQresultStatus(res) != PGRES_TUPLES_OK) {
-        std::cerr << "Query failed: " << PQerrorMessage(conn_) << std::endl;
+        Logger::log(std::string(PQerrorMessage(conn_)), "ERROR");
         PQclear(res);
-        return row; // Возвращаем пустой map
+        throw std::runtime_error(std::string(PQerrorMessage(conn_)));
     }
 
-    if (PQntuples(res) == 0) {
-        PQclear(res);
-        return row; // Нет результатов
-    }
-
-    for (int i = 0; i < PQnfields(res); i++) {
-        const char* name = PQfname(res, i);
-        const char* value = PQgetvalue(res, 0, i);
-        row[name] = value ? value : "";
+    if (PQntuples(res) > 0) {
+        for (int i = 0; i < PQnfields(res); i++) {
+            row[PQfname(res, i)] = PQgetvalue(res, 0, i) ? PQgetvalue(res, 0, i) : "";
+        }
     }
 
     PQclear(res);

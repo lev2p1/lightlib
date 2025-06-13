@@ -1,22 +1,22 @@
 {
-    "name": "light",
-    "version": "1.0.0",
-    "dependencies": [
-      "hiredis",
-      "libpq",
-      "boost-beast",
-      "boost-asio",
-      "boost-filesystem",
-      "boost-system",
-      "boost-thread",
-      "boost-date-time",
-      "boost-smart-ptr",
-      "boost-optional",
-      "boost-variant",
-      "boost-algorithm",
-      "fmt",
-      "nlohmann-json",
-      "jwt-cpp",
-      "zlib"
-    ]
-  }
+  "name": "light",
+  "version": "1.0.0",
+  "dependencies": [
+    "boost-algorithm",
+    "boost-asio",
+    "boost-beast",
+    "boost-date-time",
+    "boost-filesystem",
+    "boost-optional",
+    "boost-smart-ptr",
+    "boost-system",
+    "boost-thread",
+    "boost-variant",
+    "fmt",
+    "hiredis",
+    "jwt-cpp",
+    "libpq",
+    "nlohmann-json",
+    "zlib"
+  ]
+}
