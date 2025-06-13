@@ -29,7 +29,6 @@ using tcp = net::ip::tcp;
 
 bool ENV::initialized = false;
 const std::string ENV::env_file_path = ".env";
-std::vector<BYTE> Hash::self_salt;
 redisContext* Queue::context_ = nullptr;
 redisContext* Cache::context_ = nullptr;
 std::vector<std::pair<Migration::Handler, bool>> Migration::migrations_;
@@ -40,7 +39,6 @@ int main() {
 
     try {
         ENV::initialize();
-        Hash::self_salt = Hash::hexStringToBytes(ENV::env_variables["APP_KEY"]);
         Logger::init("debug.log");
         Logger::registerSignalHandlers();
 

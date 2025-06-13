@@ -1,128 +1,78 @@
 #pragma once
 
-#include <windows.h>
-#include <bcrypt.h>
-#include <iostream>
+#include <string.h>
+#include <openssl/core_names.h>
+#include <openssl/params.h>
+#include <openssl/thread.h>
+#include <openssl/kdf.h>
+#include <openssl/rand.h>
+#include "../Debug/Logger.hpp"
 #include <vector>
 #include <string>
+#include <sstream>
+#include <iomanip>
 
-
-#pragma comment(lib, "bcrypt.lib")
 
 class Hash {
 public:
+    static inline uint32_t iterations = 10;
+    static inline uint32_t memory_cost = 16;
+    static inline uint32_t parallelism = 1;
+    static inline uint32_t output_length = 32;
 
-    static std::vector<BYTE> self_salt;
-
-    // Генерация соли
-    static std::vector<BYTE> generateSalt(size_t length) {
-        std::vector<BYTE> salt(length);
-
-        // Используем криптографически безопасный генератор случайных чисел
-        NTSTATUS status = BCryptGenRandom(
-            nullptr,              // Используем системный провайдер
-            salt.data(),          // Указатель на буфер для соли
-            static_cast<ULONG>(salt.size()), // Размер соли
-            BCRYPT_USE_SYSTEM_PREFERRED_RNG // Флаги
-        );
-
-        if (status != 0) {
-            throw std::runtime_error("Failed to generate salt. Error code: " + std::to_string(status));
+    static std::vector<unsigned char> generateSalt(size_t length) {
+        std::vector<unsigned char> salt(length);
+        if (RAND_bytes(salt.data(), length) != 1) {
+            Logger::log("Failed to generate salt", "ERROR");
+            return {};
         }
-
         return salt;
     }
 
-    // Хэширование пароля с солью и итерациями
-    static std::string hash(const std::string& password, ULONG iterations) {
-        constexpr DWORD hashLength = 64; // Длина хэша (в байтах)
-        std::vector<BYTE> hash(hashLength);
+    static std::pair<std::string, std::vector<unsigned char>>hash(const std::string& password, std::vector<unsigned char> salt = {}) {
+        std::vector<unsigned char> output(output_length);
+        uint32_t actual_iterations = iterations;
 
-        // Открываем алгоритм SHA-512
-        BCRYPT_ALG_HANDLE hAlgorithm = nullptr;
-        NTSTATUS status = BCryptOpenAlgorithmProvider(
-            &hAlgorithm,          // Указатель на хэндл алгоритма
-            BCRYPT_SHA512_ALGORITHM, // Используем SHA-512
-            nullptr,              // Провайдер (nullptr для системного)
-            0                     // Флаги
-        );
-
-        if (status != 0) {
-            throw std::runtime_error("Failed to open algorithm provider. Error code: " + std::to_string(status));
+        EVP_KDF* kdf = EVP_KDF_fetch(nullptr, "ARGON2ID", nullptr);
+        if (!kdf) {
+            Logger::log("Error: Argon2 not supported in OpenSSL", "ERROR");
+            return { "", std::vector<unsigned char> {} };
         }
 
-        // Создаем хэш-объект
-        BCRYPT_HASH_HANDLE hHash = nullptr;
-        status = BCryptCreateHash(
-            hAlgorithm,           // Хэндл алгоритма
-            &hHash,               // Указатель на хэндл хэш-объекта
-            nullptr,              // Буфер для хэш-объекта (не требуется)
-            0,                    // Размер буфера (не требуется)
-            nullptr,              // Соль (не передаём соль здесь)
-            0,                    // Длина соли (0, так как соль не передаётся)
-            0                     // Флаги
-        );
-
-        if (status != 0) {
-            BCryptCloseAlgorithmProvider(hAlgorithm, 0);
-            throw std::runtime_error("Failed to create hash object. Error code: " + std::to_string(status));
+        EVP_KDF_CTX* ctx = EVP_KDF_CTX_new(kdf);
+        if (!ctx) {
+            Logger::log("Error: Failed to create KDF context", "ERROR");
+            EVP_KDF_free(kdf);
+            return { "", std::vector<unsigned char> {} };
         }
 
-        // Добавляем соль в хэш-объект
-        status = BCryptHashData(
-            hHash,                // Хэндл хэш-объекта
-            const_cast<PUCHAR>(self_salt.data()), // Соль
-            static_cast<ULONG>(self_salt.size()), // Длина соли
-            0                     // Флаги
-        );
+        salt = salt.size() > 0 ? salt : generateSalt(64);
 
-        if (status != 0) {
-            BCryptDestroyHash(hHash);
-            BCryptCloseAlgorithmProvider(hAlgorithm, 0);
-            throw std::runtime_error("Failed to add salt to hash. Error code: " + std::to_string(status));
+        OSSL_PARAM params[] = {
+            OSSL_PARAM_construct_utf8_string("digest", (char*)"sha256", 0),
+            OSSL_PARAM_construct_octet_string("salt", salt.data(), salt.size()),
+            OSSL_PARAM_construct_uint("iter", &actual_iterations),
+            OSSL_PARAM_construct_uint("memcost", &memory_cost),
+            OSSL_PARAM_construct_uint("parallelism", &parallelism),
+            OSSL_PARAM_construct_end()
+        };
+
+        if (EVP_KDF_derive(ctx, output.data(), output.size(), params) <= 0) {
+            Logger::log("Error: Argon2 hashing failed", "ERROR");
+            EVP_KDF_CTX_free(ctx);
+            EVP_KDF_free(kdf);
+            return { "", std::vector<unsigned char> {} };
         }
 
-        // Хэшируем пароль с итерациями
-        for (ULONG i = 0; i < iterations; ++i) {
-            status = BCryptHashData(
-                hHash,            // Хэндл хэш-объекта
-                reinterpret_cast<PUCHAR>(const_cast<char*>(password.data())), // Пароль
-                static_cast<ULONG>(password.size()), // Длина пароля
-                0                  // Флаги
-            );
-
-            if (status != 0) {
-                BCryptDestroyHash(hHash);
-                BCryptCloseAlgorithmProvider(hAlgorithm, 0);
-                throw std::runtime_error("Failed to hash data. Error code: " + std::to_string(status));
-            }
+        std::ostringstream oss;
+        for (unsigned char byte : output) {
+            oss << std::hex << std::setw(2) << std::setfill('0') << (int)byte;
         }
 
-        // Завершаем хэширование и получаем хэш
-        status = BCryptFinishHash(
-            hHash,               // Хэндл хэш-объекта
-            hash.data(),          // Выходной буфер для хэша
-            hashLength,           // Длина хэша
-            0                     // Флаги
-        );
+        EVP_KDF_CTX_free(ctx);
+        EVP_KDF_free(kdf);
 
-        // Закрываем хэш-объект и алгоритм
-        BCryptDestroyHash(hHash);
-        BCryptCloseAlgorithmProvider(hAlgorithm, 0);
-
-        if (status != 0) {
-            throw std::runtime_error("Failed to finish hash. Error code: " + std::to_string(status));
-        }
-
-        // Преобразуем хэш в строку
-        std::string result;
-        for (BYTE b : hash) {
-            char buf[3];
-            snprintf(buf, sizeof(buf), "%02x", b);
-            result += buf;
-        }
-
-        return result;
+        return { oss.str(),  salt};
     }
 
     static inline std::vector<uint8_t> hexStringToBytes(const std::string& hex) {
@@ -133,5 +83,18 @@ public:
             bytes.push_back(byte);
         }
         return bytes;
+    }
+
+    static inline std::string bytesToHexString(const std::vector<uint8_t>& bytes) {
+        std::ostringstream oss;
+        oss << std::hex << std::setfill('0');
+        for (uint8_t byte : bytes) {
+            oss << std::setw(2) << static_cast<int>(byte);
+        }
+        return oss.str();
+    }
+
+    static inline bool vefify(const std::string& password, const std::string& stored_hash, const std::vector<unsigned char>& salt) {
+        return hash(password, salt).first == stored_hash;
     }
 };

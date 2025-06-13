@@ -48,31 +48,20 @@ void HelloController::index(const Request& req, Response& res)
 
 void HelloController::store(const Request& req, Response& res) {
 	try {
-		// Получаем экземпляр Storage
 		Storage& storage = Storage::getInstance();
-
-		// Устанавливаем корневую директорию
 		storage.setRootPath("storage/public");
 
-		// Сохраняем файл
 		storage.put("example.txt", "Hello, Storage!");
-
-		// Читаем файл
 		std::string content = storage.get("example.txt");
 		std::cout << "File content: " << content << std::endl;
 
-		// Проверяем существование файла
 		if (storage.exists("example.txt")) {
 			std::cout << "File exists!" << std::endl;
 		}
 
-		// Копируем файл
 		storage.copy("example.txt", "example_copy.txt");
-
-		// Удаляем файл
 		storage.deleteFile("example.txt");
 
-		// Устанавливаем статус ответа
 		res.result(http::status::ok);
 		res.body() = "Storage operations completed successfully!";
 	}
@@ -93,19 +82,18 @@ void HelloController::login(const Request& req, Response& res)
 
 		json body = json::parse(req.body());
 
-		// Извлекаем логин и пароль
 		std::string username = body["username"];
 		std::string password = body["password"];
 
-		std::string hashed_password = Hash::hash(password, 10);
 
-		auto data = User::where("name = '" + username + "'");
+		auto data = User::where("username = '" + username + "'");
 
 		for (const auto& user : data) {
 			std::cout << user->attributes["name"];
 		}
 
-		if (data[0]->getAttribute("password") == hashed_password) {
+		std::pair<std::string, std::vector<unsigned char>> hashed_password = Hash::hash(password, Hash::hexStringToBytes(data[0]->attributes["salt"]));
+		if (data[0]->getAttribute("password") == hashed_password.first) {
 			auto token = AuthService::createAccessToken(data[0]->getAttribute("id"));
 			res.body() = "Authorization: " + token;
 		}
@@ -125,20 +113,21 @@ void HelloController::reg(const Request& req, Response& res)
 
 		json body = json::parse(req.body());
 
-		// Извлекаем логин и пароль
 		std::string username = body["username"];
 		std::string password = body["password"];
 		std::string email = body["email"];
-		//std::string age = body["age"];
+		std::string age = body["age"];
 
-		std::string hashed_password = Hash::hash(password, 10);
+		std::pair<std::string, std::vector<unsigned char>> hashed_password = Hash::hash(password);
 
-		User::create({ {"username", username}, {"password", hashed_password}, {"email", email} })->save();
+		User::create({ {"username", username}, {"password", hashed_password.first}, {"email", email}, {"salt", Hash::bytesToHexString(hashed_password.second)}})->save();
+		Logger::log("SUCCESS: All right ", "SUCCESS");
 
 	}
 	catch (const std::exception& e) {
 		std::cerr << "Error: " << e.what() << std::endl;
 		Logger::log("Error: " + std::string(e.what()), "ERROR");
+		Logger::log(req.body(), "INFO");
 	}
 }
 
@@ -173,10 +162,10 @@ void HelloController::testQueue(const Request& req, Response& res) {
 
 void HelloController::testCache(const Request& req, Response& res) {
 	try {
-		Cache::set("my_key", "my_value", 10); // Установка значения с временем жизни 10 секунд
-		std::string value = Cache::get("my_key"); // Получение значения
-		Cache::expire("my_key", 20); // Установка времени жизни ключа на 20 секунд
-		Cache::del("my_key"); // Удаление ключа
+		Cache::set("my_key", "my_value", 10);
+		std::string value = Cache::get("my_key");
+		Cache::expire("my_key", 20);
+		Cache::del("my_key");
 		std::cout << value << std::endl;
 		res.body() = value;
 
