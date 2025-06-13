@@ -1,4 +1,4 @@
-#pragma once 
+п»ї#pragma once 
 #pragma execution_character_set("utf-8")
 
 #include <vector>
@@ -12,14 +12,14 @@ class Migration {
 public:
 	
 	static void addMigration(Handler handle) {
-		migrations_.push_back({ handle, false }); // Используем false вместо 0
+		migrations_.push_back({ handle, false }); // пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ false пїЅпїЅпїЅпїЅпїЅпїЅ 0
 	}
 
 	static void runMigrations() {
 			for (auto& i : migrations_) {
 				if (!i.second) {
-					i.first(); // Вызываем функцию
-					i.second = true; // Помечаем миграцию как выполненную
+					i.first(); // пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ
+					i.second = true; // пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ
 				}
 			}
 		

@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 
 #include <string.h>
 #include <openssl/core_names.h>
