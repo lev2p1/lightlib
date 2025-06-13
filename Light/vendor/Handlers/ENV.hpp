@@ -11,7 +11,6 @@ public:
     static inline std::unordered_map<std::string, std::string> env_variables;
     static bool initialized;
 
-    // Путь к .env файлу (на два уровня выше)
     static const std::string env_file_path;
 
     static void initialize() {
@@ -24,11 +23,9 @@ public:
 
         std::string line;
         while (std::getline(env_file, line)) {
-            // Убираем пробелы в начале и конце строки
             line.erase(0, line.find_first_not_of(' '));
             line.erase(line.find_last_not_of(' ') + 1);
 
-            // Пропускаем пустые строки и комментарии
             if (line.empty() || line[0] == '#') {
                 continue;
             }
@@ -37,8 +34,6 @@ public:
             if (delimiter_pos != std::string::npos) {
                 std::string key = line.substr(0, delimiter_pos);
                 std::string value = line.substr(delimiter_pos + 1);
-
-                // Убираем пробелы вокруг ключа и значения
                 key.erase(0, key.find_first_not_of(' '));
                 key.erase(key.find_last_not_of(' ') + 1);
                 value.erase(0, value.find_first_not_of(' '));
