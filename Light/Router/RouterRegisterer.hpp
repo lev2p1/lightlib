@@ -5,6 +5,8 @@
 #include "../Controllers/HelloController.hpp"
 #include "../vendor/Debug/Logger.hpp"
 
+typedef const std::unordered_map<std::string, std::string>& Params;
+
 class RouterRegisterer {
 
 public:
@@ -14,7 +16,7 @@ public:
             auto homeController = std::make_shared<HomeController>();
             auto helloController = std::make_shared<HelloController>();
 
-            Router::get("/users/{id}/{name}", [](const Router::Request& req, Router::Response& res, const std::unordered_map<std::string, std::string>& params) {
+            Router::get("/users/{id}/{name}", [](const Router::Request& req, Router::Response& res, Params params) {
                 std::string userId = params.at("id");
                 std::string userName = params.at("name");
                 res.body() = "User ID: " + userId + "\nUser name: " + userName;
@@ -52,10 +54,10 @@ public:
             Router::post("/register", [helloController](const Router::Request& req, Router::Response& res) {
                 helloController->reg(req, res);
                 });
-            Logger::log("Router is registerer", "INFO");
+            Logger::log("Router is registered", "INFO");
         }
         catch (const std::exception& e) {
-            Logger::log("Router not registerer", "ERROR");
+            Logger::log("Router not registered", "ERROR");
         }
         
 	}

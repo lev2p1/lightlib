@@ -15,27 +15,23 @@
 
 class MigrationManager {
 private:
-    Database& db;  // ��� ����� ��� ������ � ����� ������
-    std::unordered_set<std::string> executedMigrations;  // ����������� ��������
+    Database& db;
+    std::unordered_set<std::string> executedMigrations;
 
-    // ���������, ��������� �� ��������
     bool isMigrationExecuted(const std::string& name) {
         return executedMigrations.find(name) != executedMigrations.end();
     }
 
-    // ��������� �������� � ������ �����������
     void markMigrationAsExecuted(const std::string& name) {
         db.execute("INSERT INTO migrations (name) VALUES ('" + name + "');");
         executedMigrations.insert(name);
     }
 
-    // ������� �������� �� ������ �����������
     void unmarkMigrationAsExecuted(const std::string& name) {
         db.execute("DELETE FROM migrations WHERE name = '" + name + "';");
         executedMigrations.erase(name);
     }
 
-    // ��������� SQL-�������
     void executeQueries(const std::vector<std::string>& queries) {
         for (const auto& query : queries) {
             db.execute(query);
@@ -48,86 +44,75 @@ public:
         try {
             auto result = db.queryToVector("SELECT name FROM migrations;");
 
-            // ������������ ���������
             for (const auto& row : result) {
                 auto it = row.find("name");
                 if (it != row.end()) {
                     executedMigrations.insert(it->second); 
                 }
                 else {
-                    std::cerr << "Warning: Column 'name' not found in row" << std::endl;
+                    Logger::log("Column 'name' not found in row", "Warning");
                 }
             }
         }
         catch (const std::exception& e) {
-            std::cerr << "Error loading migrations: " << e.what() << std::endl;
+            Logger::log("Error loading migrations", "ERROR");
             throw;  
         }
     }
 
-    // ��������� ��������
     template <typename Migration>
     void migrate() {
         std::string name = typeid(Migration).name();
 
         if (isMigrationExecuted(name)) {
-            std::cout << "Migration already executed: " << name << std::endl;
+            Logger::log("Migration already executed: " + name, "INFO");
             return;
         }
 
         try {
-            // ��������� ��������
-            auto queries = Migration::up();  // �������� ��� �������
+         
+            auto queries = Migration::up();  
 
-            // ��������� ��� �������
             for (const auto& query : queries) {
                 db.execute(query);
             }
 
-            markMigrationAsExecuted(name);  // �������� �������� ��� �����������
-            std::cout << "Migration executed: " << name << std::endl;
+            markMigrationAsExecuted(name); 
+            Logger::log("Migration executed: " + name, "SUCCESS");
         }
         catch (const std::exception& e) {
-            std::cerr << "Migration failed: " << name << " - " << e.what() << std::endl;
+            Logger::log("Migration failed: " + name + " - " + e.what(), "ERROR");
             throw;
         }
     }
 
-    // ���������� ��������
     template <typename Migration>
     void rollback() {
         std::string name = typeid(Migration).name();
 
         if (!isMigrationExecuted(name)) {
-            std::cout << "Migration not executed: " << name << std::endl;
+            Logger::log("Migration not executed: " + name, "ERROR");
             return;
         }
 
         try {
-            //db.beginTransaction();  // �������� ����������
-
-            // ��������� ����� ��������
             std::string mainQuery = Migration::down();
             db.execute(mainQuery);
 
-            unmarkMigrationAsExecuted(name);  // ������� �������� �� ������ �����������
-            //db.commitTransaction();           // ��������� ����������
-            std::cout << "Migration rolled back: " << name << std::endl;
+            unmarkMigrationAsExecuted(name);
+            Logger::log("Migration rolled back: " + name, "INFO");
         }
         catch (const std::exception& e) {
-            //db.rollbackTransaction();  // ���������� ���������� � ������ ������
-            std::cerr << "Rollback failed: " << name << " - " << e.what() << std::endl;
+            Logger::log("Rollback failed: " + name + " - " + e.what(), "ERROR");
             throw;
         }
     }
 
-    // ��������� ��� �������� �� �������
     template <typename... Migrations>
     void migrateAll() {
         (migrate<Migrations>(), ...);
     }
 
-    // ���������� ��� �������� � �������� �������
     template <typename... Migrations>
     void rollbackAll() {
         (rollback<Migrations>(), ...);
