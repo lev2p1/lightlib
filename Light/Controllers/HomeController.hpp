@@ -19,5 +19,5 @@ inline void HomeController::about(const Request& req, Response& res)
 {
     res.result(http::status::ok);
     res.body() = "About us: This is a simple C++ web server.";
-    res.prepare_payload(); // ������������� ����� ���� ������
+    res.prepare_payload();
 }

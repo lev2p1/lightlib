@@ -7,6 +7,7 @@
 #include <regex>
 #include <iostream>
 #include "../Controllers/Controller.hpp"
+#include "../Controllers/APIController.hpp"
 
 namespace beast = boost::beast;
 namespace http = beast::http;
@@ -67,6 +68,14 @@ public:
         std::regex pathRegex = convertPathToRegex(path);
         std::vector<std::string> paramNames = extractParamNames(path);
         dynamic_routes_[http::verb::delete_].emplace_back(pathRegex, RouteInfo{ handler, paramNames });
+    }
+
+    static void resourceApi(const std::string& path, APIController* handle) {
+        Router::get(path + "/{id}", handle->show());
+        Router::post(path, handle->store());
+        Router::put(path + "/{id}/update", handle->update());
+        Router::patch(path + "/{id}/update", handle->update());
+        Router::delete_(path, handle->delete_());
     }
 
     static void handle_request(const Request& req, Response& res) {
