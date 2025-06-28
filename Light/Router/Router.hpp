@@ -70,13 +70,13 @@ public:
         dynamic_routes_[http::verb::delete_].emplace_back(pathRegex, RouteInfo{ handler, paramNames });
     }
 
-    static void resourceApi(const std::string& path, APIController* handle) {
-        Router::get(path + "/{id}", handle->show());
-        Router::post(path, handle->store());
-        Router::put(path + "/{id}/update", handle->update());
-        Router::patch(path + "/{id}/update", handle->update());
-        Router::delete_(path, handle->delete_());
-    }
+    //static void resourceApi(const std::string& path, APIController* handle) {
+    //    Router::get(path + "/{id}", handle->show());
+    //    Router::post(path, handle->store());
+    //    Router::put(path + "/{id}/update", handle->update());
+    //    Router::patch(path + "/{id}/update", handle->update());
+    //    Router::delete_(path, handle->delete_());
+    //}
 
     static void handle_request(const Request& req, Response& res) {
         auto method = req.method();
