@@ -80,7 +80,7 @@ int main() {
         const unsigned short port = 8080;
         net::io_context ioc;
         tcp::acceptor acceptor(ioc, { tcp::v4(), port });
-        std::cout << "Server is running on port " << port << std::endl;
+        Logger::log("Server is running on port " + std::to_string(port), "SUCCESS");
         RouterRegisterer::init();
 
         while (true) {

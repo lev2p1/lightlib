@@ -1,5 +1,6 @@
 ﻿#pragma once
 
+#include <memory>
 #include "Router.hpp"
 #include "../Controllers/HomeController.hpp"
 #include "../Controllers/HelloController.hpp"
@@ -8,6 +9,8 @@
 typedef const std::unordered_map<std::string, std::string>& Params;
 
 class RouterRegisterer {
+    using Request = http::request<http::string_body>;
+    using Response = http::response<http::string_body>;
 
 public:
 
@@ -54,6 +57,9 @@ public:
             Router::post("/register", [helloController](const Router::Request& req, Router::Response& res) {
                 helloController->reg(req, res);
                 });
+
+            Router::resourceApi("/customers", homeController);
+
             Logger::log("Router is registered", "INFO");
         }
         catch (const std::exception& e) {

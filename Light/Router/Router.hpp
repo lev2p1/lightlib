@@ -17,6 +17,7 @@ public:
     using Response = http::response<http::string_body>;
     using Handler = std::function<void(const Request&, Response&, const std::unordered_map<std::string, std::string>&)>;
     using SimpleHandler = std::function<void(const Request&, Response&)>;
+    using ExtandHandler = std::function<void(const Request&, Response&, std::shared_ptr<Controller>, const std::unordered_map<std::string, std::string>&)>;
 
  
     static void get(const std::string& path, SimpleHandler handler) {
@@ -67,6 +68,24 @@ public:
         std::regex pathRegex = convertPathToRegex(path);
         std::vector<std::string> paramNames = extractParamNames(path);
         dynamic_routes_[http::verb::delete_].emplace_back(pathRegex, RouteInfo{ handler, paramNames });
+    }
+
+    static void resourceApi(const std::string& path, std::shared_ptr<Controller> handle) {
+        Router::get(path + "/{id}", [handle, path](const Request& req, Response& res, Params params) {
+            handle->show(req, res, params);
+            });
+        Router::post(path, [handle](const Request& req, Response& res) {
+            handle->store(req, res);
+            });
+        Router::put(path + "/{id}/update", [handle](const Request& req, Response& res, Params params) {
+            handle->update(req, res, params);
+            });
+        Router::patch(path + "/{id}/update", [handle](const Request& req, Response& res, Params params) {
+            handle->update(req, res, params);
+            });
+        Router::delete_(path, [handle](const Request& req, Response& res, Params params) {
+            handle->delete_(req, res, params);
+            });
     }
 
     static void handle_request(const Request& req, Response& res) {
