@@ -3,7 +3,7 @@
 namespace beast = boost::beast;
 namespace http = beast::http;
 
-class Middlewhare {
+class Middleware {
 public:
 	using Request = http::request<http::string_body>;
 
