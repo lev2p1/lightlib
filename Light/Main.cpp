@@ -8,8 +8,8 @@
 #include <string>
 #include <memory>
 #include "Router/RouterRegisterer.hpp"
-#include "Controllers/HomeController.hpp"
-#include "Controllers/HelloController.hpp"
+#include "App/Http/Controllers/HomeController.hpp"
+#include "App/Http/Controllers/HelloController.hpp"
 #include "Database/Models/User.cpp"
 #include "map"
 #include "Database/Models/User.cpp"
