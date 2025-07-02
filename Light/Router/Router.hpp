@@ -6,7 +6,7 @@
 #include <functional>
 #include <regex>
 #include <iostream>
-#include "../Controllers/Controller.hpp"
+#include "../App/Http/Controllers/Controller.hpp"
 
 namespace beast = boost::beast;
 namespace http = beast::http;

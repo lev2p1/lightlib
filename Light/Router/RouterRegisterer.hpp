@@ -2,8 +2,8 @@
 
 #include <memory>
 #include "Router.hpp"
-#include "../Controllers/HomeController.hpp"
-#include "../Controllers/HelloController.hpp"
+#include "../App/Http/Controllers/HomeController.hpp"
+#include "../App/Http/Controllers/HelloController.hpp"
 #include "../vendor/Debug/Logger.hpp"
 
 typedef const std::unordered_map<std::string, std::string>& Params;

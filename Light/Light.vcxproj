@@ -152,6 +152,12 @@
     <ClCompile Include="Main.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="App\Http\Controllers\Controller.hpp" />
+    <ClInclude Include="App\Http\Controllers\HelloController.hpp" />
+    <ClInclude Include="App\Http\Controllers\HomeController.hpp" />
+    <ClInclude Include="App\Http\Middlewares\CorsHandler.hpp" />
+    <ClInclude Include="App\Http\Middlewares\DefaultCorsHandler.hpp" />
+    <ClInclude Include="App\Http\Middlewares\Middleware.hpp" />
     <ClInclude Include="Controllers\Controller.hpp" />
     <ClInclude Include="Controllers\HelloController.hpp" />
     <ClInclude Include="Controllers\HomeController.hpp" />
