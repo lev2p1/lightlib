@@ -1,12 +1,12 @@
-#pragma once 
+п»ї#pragma once 
 #include <iostream>
 #include <jwt-cpp/jwt.h>
 #include "../vendor/Handlers/ENV.hpp"
 
 class AuthService {
 private:
-    static inline std::map<std::string, std::string> refreshTokens; // Хранилище Refresh Token
-    static inline std::string secret = ENV::env_variables["AUTH_SECRET"]; // Секретный ключ
+    static inline std::map<std::string, std::string> refreshTokens; // пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ Refresh Token
+    static inline std::string secret = ENV::env_variables["AUTH_SECRET"]; // пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅ
 
 public:
     static std::string createAccessToken(const std::string& userId) {

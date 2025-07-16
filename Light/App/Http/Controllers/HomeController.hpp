@@ -1,4 +1,4 @@
-#pragma once
+п»ї#pragma once
 
 #include <boost/beast/http.hpp>
 #include "Controller.hpp"
@@ -19,5 +19,5 @@ inline void HomeController::about(const Request& req, Response& res)
 {
     res.result(http::status::ok);
     res.body() = "About us: This is a simple C++ web server.";
-    res.prepare_payload(); // Устанавливаем длину тела ответа
+    res.prepare_payload();
 }

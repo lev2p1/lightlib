@@ -4,297 +4,205 @@
 #include <memory>
 #include <vector>
 #include <stdexcept>
-#include <../include/libpq-fe.h>
 #include <iostream>
 #include <algorithm>
 #include "../Database.hpp"
-#include "../SQLBuilder.hpp"
-#include "ModelQueryBuilder.hpp"
+#include "../../vendor/Debug/Logger.hpp"
 
-//   Model � �������������� CRTP
 template <typename Derived>
 class Model {
 protected:
-    static inline std::vector<std::string> fillable; // ������ ����� ��� ����������
-    static inline std::vector<std::string> fields; // ������ ���� �����
+    static inline std::vector<std::string> fillable; // Список полей для заполнения
+    static inline std::vector<std::string> fields; // Список всех полей
 
-public:
     std::map<std::string, std::string> attributes;
 
-    virtual ~Model() = default;
-
-    // ����� save
-    void save() {
-        // ������ ����������� � ���� ������
-        auto database = std::make_shared<Database>();
-
-        // ���������, ���� �� �������� ��� ����������
-        if (attributes.empty()) {
-            std::cerr << "Attributes are empty" << std::endl;
-            return;
+    // ��������������� ������� ��� ������������� SQL-��������
+    std::string escape(const std::string& value) const {
+        std::string escaped = value;
+        // ������� ������������� ������� ��� �������
+        size_t pos = 0;
+        while ((pos = escaped.find("'", pos)) != std::string::npos) {
+            escaped.replace(pos, 1, "''");
+            pos += 2;
         }
-
-        // ��������� ������ ����� � ��������
-        std::string fields_;
-        std::string values_;
-        std::string updateClause;
-
-        for (const auto& [key, value] : attributes) {
-            fields_ += key + ", ";
-            values_ += "'" + value + "', ";
-
-            // ��������� ����� ������� ��� ���������� (����� id)
-            if (key != "id") {
-                updateClause += key + " = EXCLUDED." + key + ", ";
-            }
-        }
-
-        // ������� ��������� ������� � ������
-        if (!fields_.empty()) {
-            fields_.erase(fields_.size() - 2); // ������� ", "
-            values_.erase(values_.size() - 2); // ������� ", "
-        }
-        if (!updateClause.empty()) {
-            updateClause.erase(updateClause.size() - 2); // ������� ", "
-        }
-
-        // ��������� SQL-������
-        std::string query = "INSERT INTO " + Derived::table_name + " (" + fields_ + ") VALUES (" + values_ + ") "
-            "ON CONFLICT (id) DO UPDATE SET " + updateClause + ";";
-
-        // ��������� ������
-        try {
-            database->execute(query);
-        }
-        catch (const std::exception& e) {
-            std::cerr << "Bad request" << e.what() << std::endl;
-        }
+        return escaped;
     }
+
+public:
+    virtual ~Model() = default;
 
     // ������������� �������� ��������
     void setAttribute(const std::string& key, const std::string& value) {
         if (isField(key)) {
-            this->attributes[key] = value; // ���������� this->attributes
+            attributes[key] = value;
         }
         else {
             std::cerr << "Field '" << key << "' is not fillable." << std::endl;
         }
     }
 
-    // ������� ��� ��������
-    void printAttributes() const {
+    void debugPrintAttributes() const {
+        std::cout << "=== MODEL ATTRIBUTES ===\n";
+        for (const auto& [key, val] : attributes) {
+            std::cout << key << " = '" << val << "'\n";
+        }
+    }
+
+    // �������� �������� ��������
+    std::string getAttribute(const std::string& key) const {
+        auto it = attributes.find(key);
+        if (it != attributes.end()) {
+            return it->second;
+        }
+        throw std::invalid_argument("Attribute '" + key + "' not found.");
+    }
+
+    // ���������� ������
+    void save() {
+        auto database = std::make_shared<Database>();
+
+        if (attributes.empty()) {
+            std::cerr << "Attributes are empty" << std::endl;
+            return;
+        }
+
+        std::string fields_str;
+        std::string values_str;
+        std::string update_clause;
+
         for (const auto& [key, value] : attributes) {
-            std::cout << key << ": " << value << std::endl;
-        }
-    }
+            fields_str += key + ", ";
+            values_str += "'" + escape(value) + "', ";
 
-    // ��������� ������ ������� �� ������ ���� ������
-    static std::shared_ptr<Model<Derived>> create(const std::map<std::string, std::string>& data) {
-        auto model = std::make_shared<Derived>();
-        for (const auto& [key, value] : data) {
-            if (Derived::isField(key)) {
-                model->setAttribute(key, value);
-                std::cout << key << " = " << value << std::endl;
-            }
-            else {
-                std::cerr << "Field '" << key << "' is not fillable." << std::endl;
-                return nullptr;
-            }
-        }
-        return model;
-    }
-
-    static std::shared_ptr<Derived> create(std::string data) {
-        auto model = std::make_shared<Derived>();
-
-        // ��������� ������ ������ �� ��������� ��������
-        std::istringstream iss(data);
-        std::string value;
-        for (size_t i = 0; i < Derived::fields.size(); ++i) {
-            if (std::getline(iss, value, ' ')) {
-                model->setAttribute(Derived::fields[i], value);
-            }
-            else {
-                std::cerr << "Not enough data for field: " << Derived::fields[i] << std::endl;
-                return nullptr;
+            if (key != "id") {
+                update_clause += key + " = EXCLUDED." + key + ", ";
             }
         }
 
-        return model;
+        // ������� ��������� ", "
+        if (!fields_str.empty()) {
+            fields_str.erase(fields_str.size() - 2);
+            values_str.erase(values_str.size() - 2);
+        }
+        if (!update_clause.empty()) {
+            update_clause.erase(update_clause.size() - 2);
+        }
+
+        std::string query = "INSERT INTO " + Derived::table_name +
+            " (" + fields_str + ") VALUES (" + values_str + ") " +
+            "ON CONFLICT (id) DO UPDATE SET " + update_clause + ";";
+
+        try {
+            database->execute(query);
+        }
+        catch (const std::exception& e) {
+            std::cerr << "Save failed: " << e.what() << std::endl;
+        }
     }
 
-    // ���������, �������� �� ���� fillable
+    // ����������� ������
     static bool isFillable(const std::string& field) {
-        return std::find(Derived::fillable.begin(), Derived::fillable.end(), field) != Derived::fillable.end();
+        return std::find(fillable.begin(), fillable.end(), field) != fillable.end();
     }
 
     static bool isField(const std::string& field) {
         return std::find(Derived::fields.begin(), Derived::fields.end(), field) != Derived::fields.end();
     }
 
-
-    // ���������� �������� ��������
-    std::string getAttribute(const std::string& key) const {
-        if (attributes.find(key) != attributes.end()) {
-            return attributes.at(key);
+    // �������� ������ �� ������
+    static std::shared_ptr<Derived> create(const std::map<std::string, std::string>& data) {
+        auto model = std::make_shared<Derived>();
+        for (const auto& [key, value] : data) {
+            if (isField(key)) {
+                model->setAttribute(key, value);
+            }
         }
-        throw std::invalid_argument("Attribute '" + key + "' not found.");
+        return model;
     }
 
-    // ����������� ���������� ��� �������� ����� �������
-    static inline std::string table_name = "default_table";
-
-    // ������ � �������
+    // ����� �� ID
     static std::shared_ptr<Derived> find(int id) {
         try {
-            // ����������� � ���� ������
-            auto database = std::make_shared<Database>();
 
-            // ��������� ������ �����
-            std::string fields_;
-            for (size_t i = 0; i < Derived::fields.size(); ++i) {
-                fields_ += Derived::fields[i];
-                if (i < Derived::fields.size() - 1) {
-                    fields_ += ", "; // ��������� ������� ������ ����� ������
-                }
-            }
+            auto db = std::make_shared<Database>();
+            std::string sql = "SELECT * FROM " + Derived::table_name + " WHERE id = " + std::to_string(id);
 
-            SQLQueryBuilder sqlb(Derived::table_name);
-            std::string data = sqlb.Select(Derived::fields).Where("id = " + std::to_string(id)).get();
+            auto db_data = db->queryMap(sql);
 
-            //std::string sql = "SELECT " + fields_ + " FROM " + Derived::table_name + " WHERE id = " + std::to_string(id);
-            //std::string data = database->query(sql);
-
-            // ���������, ��� ������ �� ������
-            if (data.empty()) {
-                std::cerr << "No data found for id: " << id << std::endl;
+            if (db_data.empty()) {
+                Logger::log("No data found by id", "WARNING");
                 return nullptr;
             }
 
-            //std::cout << "Raw data: " << data << std::endl;
-            //std::cout << "End of data for id: " << id << std::endl;
-            //std::cout << "Executed SQL: " << sql << std::endl;
+            auto model = std::make_shared<Derived>();
 
+            for (const auto& [field, value] : db_data) {
+                model->setAttribute(field, value);
+            }
+            return model;
 
-            return Derived::create(data);
         }
         catch (const std::exception& e) {
-            std::cerr << "Error in read: " << e.what() << std::endl;
+            Logger::log("Finding error", "ERROR");
             return nullptr;
         }
     }
 
+    // ���������� ������
     static void update(int id, const std::map<std::string, std::string>& data) {
-        try{
+        try {
             auto model = Derived::find(id);
             if (model) {
                 for (const auto& [key, value] : data) {
-                    model->setAttribute(key, value);
+                    if (isField(key)) {
+                        model->setAttribute(key, value);
+                    }
                 }
-
                 model->save();
             }
         }
-        catch(const std::exception& e){
-            std::cerr << "Error in read: " << e.what() << std::endl;
+        catch (const std::exception& e) {
+            std::cerr << "Update failed: " << e.what() << std::endl;
         }
     }
 
-    static void delete_(int id) {
+
+    void delete_() {
         try {
             auto database = std::make_shared<Database>();
-
-            SQLQueryBuilder sqlb(Derived::table_name);
-            sqlb.Delete().Where("id = " + std::to_string(id)).get();
-
-            //std::string query = "DELETE FROM " + Derived::table_name + " WHERE id = " + std::to_string(id) + ";";
-            //database->execute(query);
-
-            std::cout << "Record with id " << id << " deleted successfully from table: " << Derived::table_name << std::endl;
+            std::string query = "DELETE FROM " + Derived::table_name +
+                " WHERE id = " + this->getAttribute("id");
+            database->execute(query);
         }
         catch (const std::exception& e) {
-            std::cerr << "Error deleting record with id " << id << ": " << e.what() << std::endl;
+            std::cerr << "Delete failed: " << e.what() << std::endl;
         }
     }
 
+    // ����� �� �������
     static std::vector<std::shared_ptr<Derived>> where(const std::string& condition) {
         std::vector<std::shared_ptr<Derived>> results;
 
         try {
-            // ����������� � ���� ������
             auto database = std::make_shared<Database>();
+            std::string query = "SELECT * FROM " + Derived::table_name +
+                " WHERE " + condition;
 
-            // ��������� ������ �����
-            std::string fields_;
-            for (size_t i = 0; i < Derived::fields.size(); ++i) {
-                fields_ += Derived::fields[i];
-                if (i < Derived::fields.size() - 1) {
-                    fields_ += ", "; // ��������� ������� ������ ����� ������
-                }
-            }
+            // ������������, ��� Database::query ���������� ������ map'��
+            auto data_list = database->queryToVector(query);
 
-            // ��������� SQL-������
-            SQLQueryBuilder sqlb(Derived::table_name);
-            std::string data = sqlb.Select(Derived::fields)
-                                   .Where(condition)
-                                   .get();
-
-            //std::string sql = "SELECT " + fields_ + " FROM " + Derived::table_name + " WHERE " + condition;
-            //std::string data = database->query(sql);
-
-            // ���������, ��� ������ �� ������
-            if (data.empty()) {
-                std::cerr << "No data found for condition: " << condition << std::endl;
-                return results;
-            }
-
-            // ��������� ������ �� ������ (������������, ��� ������ ������ � ��� ��������� ������)
-            std::istringstream iss(data);
-            std::string line;
-            while (std::getline(iss, line)) {
-                auto model = Derived::create(line);
+            for (const auto& data : data_list) {
+                auto model = Derived::create(data);
                 if (model) {
                     results.push_back(model);
                 }
             }
         }
         catch (const std::exception& e) {
-            std::cerr << "Error in where: " << e.what() << std::endl;
+            std::cerr << "Where failed: " << e.what() << std::endl;
         }
 
         return results;
     }
-
-    static SQLQueryBuilder query() {
-        return SQLQueryBuilder(Derived::table_name);
-    }
-
-    static std::vector<std::shared_ptr<Derived>> get(SQLQueryBuilder& builder) {
-        auto database = std::make_shared<Database>();
-        auto rows = database->queryToVector(builder.get());
-        std::vector<std::shared_ptr<Derived>> result;
-        for (const auto& row : rows) {
-            auto model = Derived::create(row);
-            if (model) result.push_back(model);
-        }
-        return result;
-    }
-
-    static ModelQueryBuilder<Derived> Select(const std::vector<std::string>& columns) {
-        ModelQueryBuilder<Derived> builder(Derived::table_name);
-        return builder.Select(columns);
-    }
-    static ModelQueryBuilder<Derived> Where(const std::string& condition) {
-        ModelQueryBuilder<Derived> builder(Derived::table_name);
-        return builder.Where(condition);
-    }
-    static ModelQueryBuilder<Derived> OrderBy(const std::vector<std::string>& columns) {
-        ModelQueryBuilder<Derived> builder(Derived::table_name);
-        return builder.OrderBy(columns);
-    }
-    static ModelQueryBuilder<Derived> Limit(int value) {
-        ModelQueryBuilder<Derived> builder(Derived::table_name);
-        return builder.Limit(value);
-    }
-
 };

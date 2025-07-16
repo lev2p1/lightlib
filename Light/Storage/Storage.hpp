@@ -1,6 +1,4 @@
-#ifndef STORAGE_H
-#define STORAGE_H
-
+п»ї#pragma once
 #include <string>
 #include <map>
 #include <fstream>
@@ -11,24 +9,19 @@ namespace fs = std::filesystem;
 
 class Storage {
 private:
-    // Приватный конструктор для Singleton
+
     Storage() {}
 
-    // Запрет копирования и присваивания
     Storage(const Storage&) = delete;
     Storage& operator=(const Storage&) = delete;
-
-    // Корневая директория для хранения файлов
     std::string rootPath;
 
 public:
-    // Метод для получения единственного экземпляра класса
     static Storage& getInstance() {
         static Storage instance;
         return instance;
     }
 
-    // Установка корневой директории
     void setRootPath(const std::string& path) {
         rootPath = path;
         if (!fs::exists(rootPath)) {
@@ -36,12 +29,10 @@ public:
         }
     }
 
-    // Получение корневой директории
     std::string getRootPath() const {
         return rootPath;
     }
 
-    // Сохранение файла
     void put(const std::string& path, const std::string& content) {
         std::ofstream file(rootPath + "/" + path, std::ios::out);
         if (!file.is_open()) {
@@ -51,7 +42,6 @@ public:
         file.close();
     }
 
-    // Чтение файла
     std::string get(const std::string& path) {
         std::ifstream file(rootPath + "/" + path, std::ios::in);
         if (!file.is_open()) {
@@ -62,12 +52,10 @@ public:
         return content;
     }
 
-    // Проверка существования файла
     bool exists(const std::string& path) {
         return fs::exists(rootPath + "/" + path);
     }
 
-    // Удаление файла
     void deleteFile(const std::string& path) {
         if (!exists(path)) {
             throw std::runtime_error("File does not exist: " + path);
@@ -75,7 +63,6 @@ public:
         fs::remove(rootPath + "/" + path);
     }
 
-    // Копирование файла
     void copy(const std::string& source, const std::string& destination) {
         if (!exists(source)) {
             throw std::runtime_error("Source file does not exist: " + source);
@@ -83,7 +70,6 @@ public:
         fs::copy(rootPath + "/" + source, rootPath + "/" + destination);
     }
 
-    // Перемещение файла
     void move(const std::string& source, const std::string& destination) {
         if (!exists(source)) {
             throw std::runtime_error("Source file does not exist: " + source);
@@ -91,5 +77,3 @@ public:
         fs::rename(rootPath + "/" + source, rootPath + "/" + destination);
     }
 };
-
-#endif
