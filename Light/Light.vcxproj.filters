@@ -27,7 +27,7 @@
     <ClCompile Include="Main.cpp">
       <Filter>Исходные файлы</Filter>
     </ClCompile>
-    <ClCompile Include="Database\Models\User.cpp">
+    <ClCompile Include="Database\Models\User.hpp">
       <Filter>Исходные файлы</Filter>
     </ClCompile>
     <ClCompile Include="Database\Cache.hpp">

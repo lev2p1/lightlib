@@ -17,6 +17,7 @@ private:
     std::string offset;
     std::map<std::string, std::string> joins;
     std::map<std::string, std::string> insertValues;
+    std::map<std::string, std::string> updateValues;
     bool isDeleteQuery = false;
     bool isFirstConditionInGroup = true;
 
@@ -102,7 +103,12 @@ public:
         return *this;
     }
 
-    // ���������� SQL-�������
+    SQLQueryBuilder& Update(const std::map<std::string, std::string>& values) {
+        updateValues = values;
+        return *this;
+    }
+
+    //  SQL-
     std::string get() {
         std::ostringstream query;
 
@@ -123,6 +129,27 @@ public:
                 }
             }
             query << ")";
+        }
+        else if (!updateValues.empty()) {
+            // UPDATE query
+            query << "UPDATE " << table << " SET ";
+            for (auto it = updateValues.begin(); it != updateValues.end(); ++it) {
+                query << it->first << " = " << it->second;
+                if (std::next(it) != updateValues.end()) {
+                    query << ", ";
+                }
+            }
+
+            // WHERE conditions
+            if (!whereConditions.empty()) {
+                query << " WHERE ";
+                for (size_t i = 0; i < whereConditions.size(); ++i) {
+                    query << whereConditions[i];
+                    if (i < whereConditions.size() - 1) {
+                        query << " ";
+                    }
+                }
+            }
         }
         else if (isDeleteQuery) {
             // DELETE ������

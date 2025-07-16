@@ -148,7 +148,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="Database\Cache.hpp" />
-    <ClCompile Include="Database\Models\User.cpp" />
+    <ClCompile Include="Database\Models\User.hpp" />
     <ClCompile Include="Main.cpp" />
   </ItemGroup>
   <ItemGroup>

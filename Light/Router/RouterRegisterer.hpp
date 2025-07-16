@@ -26,6 +26,10 @@ public:
                 res.result(http::status::ok);
                 });
 
+            Router::get("/index", [helloController](const Router::Request& req, Router::Response& res) {
+                helloController->index(req, res);
+                });
+
             Router::get("/about", [homeController](const Router::Request& req, Router::Response& res) {
                 homeController->about(req, res);
                 });

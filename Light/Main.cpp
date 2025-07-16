@@ -4,23 +4,11 @@
 #include <boost/asio/ip/tcp.hpp>
 #include <boost/asio/steady_timer.hpp>
 #include <boost/config.hpp>
-#include <iostream>
-#include <string>
-#include <memory>
 #include "Router/RouterRegisterer.hpp"
-#include "App/Http/Controllers/HomeController.hpp"
-#include "App/Http/Controllers/HelloController.hpp"
-#include "Database/Models/User.cpp"
-#include "map"
-#include "Database/Models/User.cpp"
-#include "vendor/Debug/Logger.hpp"
 #include "vendor/Handlers/ENV.hpp"
-#include "vendor/Facades/Hash.hpp"
 #include "Database/Queue.hpp"
 #include "Database/Cache.hpp"
 #include "Database/Migrations/MigrationManager.hpp"
-#include "Database/Migrations/Migrations.hpp"
-#include "Database/SQLString.hpp"
 
 namespace beast = boost::beast;
 namespace http = beast::http;
@@ -31,7 +19,6 @@ bool ENV::initialized = false;
 const std::string ENV::env_file_path = ".env";
 redisContext* Queue::context_ = nullptr;
 redisContext* Cache::context_ = nullptr;
-std::vector<std::pair<Migration::Handler, bool>> Migration::migrations_;
 
 int main() {
     SetConsoleCP(65001);

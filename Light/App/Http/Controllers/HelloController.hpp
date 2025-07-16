@@ -2,16 +2,16 @@
 
 #include <boost/beast/http.hpp>
 #include "Controller.hpp"
-#include "../Database/Database.hpp"
-#include "../Database/Models/User.cpp"
-#include "../vendor/Debug/Logger.hpp"
+#include "../../Database/Database.hpp"
+#include "../../Database/Models/User.hpp"
+#include "../../vendor/Debug/Logger.hpp"
 #include <nlohmann/json.hpp>
-#include "../vendor/Facades/Hash.hpp"
-#include "../Service/AuthService.hpp"
-#include "../Database/Queue.hpp"
-#include "../Database/Cache.hpp"
-#include "../Database/SQLBuilder.hpp"
-#include "../Storage/Storage.hpp"
+#include "../../vendor/Facades/Hash.hpp"
+#include "../../Service/AuthService.hpp"
+#include "../../Database/Queue.hpp"
+#include "../../Database/Cache.hpp"
+#include "../../Database/SQLBuilder.hpp"
+#include "../../Storage/Storage.hpp"
 
 namespace beast = boost::beast;
 namespace http = beast::http;
@@ -25,6 +25,8 @@ public:
 	void getAttr(const Request& req, Response& res);
 
 	static void index(const Request& req, Response& res);
+
+	static void make_post(const Request& req, Response& res);
 
 	static void store(const Request& req, Response& res);
 
@@ -44,6 +46,10 @@ void HelloController::index(const Request& req, Response& res)
 {
 	res.result(http::status::ok);
 	res.body() = "Hello from index function";
+}
+
+void HelloController::make_post(const Request& req, Response& res) {
+
 }
 
 void HelloController::store(const Request& req, Response& res) {
@@ -116,7 +122,6 @@ void HelloController::reg(const Request& req, Response& res)
 		std::string username = body["username"];
 		std::string password = body["password"];
 		std::string email = body["email"];
-		std::string age = body["age"];
 
 		std::pair<std::string, std::vector<unsigned char>> hashed_password = Hash::hash(password);
 
