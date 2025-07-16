@@ -8,6 +8,8 @@
 #include <algorithm>
 #include "../Database.hpp"
 #include "../../vendor/Debug/Logger.hpp"
+#include "ModelQueryBuilder.hpp"
+#include "../SQLBuilder.hpp"
 
 template <typename Derived>
 class Model {
@@ -32,7 +34,12 @@ protected:
 public:
     virtual ~Model() = default;
 
-    // ������������� �������� ��������
+    // Новый статический метод для построения запросов через ModelQueryBuilder
+    static ModelQueryBuilder<Derived> query() {
+        return ModelQueryBuilder<Derived>(Derived::table_name);
+    }
+
+    //   
     void setAttribute(const std::string& key, const std::string& value) {
         if (isField(key)) {
             attributes[key] = value;
@@ -67,31 +74,15 @@ public:
             return;
         }
 
-        std::string fields_str;
-        std::string values_str;
-        std::string update_clause;
-
+        // Формируем значения для Insert
+        std::map<std::string, std::string> insertValues;
         for (const auto& [key, value] : attributes) {
-            fields_str += key + ", ";
-            values_str += "'" + escape(value) + "', ";
-
-            if (key != "id") {
-                update_clause += key + " = EXCLUDED." + key + ", ";
-            }
+            insertValues[key] = "'" + escape(value) + "'";
         }
 
-        // ������� ��������� ", "
-        if (!fields_str.empty()) {
-            fields_str.erase(fields_str.size() - 2);
-            values_str.erase(values_str.size() - 2);
-        }
-        if (!update_clause.empty()) {
-            update_clause.erase(update_clause.size() - 2);
-        }
-
-        std::string query = "INSERT INTO " + Derived::table_name +
-            " (" + fields_str + ") VALUES (" + values_str + ") " +
-            "ON CONFLICT (id) DO UPDATE SET " + update_clause + ";";
+        SQLQueryBuilder builder(Derived::table_name);
+        builder.Insert(insertValues);
+        std::string query = builder.get();
 
         try {
             database->execute(query);
@@ -121,27 +112,15 @@ public:
         return model;
     }
 
-    // ����� �� ID
+    //     ID
     static std::shared_ptr<Derived> find(int id) {
         try {
-
-            auto db = std::make_shared<Database>();
-            std::string sql = "SELECT * FROM " + Derived::table_name + " WHERE id = " + std::to_string(id);
-
-            auto db_data = db->queryMap(sql);
-
-            if (db_data.empty()) {
+            auto results = query().Where("id = " + std::to_string(id)).Limit(1).get();
+            if (results.empty()) {
                 Logger::log("No data found by id", "WARNING");
                 return nullptr;
             }
-
-            auto model = std::make_shared<Derived>();
-
-            for (const auto& [field, value] : db_data) {
-                model->setAttribute(field, value);
-            }
-            return model;
-
+            return results.front();
         }
         catch (const std::exception& e) {
             Logger::log("Finding error", "ERROR");
@@ -152,15 +131,16 @@ public:
     // ���������� ������
     static void update(int id, const std::map<std::string, std::string>& data) {
         try {
-            auto model = Derived::find(id);
-            if (model) {
-                for (const auto& [key, value] : data) {
-                    if (isField(key)) {
-                        model->setAttribute(key, value);
-                    }
+            SQLQueryBuilder builder(Derived::table_name);
+            std::map<std::string, std::string> updateValues;
+            for (const auto& [key, value] : data) {
+                if (isField(key)) {
+                    updateValues[key] = "'" + value + "'";
                 }
-                model->save();
             }
+            builder.Update(updateValues).Where("id = " + std::to_string(id));
+            auto db = std::make_shared<Database>();
+            db->execute(builder.get());
         }
         catch (const std::exception& e) {
             std::cerr << "Update failed: " << e.what() << std::endl;
@@ -171,8 +151,9 @@ public:
     void delete_() {
         try {
             auto database = std::make_shared<Database>();
-            std::string query = "DELETE FROM " + Derived::table_name +
-                " WHERE id = " + this->getAttribute("id");
+            SQLQueryBuilder builder(Derived::table_name);
+            builder.Delete().Where("id = " + this->getAttribute("id"));
+            std::string query = builder.get();
             database->execute(query);
         }
         catch (const std::exception& e) {
@@ -182,27 +163,6 @@ public:
 
     // ����� �� �������
     static std::vector<std::shared_ptr<Derived>> where(const std::string& condition) {
-        std::vector<std::shared_ptr<Derived>> results;
-
-        try {
-            auto database = std::make_shared<Database>();
-            std::string query = "SELECT * FROM " + Derived::table_name +
-                " WHERE " + condition;
-
-            // ������������, ��� Database::query ���������� ������ map'��
-            auto data_list = database->queryToVector(query);
-
-            for (const auto& data : data_list) {
-                auto model = Derived::create(data);
-                if (model) {
-                    results.push_back(model);
-                }
-            }
-        }
-        catch (const std::exception& e) {
-            std::cerr << "Where failed: " << e.what() << std::endl;
-        }
-
-        return results;
+        return query().Where(condition).get();
     }
 };
