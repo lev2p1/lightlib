@@ -29,11 +29,11 @@ public:
     }
   
     void setAttribute(const std::string& key, const std::string& value) {
-        if (isField(key)) {
+        if (isField(key) && isFillable(key)) {
             attributes[key] = value;
         }
         else {
-            std::cerr << "Field '" << key << "' is not fillable." << std::endl;
+            std::cerr << "Field '" << key << "' is not fillable or not a valid field." << std::endl;
         }
     }
 
@@ -67,6 +67,11 @@ public:
             insertValues[key] = SQLString::EscapeString(conn, value);
         }
 
+        if (insertValues.empty()) {
+            std::cerr << "Insert values are empty. Aborting save operation." << std::endl;
+            return;
+        }
+
         SQLQueryBuilder builder(Derived::table_name);
         builder.Insert(insertValues);
         std::string query = builder.get();
@@ -90,8 +95,10 @@ public:
     static std::shared_ptr<Derived> create(const std::map<std::string, std::string>& data) {
         auto model = std::make_shared<Derived>();
         for (const auto& [key, value] : data) {
-            if (isField(key)) {
+            if (isField(key) && isFillable(key)) {
                 model->setAttribute(key, value);
+            } else {
+                std::cerr << "Field '" << key << "' is not fillable or not a valid field (create)." << std::endl;
             }
         }
         return model;
@@ -102,13 +109,17 @@ public:
             auto results = query().Where("id = " + std::to_string(id)).Limit(1).get();
             if (results.empty()) {
                 Logger::log("No data found by id", "WARNING");
-                return nullptr;
+                throw std::runtime_error("No data found for id: " + std::to_string(id));
+            }
+            if (results.size() > 1) {
+                Logger::log("Found multiple records for single id", "ERROR");
+                throw std::runtime_error("Multiple records found for id: " + std::to_string(id));
             }
             return results.front();
         }
         catch (const std::exception& e) {
-            Logger::log("Finding error", "ERROR");
-            return nullptr;
+            Logger::log("Finding error: " + std::string(e.what()), "ERROR");
+            throw; // Пробрасываем ошибку выше
         }
     }
 
