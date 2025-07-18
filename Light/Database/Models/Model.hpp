@@ -10,6 +10,7 @@
 #include "../../vendor/Debug/Logger.hpp"
 #include "ModelQueryBuilder.hpp"
 #include "../SQLBuilder.hpp"
+#include "../SQLString.hpp"
 
 template <typename Derived>
 class Model {
@@ -19,33 +20,20 @@ protected:
 
     std::map<std::string, std::string> attributes;
 
-    // ��������������� ������� ��� ������������� SQL-��������
-    std::string escape(const std::string& value) const {
-        std::string escaped = value;
-        // ������� ������������� ������� ��� �������
-        size_t pos = 0;
-        while ((pos = escaped.find("'", pos)) != std::string::npos) {
-            escaped.replace(pos, 1, "''");
-            pos += 2;
-        }
-        return escaped;
-    }
 
 public:
     virtual ~Model() = default;
 
-    // Новый статический метод для построения запросов через ModelQueryBuilder
     static ModelQueryBuilder<Derived> query() {
         return ModelQueryBuilder<Derived>(Derived::table_name);
     }
-
-    //   
+  
     void setAttribute(const std::string& key, const std::string& value) {
-        if (isField(key)) {
+        if (isField(key) && isFillable(key)) {
             attributes[key] = value;
         }
         else {
-            std::cerr << "Field '" << key << "' is not fillable." << std::endl;
+            std::cerr << "Field '" << key << "' is not fillable or not a valid field." << std::endl;
         }
     }
 
@@ -56,7 +44,6 @@ public:
         }
     }
 
-    // �������� �������� ��������
     std::string getAttribute(const std::string& key) const {
         auto it = attributes.find(key);
         if (it != attributes.end()) {
@@ -65,7 +52,6 @@ public:
         throw std::invalid_argument("Attribute '" + key + "' not found.");
     }
 
-    // ���������� ������
     void save() {
         auto database = std::make_shared<Database>();
 
@@ -76,8 +62,14 @@ public:
 
         // Формируем значения для Insert
         std::map<std::string, std::string> insertValues;
+        PGconn* conn = database->getConnection();
         for (const auto& [key, value] : attributes) {
-            insertValues[key] = "'" + escape(value) + "'";
+            insertValues[key] = SQLString::EscapeString(conn, value);
+        }
+
+        if (insertValues.empty()) {
+            std::cerr << "Insert values are empty. Aborting save operation." << std::endl;
+            return;
         }
 
         SQLQueryBuilder builder(Derived::table_name);
@@ -92,7 +84,6 @@ public:
         }
     }
 
-    // ����������� ������
     static bool isFillable(const std::string& field) {
         return std::find(fillable.begin(), fillable.end(), field) != fillable.end();
     }
@@ -101,45 +92,49 @@ public:
         return std::find(Derived::fields.begin(), Derived::fields.end(), field) != Derived::fields.end();
     }
 
-    // �������� ������ �� ������
     static std::shared_ptr<Derived> create(const std::map<std::string, std::string>& data) {
         auto model = std::make_shared<Derived>();
         for (const auto& [key, value] : data) {
-            if (isField(key)) {
+            if (isField(key) && isFillable(key)) {
                 model->setAttribute(key, value);
+            } else {
+                std::cerr << "Field '" << key << "' is not fillable or not a valid field (create)." << std::endl;
             }
         }
         return model;
     }
 
-    //     ID
     static std::shared_ptr<Derived> find(int id) {
         try {
             auto results = query().Where("id = " + std::to_string(id)).Limit(1).get();
             if (results.empty()) {
                 Logger::log("No data found by id", "WARNING");
-                return nullptr;
+                throw std::runtime_error("No data found for id: " + std::to_string(id));
+            }
+            if (results.size() > 1) {
+                Logger::log("Found multiple records for single id", "ERROR");
+                throw std::runtime_error("Multiple records found for id: " + std::to_string(id));
             }
             return results.front();
         }
         catch (const std::exception& e) {
-            Logger::log("Finding error", "ERROR");
-            return nullptr;
+            Logger::log("Finding error: " + std::string(e.what()), "ERROR");
+            throw; // Пробрасываем ошибку выше
         }
     }
 
-    // ���������� ������
     static void update(int id, const std::map<std::string, std::string>& data) {
         try {
+            auto db = std::make_shared<Database>();
+            PGconn* conn = db->getConnection();
             SQLQueryBuilder builder(Derived::table_name);
             std::map<std::string, std::string> updateValues;
             for (const auto& [key, value] : data) {
                 if (isField(key)) {
-                    updateValues[key] = "'" + value + "'";
+                    updateValues[key] = SQLString::EscapeString(conn, value);
                 }
             }
-            builder.Update(updateValues).Where("id = " + std::to_string(id));
-            auto db = std::make_shared<Database>();
+            builder.Update(updateValues).Where("id = " + SQLString::EscapeString(conn, std::to_string(id)));
             db->execute(builder.get());
         }
         catch (const std::exception& e) {
@@ -151,8 +146,9 @@ public:
     void delete_() {
         try {
             auto database = std::make_shared<Database>();
+            PGconn* conn = database->getConnection();
             SQLQueryBuilder builder(Derived::table_name);
-            builder.Delete().Where("id = " + this->getAttribute("id"));
+            builder.Delete().Where("id = " + SQLString::EscapeString(conn, this->getAttribute("id")));
             std::string query = builder.get();
             database->execute(query);
         }
@@ -161,7 +157,6 @@ public:
         }
     }
 
-    // ����� �� �������
     static std::vector<std::shared_ptr<Derived>> where(const std::string& condition) {
         return query().Where(condition).get();
     }

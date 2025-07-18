@@ -26,7 +26,7 @@ public:
 
 	static void index(const Request& req, Response& res);
 
-	static void make_post(const Request& req, Response& res);
+	static void index_users(const Request& req, Response& res);
 
 	static void store(const Request& req, Response& res);
 
@@ -48,7 +48,7 @@ void HelloController::index(const Request& req, Response& res)
 	res.body() = "Hello from index function";
 }
 
-void HelloController::make_post(const Request& req, Response& res) {
+void HelloController::index_users(const Request& req, Response& res) {
 
 }
 
