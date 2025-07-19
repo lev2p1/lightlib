@@ -141,6 +141,10 @@ public:
                     updateValues[key] = SQLString::EscapeString(conn, value);
                 }
             }
+            if (updateValues.empty()) {
+                Logger::log("No valid fields provided for update", "WARNING");
+                return;
+            }
             builder.Update(updateValues).Where("id = " + SQLString::EscapeString(conn, std::to_string(id)));
             db->execute(builder.get());
         }
@@ -159,7 +163,12 @@ public:
                 return;
             }
             SQLQueryBuilder builder(Derived::table_name);
-            builder.Delete().Where("id = " + SQLString::EscapeString(conn, this->getAttribute("id")));
+            auto id = getAttribute("id");
+            if (id.empty()) {
+                Logger::log("ID attribute is missing", "ERROR");
+                return;
+            }
+            builder.Delete().Where("id = " + SQLString::EscapeString(conn, id));
             std::string query = builder.get();
             database->execute(query);
         }
