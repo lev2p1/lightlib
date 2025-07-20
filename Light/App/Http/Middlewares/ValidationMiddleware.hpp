@@ -15,6 +15,7 @@ public:
         try {
             auto body = nlohmann::json::parse(req.body());
         } catch (const std::exception& e) {
+            std::cerr << "JSON parsing error: " << e.what() << std::endl;
             res.result(http::status::bad_request);
             res.body() = std::string("Validation error: Invalid JSON. ") + e.what();
             res.prepare_payload();

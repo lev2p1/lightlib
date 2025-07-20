@@ -28,8 +28,13 @@ public:
 
 		try {
 			auto decoded = jwt::decode(token);
+			std::string auth_secret = ENV::env_variables["AUTH_SECRET"];
+			if (auth_secret.empty()) {
+				unauthorized(res, "AUTH_SECRET is missing");
+				return;
+			}
 			jwt::verify()
-				.allow_algorithm(jwt::algorithm::hs256{ ENV::env_variables["AUTH_SECRET"] })
+				.allow_algorithm(jwt::algorithm::hs256{ auth_secret })
 				.with_issuer("auth0")
 				.verify(decoded);
 			next();

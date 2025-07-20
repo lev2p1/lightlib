@@ -48,6 +48,7 @@ public:
 	}
 
 	static std::string join(const std::vector<std::string>& v, const std::string& delim) {
+		if (v.empty()) return "";
 		std::string out;
 		for (size_t i = 0; i < v.size(); ++i) {
 			out += v[i];
