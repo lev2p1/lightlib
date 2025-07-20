@@ -14,10 +14,16 @@ public:
         }
         try {
             auto body = nlohmann::json::parse(req.body());
-        } catch (const std::exception& e) {
-            std::cerr << "JSON parsing error: " << e.what() << std::endl;
+        } catch (const nlohmann::json::parse_error& e) {
+            std::cerr << "JSON parse error: " << e.what() << std::endl;
             res.result(http::status::bad_request);
-            res.body() = std::string("Validation error: Invalid JSON. ") + e.what();
+            res.body() = "Validation error: Invalid JSON format.";
+            res.prepare_payload();
+            return;
+        } catch (const std::exception& e) {
+            std::cerr << "Unexpected error during parsing: " << e.what() << std::endl;
+            res.result(http::status::internal_server_error);
+            res.body() = "Internal server error.";
             res.prepare_payload();
             return;
         }

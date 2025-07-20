@@ -4,6 +4,8 @@
 #include "Middleware.hpp"
 #include <set>
 #include <algorithm>
+#include <sstream>
+#include <iterator>
 
 class CorsHandler : public Middleware {
 public:
@@ -49,12 +51,10 @@ public:
 
 	static std::string join(const std::vector<std::string>& v, const std::string& delim) {
 		if (v.empty()) return "";
-		std::string out;
-		for (size_t i = 0; i < v.size(); ++i) {
-			out += v[i];
-			if (i + 1 < v.size()) out += delim;
-		}
-		return out;
+		std::ostringstream oss;
+		std::copy(v.begin(), v.end() - 1, std::ostream_iterator<std::string>(oss, delim.c_str()));
+		oss << v.back();
+		return oss.str();
 	}
 
 	virtual ~CorsHandler() = default;

@@ -37,11 +37,11 @@ public:
 				.allow_algorithm(jwt::algorithm::hs256{ auth_secret })
 				.with_issuer("auth0")
 				.verify(decoded);
-			next();
 		} catch (const std::exception& e) {
-			unauthorized(res, std::string("Invalid token: ") + e.what());
+			unauthorized(res, std::string("JWT verification failed: ") + e.what());
 			return;
 		}
+		next();
 	}
 
 	private:
