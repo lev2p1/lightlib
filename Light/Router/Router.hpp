@@ -70,6 +70,10 @@ public:
         dynamic_routes_[http::verb::delete_].emplace_back(pathRegex, RouteInfo{ handler, paramNames });
     }
 
+    static void options(const std::string& path, SimpleHandler handler) {
+        static_routes_[http::verb::options][path] = handler;
+    }
+
     static void resourceApi(const std::string& path, std::shared_ptr<Controller> handle) {
         Router::get(path + "/{id}", [handle, path](const Request& req, Response& res, Params params) {
             handle->show(req, res, params);
