@@ -6,10 +6,11 @@
 #include <algorithm>
 #include <sstream>
 #include <iterator>
+#include <unordered_set>
 
 class CorsHandler : public Middleware {
 public:
-	std::vector<std::string> allowed_domains;
+	std::unordered_set<std::string> allowed_domains;
 	std::vector<std::string> allowed_methods;
 	std::vector<std::string> allowed_headers;
 	std::string allow_origin = "*";
@@ -18,12 +19,12 @@ public:
 	CorsHandler(const std::vector<std::string>& domains,
 				const std::vector<std::string>& methods = {"GET", "POST", "OPTIONS"},
 				const std::vector<std::string>& headers = {"Content-Type", "Authorization"})
-		: allowed_domains(domains), allowed_methods(methods), allowed_headers(headers) {}
+		: allowed_domains(domains.begin(), domains.end()), allowed_methods(methods), allowed_headers(headers) {}
 
 	void handle(Request& req, Response& res, std::function<void()> next) override {
 		std::string origin = std::string(req[http::field::origin]);
 		bool allowed = allowed_domains.empty() ||
-			std::find(allowed_domains.begin(), allowed_domains.end(), origin) != allowed_domains.end() ||
+			allowed_domains.find(origin) != allowed_domains.end() ||
 			allow_origin == "*";
 
 		if (!allowed) {
