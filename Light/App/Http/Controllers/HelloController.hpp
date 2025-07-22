@@ -2,16 +2,16 @@
 
 #include <boost/beast/http.hpp>
 #include "Controller.hpp"
-#include "../../Database/Database.hpp"
-#include "../../Database/Models/User.hpp"
-#include "../../vendor/Debug/Logger.hpp"
+#include "../../../Database/Database.hpp"
+#include "../../../Database/Models/User.hpp"
+#include "../../../vendor/Debug/Logger.hpp"
 #include <nlohmann/json.hpp>
-#include "../../vendor/Facades/Hash.hpp"
-#include "../../Service/AuthService.hpp"
-#include "../../Database/Queue.hpp"
-#include "../../Database/Cache.hpp"
-#include "../../Database/SQLBuilder.hpp"
-#include "../../Storage/Storage.hpp"
+#include "../../../vendor/Facades/Hash.hpp"
+#include "../../../Service/AuthService.hpp"
+#include "../../../Database/Queue.hpp"
+#include "../../../Database/Cache.hpp"
+#include "../../../Database/SQLBuilder.hpp"
+#include "../../../Storage/Storage.hpp"
 
 namespace beast = boost::beast;
 namespace http = beast::http;

@@ -84,7 +84,7 @@ public:
             database->execute(query);
         }
         catch (const std::exception& e) {
-            Logger::log("Save failed: " + e.what(), "ERROR");
+            Logger::log(e.what(), "ERROR");
         }
     }
 
