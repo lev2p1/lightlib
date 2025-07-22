@@ -4,6 +4,7 @@
 #include "Router.hpp"
 #include "../App/Http/Controllers/HomeController.hpp"
 #include "../App/Http/Controllers/HelloController.hpp"
+#include "../App/Http/Controllers/HashController.hpp"
 #include "../vendor/Debug/Logger.hpp"
 
 typedef const std::unordered_map<std::string, std::string>& Params;
@@ -18,6 +19,7 @@ public:
         try {
             auto homeController = std::make_shared<HomeController>();
             auto helloController = std::make_shared<HelloController>();
+            auto hashcontroller = std::make_shared<HashController>();
 
             Router::get("/users/{id}/{name}", [](const Router::Request& req, Router::Response& res, Params params) {
                 std::string userId = params.at("id");
@@ -63,6 +65,8 @@ public:
                 });
 
             Router::resourceApi("/customers", homeController);
+
+            Router::resourceApi("/hash", hashcontroller);
 
             Logger::log("Router is registered", "INFO");
         }

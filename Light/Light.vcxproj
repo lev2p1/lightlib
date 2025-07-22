@@ -150,6 +150,7 @@
     <ClCompile Include="Database\Cache.hpp" />
     <ClCompile Include="Database\Models\User.hpp" />
     <ClCompile Include="Main.cpp" />
+    <ClCompile Include="Router\Router.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="App\Http\Controllers\Controller.hpp" />
@@ -193,8 +194,14 @@
     <None Include=".env" />
     <None Include=".env.example" />
     <None Include=".gitignore" />
+    <None Include="App\Http\Controllers\HashController.hpp" />
     <None Include="CMakePresets.json" />
+    <None Include="vcpkg.json" />
     <None Include="vendor\Libs\.gitignore" />
+  </ItemGroup>
+  <ItemGroup>
+    <Text Include="CMakeLists.txt" />
+    <Text Include="Storage\Logs\debug.log" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

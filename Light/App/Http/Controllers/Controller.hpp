@@ -14,10 +14,10 @@ public:
 	using Request = http::request<http::string_body>;
 	using Response = http::response<http::string_body>;
 
-	inline virtual void show(const Request& req, Response& res, Params params) {}
-	inline virtual void store(const Request& req, Response& res){}
-	inline virtual void delete_(const Request& req, Response& res, Params params){}
-	inline virtual void update(const Request& req, Response& res, Params params){}
+	inline virtual void show(const Request& req, Response& res, Params params) { res.result(http::status::method_not_allowed); }
+	inline virtual void store(const Request& req, Response& res){ res.result(http::status::method_not_allowed); }
+	inline virtual void delete_(const Request& req, Response& res, Params params){ res.result(http::status::method_not_allowed); }
+	inline virtual void update(const Request& req, Response& res, Params params){ res.result(http::status::method_not_allowed); }
 
 	virtual ~Controller() = default;
 

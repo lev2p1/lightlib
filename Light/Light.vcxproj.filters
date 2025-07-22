@@ -33,6 +33,9 @@
     <ClCompile Include="Database\Cache.hpp">
       <Filter>Файлы заголовков</Filter>
     </ClCompile>
+    <ClCompile Include="Router\Router.cpp">
+      <Filter>Исходные файлы</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Controllers\Controller.hpp">
@@ -150,5 +153,11 @@
     <None Include=".gitignore" />
     <None Include="vendor\Libs\.gitignore" />
     <None Include="CMakePresets.json" />
+    <None Include="vcpkg.json" />
+    <None Include="App\Http\Controllers\HashController.hpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <Text Include="Storage\Logs\debug.log" />
+    <Text Include="CMakeLists.txt" />
   </ItemGroup>
 </Project>
