@@ -17,6 +17,7 @@
     "jwt-cpp",
     "libpq",
     "nlohmann-json",
-    "zlib"
+    "zlib",
+    "picojson"
   ]
 }
