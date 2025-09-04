@@ -16,7 +16,7 @@ namespace net = boost::asio;
 using tcp = net::ip::tcp;
 
 bool ENV::initialized = false;
-const std::string ENV::env_file_path = ".env";
+const std::string ENV::env_file_path = "./.env";
 redisContext* Queue::context_ = nullptr;
 redisContext* Cache::context_ = nullptr;
 

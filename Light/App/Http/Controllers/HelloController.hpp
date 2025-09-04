@@ -28,7 +28,7 @@ public:
 
 	static void index_users(const Request& req, Response& res);
 
-	static void store(const Request& req, Response& res);
+	void store(const Request& req, Response& res);
 
 	static void login(const Request& req, Response& res);
 
