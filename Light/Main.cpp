@@ -21,9 +21,6 @@ redisContext* Queue::context_ = nullptr;
 redisContext* Cache::context_ = nullptr;
 
 int main() {
-    SetConsoleCP(65001);
-    SetConsoleOutputCP(65001);
-
     try {
         ENV::initialize();
         Logger::init("debug.log");
