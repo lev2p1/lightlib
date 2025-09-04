@@ -5,10 +5,17 @@ set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS OFF)
 
-set(CMAKE_TOOLCHAIN_FILE "C:/Tools/vcpkg-master/scripts/buildsystems/vcpkg.cmake" CACHE STRING "")
-set(CMAKE_PREFIX_PATH "${CMAKE_SOURCE_DIR}/vcpkg_installed/x64-windows" CACHE STRING "")
+if(NOT DEFINED CMAKE_TOOLCHAIN_FILE AND DEFINED ENV{VCPKG_ROOT})
+    set(CMAKE_TOOLCHAIN_FILE "$ENV{VCPKG_ROOT}/scripts/buildsystems/vcpkg.cmake" CACHE STRING "")
+endif()
 
-if (MSVC)
+if(WIN32)
+    set(CMAKE_PREFIX_PATH "${CMAKE_SOURCE_DIR}/vcpkg_installed/x64-windows" CACHE STRING "")
+elseif(UNIX)
+    set(CMAKE_PREFIX_PATH "${CMAKE_SOURCE_DIR}/vcpkg_installed/x64-linux" CACHE STRING "")
+endif()
+
+if(MSVC)
     add_compile_options(/utf-8)
 endif()
 
@@ -21,10 +28,13 @@ find_package(ZLIB REQUIRED)
 find_package(PostgreSQL REQUIRED)
 
 
-add_executable(light Main.cpp)  
+add_executable(light Main.cpp)
 
 target_include_directories(light PRIVATE ${CMAKE_SOURCE_DIR}/include)
-target_include_directories(light PRIVATE ${CMAKE_SOURCE_DIR}/vcpkg_installed/x64-windows/include)
+
+if(WIN32)
+    target_include_directories(light PRIVATE ${CMAKE_SOURCE_DIR}/vcpkg_installed/x64-windows/include)
+endif()
 
 target_link_libraries(light
     PRIVATE
@@ -44,5 +54,4 @@ target_link_libraries(light
     hiredis::hiredis
     ZLIB::ZLIB
     PostgreSQL::PostgreSQL
-    
 )
