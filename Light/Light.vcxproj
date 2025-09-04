@@ -172,6 +172,7 @@
     <ClInclude Include="Database\Migrations\MigrationManager.hpp" />
     <ClInclude Include="Database\Migrations\Migrations.hpp" />
     <ClInclude Include="Database\Migrations\migration_migrations_table.hpp" />
+    <ClInclude Include="Database\Migrations\migration_organizations_table.hpp" />
     <ClInclude Include="Database\Migrations\migration_posts_create.hpp" />
     <ClInclude Include="Database\Migrations\migration_users_create.hpp" />
     <ClInclude Include="Database\Models\Model.hpp" />
@@ -195,6 +196,8 @@
     <None Include=".env.example" />
     <None Include=".gitignore" />
     <None Include="App\Http\Controllers\HashController.hpp" />
+    <None Include="build.bat" />
+    <None Include="build.sh" />
     <None Include="CMakePresets.json" />
     <None Include="vcpkg.json" />
     <None Include="vendor\Libs\.gitignore" />
