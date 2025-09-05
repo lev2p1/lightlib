@@ -89,7 +89,7 @@ public:
     }
 
     static bool isFillable(const std::string& field) {
-        return std::find(fillable.begin(), fillable.end(), field) != fillable.end();
+        return std::find(Derived::fillable.begin(), Derived::fillable.end(), field) != Derived::fillable.end();
     }
 
     static bool isField(const std::string& field) {

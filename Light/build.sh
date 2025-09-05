@@ -17,13 +17,6 @@ cmake -DCMAKE_TOOLCHAIN_FILE="$VCPKG_TOOLCHAIN" -DCMAKE_BUILD_TYPE=$CONFIG "$SOU
 
 cmake --build . --config $CONFIG
 
-if [ -f "$SOURCE_DIR/.env" ]; then
-    cp "$SOURCE_DIR/.env" "$PROJECT_NAME"
-    echo ".env copied next to the binary"
-else
-    echo ".env not found in source directory"
-fi
-
 if [ -f "$PROJECT_NAME" ]; then
     echo "Launch $PROJECT_NAME..."
     ./"$PROJECT_NAME"

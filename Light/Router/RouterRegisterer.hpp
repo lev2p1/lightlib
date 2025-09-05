@@ -62,7 +62,7 @@ public:
 
             Router::post("/register", [helloController](const Router::Request& req, Router::Response& res) {
                 helloController->reg(req, res);
-                });
+            });
 
             Router::resourceApi("/customers", homeController);
 
