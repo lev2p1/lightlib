@@ -12,6 +12,7 @@
 #include "../../../Database/Cache.hpp"
 #include "../../../Database/SQLBuilder.hpp"
 #include "../../../Storage/Storage.hpp"
+#include "../../../Database/Models/Organization.hpp"
 
 namespace beast = boost::beast;
 namespace http = beast::http;
@@ -28,7 +29,7 @@ public:
 
 	static void index_users(const Request& req, Response& res);
 
-	static void store(const Request& req, Response& res);
+	void store(const Request& req, Response& res);
 
 	static void login(const Request& req, Response& res);
 
@@ -54,22 +55,37 @@ void HelloController::index_users(const Request& req, Response& res) {
 
 void HelloController::store(const Request& req, Response& res) {
 	try {
-		Storage& storage = Storage::getInstance();
-		storage.setRootPath("storage/public");
+		json body = json::parse(req.body());
 
-		storage.put("example.txt", "Hello, Storage!");
-		std::string content = storage.get("example.txt");
-		std::cout << "File content: " << content << std::endl;
-
-		if (storage.exists("example.txt")) {
-			std::cout << "File exists!" << std::endl;
+		int counter = 0;
+		for(auto i : body) {
+			if(i.size() > 0) counter++;
 		}
 
-		storage.copy("example.txt", "example_copy.txt");
-		storage.deleteFile("example.txt");
+		std::string id_user = body["id_user"];
+		std::string name = body["name"];
+		std::string image = body["image"];
 
+		Organization::create({{"id_user", id_user}, {"name", name}, {"image", image}})
+		->save();
+
+
+		//Storage& storage = Storage::getInstance();
+		//storage.setRootPath("storage/public");
+//
+		//storage.put("example.txt", "Hello, Storage!");
+		//std::string content = storage.get("example.txt");
+		//std::cout << "File content: " << content << std::endl;
+//
+		//if (storage.exists("example.txt")) {
+		//	std::cout << "File exists!" << std::endl;
+		//}
+//
+		//storage.copy("example.txt", "example_copy.txt");
+		//storage.deleteFile("example.txt");
+//
 		res.result(http::status::ok);
-		res.body() = "Storage operations completed successfully!";
+		res.body() = std::to_string(counter) + " entry(-ies) added to table 'organizations'!";
 	}
 	catch (const std::exception& e) {
 		std::cerr << "Error: " << e.what() << std::endl;
