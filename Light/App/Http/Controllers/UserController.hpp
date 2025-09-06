@@ -19,9 +19,20 @@ public:
     void register_(const Request& req, Response& res);
     void login(const Request& req, Response& res);
     void profile(const Request& req, Response& res);
+    void setCors(const Request& req, Response& res);
+    
+private:
+    void setCorsHeaders(Response& res);
 };
 
 using json = nlohmann::json;
+
+void UserController::setCorsHeaders(Response& res) {
+    res.set(http::field::access_control_allow_origin, "*");
+    res.set(http::field::access_control_allow_methods, "GET, POST, PUT, DELETE, OPTIONS");
+    res.set(http::field::access_control_allow_headers, "Content-Type, Authorization, X-Requested-With");
+    res.set(http::field::access_control_allow_credentials, "true");
+}
 
 void UserController::register_(const Request &req, Response& res){
     try{
@@ -32,18 +43,21 @@ void UserController::register_(const Request &req, Response& res){
         } catch (const std::exception& e) {
             res.result(http::status::bad_request);
             res.body() = "Invalid JSON format";
+            setCorsHeaders(res);
             return;
         }
 
         if (!body.contains("username") || !body.contains("password") || !body.contains("email")) {
             res.result(http::status::bad_request);
             res.body() = "Missing required fields: username, password, or email";
+            setCorsHeaders(res);
             return;
         }
 
         if (!body["username"].is_string() || !body["password"].is_string() || !body["email"].is_string()) {
             res.result(http::status::bad_request);
             res.body() = "Fields must be strings";
+            setCorsHeaders(res);
             return;
         }
 
@@ -54,6 +68,7 @@ void UserController::register_(const Request &req, Response& res){
         if(!Validator::password(password) || !Validator::email(email)){
             res.result(http::status::bad_request);
             res.body() = "Password is not validated";
+            setCorsHeaders(res);
             return;
         }
 
@@ -72,9 +87,11 @@ void UserController::register_(const Request &req, Response& res){
 
         res.result(http::status::ok);
         res.body() = "All data received";
+        setCorsHeaders(res);
     }
     catch(const std::exception &e){
         res.result(http::status::internal_server_error);
+        setCorsHeaders(res);
     }
    
 }
@@ -88,18 +105,21 @@ void UserController::login(const Request& req, Response& res){
         } catch (const std::exception& e) {
             res.result(http::status::bad_request);
             res.body() = "Invalid JSON format";
+            setCorsHeaders(res);
             return;
         }
 
         if (!body.contains("username") || !body.contains("password")) {
             res.result(http::status::bad_request);
             res.body() = "Missing required fields: username or password";
+            setCorsHeaders(res);
             return;
         }
 
         if (!body["username"].is_string() || !body["password"].is_string()) {
             res.result(http::status::bad_request);
             res.body() = "Fields must be strings";
+            setCorsHeaders(res);
             return;
         }
 
@@ -111,6 +131,7 @@ void UserController::login(const Request& req, Response& res){
         if(user == nullptr){
             res.result(http::status::not_found);
             res.body() = "User not found";
+            setCorsHeaders(res);
             return;
         }
 
@@ -121,15 +142,23 @@ void UserController::login(const Request& req, Response& res){
         if(Hash::verify(password, hexHashedPassword, salt)){
             std::string token = AuthService::createRefreshToken(user->getAttribute("id")); 
             res.result(http::status::accepted);
-            res.body() = token;
+            json responseJson = {
+                { "id", user->getAttribute("id") },
+                { "token", token }
+            };  
+
+            res.body() = responseJson.dump();
+            setCorsHeaders(res);
             return;
         }
 
         res.result(http::status::unauthorized);
         res.body() = "Invalid password";
+        setCorsHeaders(res);
     }
     catch(std::exception &e){
         res.result(http::status::internal_server_error);
+        setCorsHeaders(res);
     }
 }
 
@@ -142,12 +171,14 @@ void UserController::profile(const Request& req, Response& res){
         } catch (const std::exception& e) {
             res.result(http::status::bad_request);
             res.body() = "Invalid JSON format";
+            setCorsHeaders(res);
             return;
         }
 
         if (!body.contains("token") || !body.contains("id")) {
             res.result(http::status::bad_request);
             res.body() = "Missing required fields: token or id";
+            setCorsHeaders(res);
             return;
         }
 
@@ -157,6 +188,7 @@ void UserController::profile(const Request& req, Response& res){
         if(!AuthService::validateRefreshToken(id, token)){
             res.result(http::status::unauthorized);
             res.body() = "Unauthorized";
+            setCorsHeaders(res);
             return;
         }
 
@@ -171,9 +203,18 @@ void UserController::profile(const Request& req, Response& res){
 
         res.result(http::status::ok);
         res.body() = responseJson.dump();
+        setCorsHeaders(res);
     }
     catch(std::exception &e){
         res.result(http::status::internal_server_error);
-        res.body() = "Somthing went wrong";
+        res.body() = "Something went wrong";
+        setCorsHeaders(res);
     }
+}
+
+void UserController::setCors(const Request& req, Response& res) {
+    res.set(http::field::access_control_allow_origin, "*"); // or your frontend origin
+    res.set(http::field::access_control_allow_methods, "POST, GET, OPTIONS");
+    res.set(http::field::access_control_allow_headers, "Content-Type, Authorization");
+    res.result(http::status::ok);
 }

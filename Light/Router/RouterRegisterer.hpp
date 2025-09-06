@@ -78,6 +78,10 @@ public:
                 usercontroller->profile(req, res);
             });
 
+            Router::options("/new-login", [usercontroller](const Router::Request& req, Router::Response& res){
+                usercontroller->setCors(req, res);
+            });
+
 
             Router::resourceApi("/customers", homeController);
 
