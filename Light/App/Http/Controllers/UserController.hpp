@@ -7,6 +7,7 @@
 #include "../../../Database/Models/User.hpp"
 #include "../Helpers/Validator.hpp"
 #include "../Services/Service.hpp"
+#include "../Helpers/Cookie.hpp"
 
 namespace beast = boost::beast;
 namespace http = beast::http;
@@ -142,12 +143,12 @@ void UserController::login(const Request& req, Response& res){
         if(Hash::verify(password, hexHashedPassword, salt)){
             std::string token = AuthService::createRefreshToken(user->getAttribute("id")); 
             res.result(http::status::accepted);
-            json responseJson = {
+            std::map<std::string, std::string> cookies = {
                 { "id", user->getAttribute("id") },
                 { "token", token }
             };  
-
-            res.body() = responseJson.dump();
+            res.body() = token;
+            Cookie::set(res, cookies);
             setCorsHeaders(res);
             return;
         }
@@ -164,26 +165,29 @@ void UserController::login(const Request& req, Response& res){
 
 void UserController::profile(const Request& req, Response& res){
     try{
-        json body;
-
+        std::string token, id;
         try {
-            body = json::parse(req.body());
+            auto cookieHeader = req.base().find(http::field::cookie);
+            
+            if (cookieHeader != req.base().end()) {
+                std::string rawCookies = std::string(cookieHeader->value());
+                auto cookies = Cookie::parseCookies(rawCookies);
+
+                if (cookies.contains("token") && cookies.contains("id")) {
+                    token = cookies["token"];
+                    id = cookies["id"];
+                }
+                else{
+                    res.result(http::status::unauthorized);
+                }
+            }
+
         } catch (const std::exception& e) {
             res.result(http::status::bad_request);
-            res.body() = "Invalid JSON format";
+            res.body() = "Failed to read token";
             setCorsHeaders(res);
             return;
         }
-
-        if (!body.contains("token") || !body.contains("id")) {
-            res.result(http::status::bad_request);
-            res.body() = "Missing required fields: token or id";
-            setCorsHeaders(res);
-            return;
-        }
-
-        auto token = body["token"];
-        std::string id = body["id"];
 
         if(!AuthService::validateRefreshToken(id, token)){
             res.result(http::status::unauthorized);
@@ -213,7 +217,7 @@ void UserController::profile(const Request& req, Response& res){
 }
 
 void UserController::setCors(const Request& req, Response& res) {
-    res.set(http::field::access_control_allow_origin, "*"); // or your frontend origin
+    res.set(http::field::access_control_allow_origin, "*");
     res.set(http::field::access_control_allow_methods, "POST, GET, OPTIONS");
     res.set(http::field::access_control_allow_headers, "Content-Type, Authorization");
     res.result(http::status::ok);
