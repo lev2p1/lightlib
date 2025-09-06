@@ -147,7 +147,6 @@ void UserController::login(const Request& req, Response& res){
                 { "id", user->getAttribute("id") },
                 { "token", token }
             };  
-            res.body() = token;
             Cookie::set(res, cookies);
             setCorsHeaders(res);
             return;
