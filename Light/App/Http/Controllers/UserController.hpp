@@ -71,7 +71,7 @@ void UserController::register_(const Request &req, Response& res){
         })->save();
 
         res.result(http::status::ok);
-        res.body() = "All data getted";
+        res.body() = "All data received";
     }
     catch(const std::exception &e){
         res.result(http::status::internal_server_error);

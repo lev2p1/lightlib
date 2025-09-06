@@ -2,7 +2,7 @@
 #include <iostream>
 #include <jwt-cpp/jwt.h>
 #include <jwt-cpp/traits/nlohmann-json/traits.h>
-#include "../vendor/Handlers/ENV.hpp"
+#include "../../../vendor/Handlers/ENV.hpp"
 #include "Service.hpp"
 
 class AuthService : public Service{
@@ -12,9 +12,9 @@ private:
     using builder_t = jwt::builder<jwt::default_clock, traits>;
 
     static inline std::map<std::string, std::string> refreshTokens;
-    static inline std::string secret = ENV::env_variables["AUTH_SECRET"];
 
 public:
+    static inline std::string secret;
     static std::string createAccessToken(const std::string& userId) {
         builder_t token(jwt::default_clock{});
 

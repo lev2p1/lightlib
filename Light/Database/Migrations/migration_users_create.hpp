@@ -12,7 +12,7 @@ public:
             .AddColumn("id SERIAL PRIMARY KEY")
             .AddColumn("username VARCHAR(255) NOT NULL")
             .AddColumn("password VARCHAR(255) NOT NULL")
-            .AddColumn("salt VARCHAR(64) NOT NULL")
+            .AddColumn("salt VARCHAR(255) NOT NULL")
             .AddColumn("email VARCHAR(255) NOT NULL")
             .CreateTable());
 

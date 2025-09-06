@@ -9,6 +9,7 @@
 #include "Database/Queue.hpp"
 #include "Database/Cache.hpp"
 #include "Database/Migrations/MigrationManager.hpp"
+#include "App/Http/Services/AuthService.hpp"
 
 namespace beast = boost::beast;
 namespace http = beast::http;
@@ -25,6 +26,7 @@ int main() {
         ENV::initialize();
         Logger::init("debug.log");
         Logger::registerSignalHandlers();
+        AuthService::secret = ENV::env_variables["AUTH_SECRET"];
 
         try {
             Queue::connect(ENV::env_variables["REDIS_HOST"], stoi(ENV::env_variables["REDIS_PORT"]));

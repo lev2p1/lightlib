@@ -28,7 +28,7 @@ public:
             }
         }
 
-        Logger::log("Succesfuly connect to Redis " + host + ':' + std::to_string(port), "INFO");
+        Logger::log("Successfully connected to Redis " + host + ':' + std::to_string(port), "SUCCESS");
     }
 
     // ���������� �� Redis
