@@ -94,7 +94,14 @@ public:
         return oss.str();
     }
 
-    static inline bool vefify(const std::string& password, const std::string& stored_hash, const std::vector<unsigned char>& salt) {
-        return hash(password, salt).first == stored_hash;
+    static inline bool verify(const std::string& password, const std::string& stored_hash, const std::vector<unsigned char>& salt) {
+        auto [new_hash, _] = Hash::hash(password, salt);
+
+        auto stored_bytes = Hash::hexStringToBytes(stored_hash);
+        auto new_bytes = Hash::hexStringToBytes(new_hash);
+
+        bool match = stored_bytes == new_bytes;
+
+        return match;
     }
 };

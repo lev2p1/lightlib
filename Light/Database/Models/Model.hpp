@@ -29,7 +29,7 @@ public:
     }
   
     void setAttribute(const std::string& key, const std::string& value) {
-        if (isField(key) && isFillable(key)) {
+        if (isField(key)) {
             attributes[key] = value;
         }
         else {
@@ -96,10 +96,10 @@ public:
         return std::find(Derived::fields.begin(), Derived::fields.end(), field) != Derived::fields.end();
     }
 
-    static std::shared_ptr<Derived> create(const std::map<std::string, std::string>& data) {
+    static std::shared_ptr<Derived> create(const std::map<std::string, std::string>& data, bool withFields = false) {
         auto model = std::make_shared<Derived>();
         for (const auto& [key, value] : data) {
-            if (isField(key) && isFillable(key)) {
+            if (isField(key) && (isFillable(key) || withFields)) {
                 model->setAttribute(key, value);
             } else {
                 Logger::log("Field '" + key + "' is not fillable or not a valid field (create)", "ERROR");

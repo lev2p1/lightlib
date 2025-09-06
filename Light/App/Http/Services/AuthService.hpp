@@ -3,8 +3,9 @@
 #include <jwt-cpp/jwt.h>
 #include <jwt-cpp/traits/nlohmann-json/traits.h>
 #include "../vendor/Handlers/ENV.hpp"
+#include "Service.hpp"
 
-class AuthService {
+class AuthService : public Service{
 private:
     using traits = jwt::traits::nlohmann_json;
     using claim_t = jwt::basic_claim<traits>;
@@ -37,6 +38,7 @@ public:
 
     static bool validateRefreshToken(const std::string& userId, const std::string& refreshToken) {
         auto it = refreshTokens.find(userId);
+
         if (it == refreshTokens.end()) return false;
 
         try {

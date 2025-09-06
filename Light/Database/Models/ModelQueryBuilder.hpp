@@ -29,14 +29,13 @@ public:
         SQLQueryBuilder::Offset(value);
         return *this;
     }
-    // ...добавьте другие методы по необходимости
 
     std::vector<std::shared_ptr<Derived>> get() {
         auto database = std::make_shared<Database>();
         auto rows = database->queryToVector(this->getQuery());
         std::vector<std::shared_ptr<Derived>> result;
         for (const auto& row : rows) {
-            auto model = Derived::create(row);
+            auto model = Derived::create(row, true);
             if (model) result.push_back(model);
         }
         return result;

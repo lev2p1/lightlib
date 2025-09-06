@@ -8,15 +8,14 @@ public:
         SQLSchemaBuilder builder("users");
         std::vector<std::string> queries;
 
-        // �������� ������ �� �������� �������
         queries.push_back(builder
             .AddColumn("id SERIAL PRIMARY KEY")
             .AddColumn("username VARCHAR(255) NOT NULL")
             .AddColumn("password VARCHAR(255) NOT NULL")
+            .AddColumn("salt VARCHAR(64) NOT NULL")
             .AddColumn("email VARCHAR(255) NOT NULL")
             .CreateTable());
 
-        // �������������� ������� (������� � ���������� �����������)
         queries.push_back(builder.AddUniqueConstraint("uq_email", { "email" }));
         queries.push_back(builder.AddIndex("idx_username", { "username" }));
 

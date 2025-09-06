@@ -7,7 +7,7 @@
 #include "../../../vendor/Debug/Logger.hpp"
 #include <nlohmann/json.hpp>
 #include "../../../vendor/Facades/Hash.hpp"
-#include "../../../Service/AuthService.hpp"
+#include "../Services/AuthService.hpp"
 #include "../../../Database/Queue.hpp"
 #include "../../../Database/Cache.hpp"
 #include "../../../Database/SQLBuilder.hpp"

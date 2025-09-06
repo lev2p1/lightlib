@@ -3,7 +3,7 @@
 #include <jwt-cpp/jwt.h>
 #include <nlohmann/json.hpp>
 #include <iostream>
-#include "../../Service/AuthService.hpp"
+#include "../Services/AuthService.hpp"
 
 class AuthMiddleware : public Middleware {
 public:
