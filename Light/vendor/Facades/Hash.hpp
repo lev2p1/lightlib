@@ -49,7 +49,7 @@ public:
         salt = salt.size() > 0 ? salt : generateSalt(64);
 
         OSSL_PARAM params[] = {
-            OSSL_PARAM_construct_utf8_string("digest", (char*)"sha256", 0),
+            OSSL_PARAM_construct_octet_string("pass", const_cast<char*>(password.data()), password.size()),
             OSSL_PARAM_construct_octet_string("salt", salt.data(), salt.size()),
             OSSL_PARAM_construct_uint("iter", &actual_iterations),
             OSSL_PARAM_construct_uint("memcost", &memory_cost),
