@@ -11,6 +11,12 @@
 #include <string>
 #include <sstream>
 #include <iomanip>
+#include <boost/asio.hpp>
+#include <boost/asio/awaitable.hpp>
+#include <boost/asio/co_spawn.hpp>
+#include <boost/asio/thread_pool.hpp>
+#include <boost/asio/use_awaitable.hpp>
+#include <coroutine>
 
 
 class Hash {
@@ -103,5 +109,16 @@ public:
         bool match = stored_bytes == new_bytes;
 
         return match;
+    }
+
+    static inline boost::asio::awaitable<std::pair<std::string, std::vector<unsigned char>>> awaitableHash(
+    const std::string& password,
+    std::vector<unsigned char> salt = {}) {
+        co_return Hash::hash(password, salt);
+    }
+
+    static inline boost::asio::awaitable<bool> awaitableVerify(
+    const std::string& password, const std::string& stored_hash, const std::vector<unsigned char>& salt) {
+        co_return Hash::verify(password, stored_hash, salt);
     }
 };

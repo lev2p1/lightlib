@@ -16,7 +16,7 @@ class RouterRegisterer {
 
 public:
 
-	static void init() {
+	static void init(boost::asio::io_context& io) {
         try {
             auto homeController = std::make_shared<HomeController>();
             auto helloController = std::make_shared<HelloController>();
@@ -66,16 +66,40 @@ public:
                 helloController->reg(req, res);
             });
 
-            Router::post("/new-register", [usercontroller](const Router::Request& req, Router::Response& res){
-                usercontroller->register_(req, res);
+            Router::post("/new-register", [usercontroller, &io](const Router::Request& req, Router::Response& res){
+                  boost::asio::co_spawn(
+                    io,
+                    usercontroller->register_(req, res),
+                    [](std::exception_ptr e) {
+                        if (e) {
+                            Logger::log("Coroutine error in register_", "ERROR");
+                        }
+                    }
+                );
             });
 
-            Router::post("/new-login", [usercontroller](const Router::Request& req, Router::Response& res){
-                usercontroller->login(req, res);
+            Router::post("/new-login", [usercontroller, &io](const Router::Request& req, Router::Response& res){
+                boost::asio::co_spawn(
+                    io, 
+                    usercontroller->login(req, res),
+                    [](std::exception_ptr e){
+                        if (e) {
+                            Logger::log("Coroutine error in login", "ERROR");
+                        }
+                    }
+                );
             });
 
-            Router::get("/new-profile", [usercontroller](const Router::Request& req, Router::Response& res){
-                usercontroller->profile(req, res);
+            Router::get("/new-profile", [usercontroller, &io](const Router::Request& req, Router::Response& res){
+                boost::asio::co_spawn(
+                    io, 
+                    usercontroller->profile(req, res),
+                    [](std::exception_ptr e){
+                        if (e) {
+                            Logger::log("Coroutine error in profile", "ERROR");
+                        }
+                    }
+                );
             });
 
             Router::options("/new-login", [usercontroller](const Router::Request& req, Router::Response& res){

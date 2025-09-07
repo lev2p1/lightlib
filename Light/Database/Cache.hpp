@@ -8,7 +8,6 @@
 
 class Cache {
 public:
-    // ����������� � Redis
     static void connect(const std::string& host = "127.0.0.1", int port = 6379) {
         if (context_) {
             throw std::runtime_error("Already connected to Redis.");
@@ -31,7 +30,6 @@ public:
         Logger::log("Successfully connected to Redis " + host + ':' + std::to_string(port), "SUCCESS");
     }
 
-    // ���������� �� Redis
     static void disconnect() {
         if (context_) {
             redisFree(context_);
@@ -40,7 +38,6 @@ public:
         }
     }
 
-    // ��������� �������� � ���
     static void set(const std::string& key, const std::string& value, int expire_seconds = 0) {
         if (!context_) {
             Logger::log("Not connected to Redis.", "ERROR");
@@ -64,7 +61,6 @@ public:
         std::cout << "Set key '" << key << "' with value '" << value << "'." << std::endl;
     }
 
-    // ��������� �������� �� ����
     static std::string get(const std::string& key) {
         if (!context_) {
             Logger::log("Not connected to Redis.", "ERROR");
@@ -95,7 +91,6 @@ public:
         return result;
     }
 
-    // �������� ����� �� ����
     static void del(const std::string& key) {
         if (!context_) {
             Logger::log("Not connected to Redis.", "ERROR");
@@ -112,7 +107,6 @@ public:
         std::cout << "Deleted key '" << key << "'." << std::endl;
     }
 
-    // ��������� ������� ����� �����
     static void expire(const std::string& key, int expire_seconds) {
         if (!context_) {
             Logger::log("Not connected to Redis.", "ERROR");
@@ -129,9 +123,15 @@ public:
         std::cout << "Set expiration for key '" << key << "' to " << expire_seconds << " seconds." << std::endl;
     }
 
-private:
-    static redisContext* context_; // �������� ����������� � Redis
-};
+    static inline boost::asio::awaitable<std::string> get_async(const std::string& key) {
+        co_return Cache::get(key);
+    }
 
-//// ������������� ������������ ����� ������
-//redisContext* Cache::context_ = nullptr;
+    static inline boost::asio::awaitable<void> set_async(const std::string& key, const std::string& value, int ttl) {
+        Cache::set(key, value, ttl);
+        co_return;
+    }
+
+private:
+    static redisContext* context_;
+};

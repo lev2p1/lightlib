@@ -52,12 +52,12 @@ public:
         throw std::invalid_argument("Attribute '" + key + "' not found.");
     }
 
-    void save() {
+    bool save() {
         auto database = std::make_shared<Database>();
 
         if (attributes.empty()) {
             Logger::log("Attributes are empty", "ERROR");
-            return;
+            return false;
         }
 
         // Формируем значения для Insert
@@ -65,7 +65,7 @@ public:
         PGconn* conn = database->getConnection();
         if (!conn) {
             Logger::log("Failed to get database connection", "ERROR");
-            return;
+            return false;
         }
         for (const auto& [key, value] : attributes) {
             insertValues[key] = SQLString::EscapeString(conn, value);
@@ -73,7 +73,7 @@ public:
 
         if (insertValues.empty()) {
             Logger::log("Insert values are empty. Aborting save operation", "ERROR");
-            return;
+            return false;
         }
 
         SQLQueryBuilder builder(Derived::table_name);
@@ -82,9 +82,11 @@ public:
 
         try {
             database->execute(query);
+            return true;
         }
         catch (const std::exception& e) {
             Logger::log(e.what(), "ERROR");
+            return false;
         }
     }
 
