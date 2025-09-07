@@ -146,6 +146,9 @@
     <ClInclude Include="Database\Models\ModelQueryBuilder.hpp">
       <Filter>Файлы заголовков</Filter>
     </ClInclude>
+    <ClInclude Include="Database\Migrations\migration_organizations_table.hpp">
+      <Filter>Файлы заголовков</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include=".env" />
@@ -155,6 +158,10 @@
     <None Include="CMakePresets.json" />
     <None Include="vcpkg.json" />
     <None Include="App\Http\Controllers\HashController.hpp" />
+    <None Include="build.bat">
+      <Filter>Исходные файлы</Filter>
+    </None>
+    <None Include="build.sh" />
   </ItemGroup>
   <ItemGroup>
     <Text Include="Storage\Logs\debug.log" />

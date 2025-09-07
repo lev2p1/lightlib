@@ -10,6 +10,7 @@
 #include "../SQLSchemaBuilder.hpp"
 #include "migration_users_create.hpp"
 #include "migration_migrations_table.hpp"
+#include "migration_organizations_table.hpp"
 
 
 
@@ -120,7 +121,8 @@ public:
 
     void Initialize() {
         this->migrateAll<
-            MigrationUsersCreate
+            MigrationUsersCreate,
+            MigrationOrganizationsCreate
         >();
     }
     

@@ -49,7 +49,7 @@ public:
         salt = salt.size() > 0 ? salt : generateSalt(64);
 
         OSSL_PARAM params[] = {
-            OSSL_PARAM_construct_utf8_string("digest", (char*)"sha256", 0),
+            OSSL_PARAM_construct_octet_string("pass", const_cast<char*>(password.data()), password.size()),
             OSSL_PARAM_construct_octet_string("salt", salt.data(), salt.size()),
             OSSL_PARAM_construct_uint("iter", &actual_iterations),
             OSSL_PARAM_construct_uint("memcost", &memory_cost),
@@ -94,7 +94,14 @@ public:
         return oss.str();
     }
 
-    static inline bool vefify(const std::string& password, const std::string& stored_hash, const std::vector<unsigned char>& salt) {
-        return hash(password, salt).first == stored_hash;
+    static inline bool verify(const std::string& password, const std::string& stored_hash, const std::vector<unsigned char>& salt) {
+        auto [new_hash, _] = Hash::hash(password, salt);
+
+        auto stored_bytes = Hash::hexStringToBytes(stored_hash);
+        auto new_bytes = Hash::hexStringToBytes(new_hash);
+
+        bool match = stored_bytes == new_bytes;
+
+        return match;
     }
 };

@@ -5,6 +5,7 @@
 #include "../App/Http/Controllers/HomeController.hpp"
 #include "../App/Http/Controllers/HelloController.hpp"
 #include "../App/Http/Controllers/HashController.hpp"
+#include "../App/Http/Controllers/UserController.hpp"
 #include "../vendor/Debug/Logger.hpp"
 
 typedef const std::unordered_map<std::string, std::string>& Params;
@@ -20,6 +21,7 @@ public:
             auto homeController = std::make_shared<HomeController>();
             auto helloController = std::make_shared<HelloController>();
             auto hashcontroller = std::make_shared<HashController>();
+            auto usercontroller = std::make_shared<UserController>();
 
             Router::get("/users/{id}/{name}", [](const Router::Request& req, Router::Response& res, Params params) {
                 std::string userId = params.at("id");
@@ -62,7 +64,24 @@ public:
 
             Router::post("/register", [helloController](const Router::Request& req, Router::Response& res) {
                 helloController->reg(req, res);
-                });
+            });
+
+            Router::post("/new-register", [usercontroller](const Router::Request& req, Router::Response& res){
+                usercontroller->register_(req, res);
+            });
+
+            Router::post("/new-login", [usercontroller](const Router::Request& req, Router::Response& res){
+                usercontroller->login(req, res);
+            });
+
+            Router::get("/new-profile", [usercontroller](const Router::Request& req, Router::Response& res){
+                usercontroller->profile(req, res);
+            });
+
+            Router::options("/new-login", [usercontroller](const Router::Request& req, Router::Response& res){
+                usercontroller->setCors(req, res);
+            });
+
 
             Router::resourceApi("/customers", homeController);
 

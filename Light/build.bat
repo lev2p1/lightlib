@@ -36,4 +36,3 @@ if exist "%CONFIG%\%PROJECT_NAME%.exe" (
 )
 
 cd /d "%SOURCE_DIR%"
-pause

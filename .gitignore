@@ -16,6 +16,9 @@
 # Mono auto generated files
 mono_crash.*
 
+# Visual Studio Code-associated folder
+/.vscode
+
 # Build results
 /[Dd]ebug/
 /Light/[Dd]ebug/
@@ -373,3 +376,4 @@ MigrationBackup/
 
 # Fody - auto-generated XML schema
 FodyWeavers.xsd
+.vscode/settings.json

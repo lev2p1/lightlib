@@ -9,6 +9,7 @@
 #include "Database/Queue.hpp"
 #include "Database/Cache.hpp"
 #include "Database/Migrations/MigrationManager.hpp"
+#include "App/Http/Services/AuthService.hpp"
 
 namespace beast = boost::beast;
 namespace http = beast::http;
@@ -25,6 +26,7 @@ int main() {
         ENV::initialize();
         Logger::init("debug.log");
         Logger::registerSignalHandlers();
+        AuthService::secret = ENV::env_variables["AUTH_SECRET"];
 
         try {
             Queue::connect(ENV::env_variables["REDIS_HOST"], stoi(ENV::env_variables["REDIS_PORT"]));
@@ -45,23 +47,12 @@ int main() {
         try {
             Database db;
             (new MigrationManager(db))->Initialize();
-
-            //Initializer::initMigrations();
-            //try {
-            //    // Создаем таблицу migrations
-            //    db.execute(MigrationMigrationsCreate::up());
-            //    std::cout << "Table 'migrations' created successfully." << std::endl;
-            //}
-            //catch (const std::exception& e) {
-            //    std::cerr << "Error creating 'migrations' table: " << e.what() << std::endl;
-            //    return 1;
-            //}
         }
         catch (const std::exception& e) {
             Logger::log("Connection to database failed", "ERROR");
 
         }
-        const unsigned short port = 8080;
+        const unsigned short port = stoi(ENV::env_variables["S_PORT"]);
         net::io_context ioc;
         tcp::acceptor acceptor(ioc, { tcp::v4(), port });
         Logger::log("Server is running on port " + std::to_string(port), "SUCCESS");
