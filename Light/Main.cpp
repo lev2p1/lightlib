@@ -2,6 +2,10 @@
 #include <boost/beast/http.hpp>
 #include <boost/beast/version.hpp>
 #include <boost/asio/ip/tcp.hpp>
+#include <boost/asio/awaitable.hpp>
+#include <boost/asio/co_spawn.hpp>
+#include <boost/asio/detached.hpp>
+#include <boost/asio/use_awaitable.hpp>
 #include <boost/asio/steady_timer.hpp>
 #include <boost/config.hpp>
 #include "Router/RouterRegisterer.hpp"
@@ -15,11 +19,43 @@ namespace beast = boost::beast;
 namespace http = beast::http;
 namespace net = boost::asio;
 using tcp = net::ip::tcp;
+using namespace std::chrono_literals;
 
 bool ENV::initialized = false;
 const std::string ENV::env_file_path = "./.env";
 redisContext* Queue::context_ = nullptr;
 redisContext* Cache::context_ = nullptr;
+
+net::awaitable<void> handle_connection(tcp::socket socket) {
+    try {
+        beast::flat_buffer buffer;
+        http::request<http::string_body> req;
+        http::response<http::string_body> res;
+
+        co_await http::async_read(socket, buffer, req, net::use_awaitable);
+
+        res.version(req.version());
+        res.keep_alive(req.keep_alive());
+
+        Router::handle_request(req, res);
+
+        co_await http::async_write(socket, res, net::use_awaitable);
+        beast::error_code ec;
+        socket.shutdown(tcp::socket::shutdown_send, ec);
+    }
+    catch (const std::exception& e) {
+        Logger::log("Exception in connection: " + std::string(e.what()), "ERROR");
+    }
+    co_return;
+}
+
+net::awaitable<void> accept_loop(tcp::acceptor& acceptor) {
+    for (;;) {
+        beast::error_code ec;
+        tcp::socket socket = co_await acceptor.async_accept(net::use_awaitable);
+        net::co_spawn(acceptor.get_executor(), handle_connection(std::move(socket)), net::detached);
+    }
+}
 
 int main() {
     try {
@@ -30,88 +66,37 @@ int main() {
 
         try {
             Queue::connect(ENV::env_variables["REDIS_HOST"], stoi(ENV::env_variables["REDIS_PORT"]));
-
-        }
-        catch (const std::exception& e) {
+        } catch (const std::exception& e) {
             Logger::log("Connection to queue failed", "ERROR");
         }
 
         try {
             Cache::connect(ENV::env_variables["REDIS_HOST"], stoi(ENV::env_variables["REDIS_PORT"]));
-        }
-        catch(const std::exception& e){
+        } catch (const std::exception& e) {
             Logger::log("Connection to NOSQL database failed", "ERROR");
         }
 
-        Logger::log("Application started", "INFO");
         try {
             Database db;
             (new MigrationManager(db))->Initialize();
-        }
-        catch (const std::exception& e) {
+        } catch (const std::exception& e) {
             Logger::log("Connection to database failed", "ERROR");
-
         }
+
         const unsigned short port = stoi(ENV::env_variables["S_PORT"]);
-        net::io_context ioc;
-        tcp::acceptor acceptor(ioc, { tcp::v4(), port });
+        net::io_context io;
+        tcp::acceptor acceptor(io, { tcp::v4(), port });
+
         Logger::log("Server is running on port " + std::to_string(port), "SUCCESS");
-        RouterRegisterer::init();
 
-        while (true) {
-            tcp::socket socket(ioc);
-            acceptor.accept(socket);
+        RouterRegisterer::init(io);
 
-            try {
-                net::steady_timer timer(ioc);
-                timer.expires_after(std::chrono::seconds(30));
+        net::co_spawn(io, accept_loop(acceptor), net::detached);
 
-                timer.async_wait([&socket](const boost::system::error_code& ec) {
-                    if (!ec) {
-                        socket.close();
-                    }
-                    });
-
-                beast::flat_buffer buffer;
-
-                http::request<http::string_body> req;
-                boost::system::error_code ec;
-                http::read(socket, buffer, req, ec);
-
-                if (ec == beast::http::error::end_of_stream) {
-                    Logger::log("Client closed the connection prematurely.", "WARNING");
-                    continue;
-                }
-                else if (ec) {
-                    Logger::log("Error reading request: " + ec.message(), "ERROR");
-                    continue;
-                }
-
-                timer.cancel();
-
-                http::response<http::string_body> res;
-                res.version(req.version());
-
-                Router::handle_request(req, res);
-
-                http::write(socket, res, ec);
-                if (ec) {
-                    Logger::log("Error sending response: " + ec.message(), "ERROR");
-                    continue;
-                }
-
-                socket.shutdown(tcp::socket::shutdown_send, ec);
-                if (ec && ec != boost::system::errc::not_connected) {
-                    Logger::log("Error shutting down socket: " + ec.message(), "ERROR");
-                }
-            }
-            catch (const std::exception& e) {
-                Logger::log("Error handling request: " + std::string(e.what()), "ERROR");
-            }
-        }
+        io.run();
     }
     catch (const std::exception& e) {
-        std::cerr << "Error: " << e.what() << std::endl;
+        std::cerr << "Fatal error: " << e.what() << std::endl;
         Logger::log(std::string(e.what()), "ERROR");
         return 1;
     }

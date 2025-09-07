@@ -56,4 +56,36 @@ public:
             return false;
         }
     }
+
+    static boost::asio::awaitable<std::string> createRefreshToken_async(const std::string& userId) {
+        builder_t token(jwt::default_clock{});
+        token.set_issuer("auth0")
+             .set_type("JWT")
+             .set_payload_claim("userId", claim_t(userId));
+
+        std::string refreshToken = token.sign(jwt::algorithm::hs256{ secret });
+
+        co_await Cache::set_async("refresh:" + userId, refreshToken, 604800);
+        co_return refreshToken;
+    }
+
+    static boost::asio::awaitable<bool> validateRefreshToken_async(const std::string& userId, const std::string& refreshToken) {
+        try {
+            std::string storedToken = co_await Cache::get_async("refresh:" + userId);
+            if (storedToken.empty() || storedToken != refreshToken) {
+                co_return false;
+            }
+
+            auto decoded = jwt::decode<traits>(refreshToken);
+            jwt::verify<traits>()
+                .allow_algorithm(jwt::algorithm::hs256{ secret })
+                .with_issuer("auth0")
+                .verify(decoded);
+
+            co_return decoded.get_payload_claim("userId").as_string() == userId;
+        }
+        catch (const std::exception&) {
+            co_return false;
+        }
+    }
 };
