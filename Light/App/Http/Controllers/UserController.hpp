@@ -20,6 +20,7 @@ public:
     boost::asio::awaitable<void> register_(const Request& req, Response& res);
     boost::asio::awaitable<void> login(const Request& req, Response& res);
     boost::asio::awaitable<void> profile(const Request& req, Response& res);
+    boost::asio::awaitable<void> verify(const Request& req, Response &res);
     void setCors(const Request& req, Response& res);
     
 private:
@@ -135,6 +136,49 @@ boost::asio::awaitable<void> UserController::login(const Request& req, Response&
     }
     catch(std::exception &e){
         res.result(http::status::internal_server_error);
+    }
+}
+
+boost::asio::awaitable<void> UserController::verify(const Request& req, Response& res) {
+    try{
+        std::string token, id;
+        try {
+            auto cookieHeader = req.base().find(http::field::cookie);
+            
+            if (cookieHeader != req.base().end()) {
+                std::string rawCookies = std::string(cookieHeader->value());
+                auto cookies = Cookie::parseCookies(rawCookies);
+
+                if (cookies.contains("token") && cookies.contains("id")) {
+                    token = cookies["token"];
+                    id = cookies["id"];
+                }
+                else{
+                    res.result(http::status::unauthorized);
+                }
+            }
+
+        } catch (const std::exception& e) {
+            res.result(http::status::bad_request);
+            co_return;
+        }
+
+        bool valid = co_await AuthService::validateRefreshToken_async(id, token);
+
+        if(!valid){
+            res.result(http::status::unauthorized);
+            setCorsHeaders(res);
+            co_return;
+        }
+
+        int idStr = std::stoi(id);
+        auto user = User::find(idStr);
+
+        res.result(http::status::ok);
+    }
+    catch(std::exception &e){
+        res.result(http::status::internal_server_error);
+        res.body() = "Something went wrong";
     }
 }
 

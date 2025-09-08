@@ -103,6 +103,23 @@ public:
                 );
             });
 
+            Router::post("/verify", [usercontroller, &io](const Router::Request& req, Router::Response& res, const std::unordered_map<std::string, std::string>& params){
+                boost::asio::co_spawn(
+                    io, 
+                    usercontroller->verify(req, res),
+                    [](std::exception_ptr e){
+                        if (e) {
+                            Logger::log("Coroutine error in verify", "ERROR");
+                        }
+                    }
+                );
+            },
+            pipeline);
+
+            Router::options("/verify", [usercontroller](const Router::Request& req, Router::Response& res){
+                usercontroller->setCors(req, res);
+            });
+
             Router::options("/login", [usercontroller](const Router::Request& req, Router::Response& res){
                 usercontroller->setCors(req, res);
             });
