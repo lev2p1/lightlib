@@ -50,10 +50,6 @@ public:
                 helloController->store(req, res);
                 });
 
-            Router::post("/login", [helloController](const Router::Request& req, Router::Response& res) {
-                helloController->login(req, res);
-                });
-
             Router::get("/test-queue", [helloController](const Router::Request& req, Router::Response& res) {
                 helloController->testQueue(req, res);
                 });
@@ -62,11 +58,7 @@ public:
                 helloController->testCache(req, res);
                 });
 
-            Router::post("/register", [helloController](const Router::Request& req, Router::Response& res) {
-                helloController->reg(req, res);
-            });
-
-            Router::post("/new-register", [usercontroller, &io](const Router::Request& req, Router::Response& res){
+            Router::post("/register", [usercontroller, &io](const Router::Request& req, Router::Response& res){
                   boost::asio::co_spawn(
                     io,
                     usercontroller->register_(req, res),
@@ -78,7 +70,7 @@ public:
                 );
             });
 
-            Router::post("/new-login", [usercontroller, &io](const Router::Request& req, Router::Response& res){
+            Router::post("/login", [usercontroller, &io](const Router::Request& req, Router::Response& res){
                 boost::asio::co_spawn(
                     io, 
                     usercontroller->login(req, res),
@@ -90,7 +82,7 @@ public:
                 );
             });
 
-            Router::get("/new-profile", [usercontroller, &io](const Router::Request& req, Router::Response& res){
+            Router::get("/profile", [usercontroller, &io](const Router::Request& req, Router::Response& res){
                 boost::asio::co_spawn(
                     io, 
                     usercontroller->profile(req, res),
@@ -102,7 +94,7 @@ public:
                 );
             });
 
-            Router::options("/new-login", [usercontroller](const Router::Request& req, Router::Response& res){
+            Router::options("/login", [usercontroller](const Router::Request& req, Router::Response& res){
                 usercontroller->setCors(req, res);
             });
 

@@ -127,7 +127,8 @@ boost::asio::awaitable<void> UserController::login(const Request& req, Response&
         std::vector<uint8_t> salt = Hash::hexStringToBytes(hexSalt);
         
         if(co_await Hash::awaitableVerify(password, hexHashedPassword, salt)){
-            std::string token = co_await AuthService::createRefreshToken_async(user->getAttribute("id")); 
+            std::string token = co_await AuthService::createRefreshToken_async(user->getAttribute("id"));
+            this->setCors(req, res);
             res.result(http::status::accepted);
             std::map<std::string, std::string> cookies = {
                 { "id", user->getAttribute("id") },
@@ -203,8 +204,9 @@ boost::asio::awaitable<void> UserController::profile(const Request& req, Respons
 }
 
 void UserController::setCors(const Request& req, Response& res) {
-    res.set(http::field::access_control_allow_origin, "*");
+    res.set(http::field::access_control_allow_origin, "http://localhost:3000");
     res.set(http::field::access_control_allow_methods, "POST, GET, OPTIONS");
     res.set(http::field::access_control_allow_headers, "Content-Type, Authorization");
+    res.set(http::field::access_control_allow_credentials, "true");
     res.result(http::status::ok);
 }
