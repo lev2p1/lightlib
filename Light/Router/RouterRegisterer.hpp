@@ -7,6 +7,7 @@
 #include "../App/Http/Controllers/HashController.hpp"
 #include "../App/Http/Controllers/UserController.hpp"
 #include "../vendor/Debug/Logger.hpp"
+#include "../App/Http/Middlewares/MiddlwarePipeline.hpp"
 
 typedef const std::unordered_map<std::string, std::string>& Params;
 
@@ -22,6 +23,7 @@ public:
             auto helloController = std::make_shared<HelloController>();
             auto hashcontroller = std::make_shared<HashController>();
             auto usercontroller = std::make_shared<UserController>();
+            std::shared_ptr<Middleware> corsMiddleware = std::make_shared<CorsMiddleware>();
 
             Router::get("/users/{id}/{name}", [](const Router::Request& req, Router::Response& res, Params params) {
                 std::string userId = params.at("id");
@@ -58,19 +60,25 @@ public:
                 helloController->testCache(req, res);
                 });
 
-            Router::post("/register", [usercontroller, &io](const Router::Request& req, Router::Response& res){
-                  boost::asio::co_spawn(
-                    io,
-                    usercontroller->register_(req, res),
-                    [](std::exception_ptr e) {
-                        if (e) {
-                            Logger::log("Coroutine error in register_", "ERROR");
-                        }
-                    }
-                );
-            });
+            MiddlewarePipeline pipeline;
+            pipeline.use(corsMiddleware);
 
-            Router::post("/login", [usercontroller, &io](const Router::Request& req, Router::Response& res){
+            Router::post("/register",
+                [usercontroller, &io](const Router::Request& req, Router::Response& res, const std::unordered_map<std::string, std::string>& params) {
+                    boost::asio::co_spawn(
+                        io,
+                        usercontroller->register_(req, res),
+                        [](std::exception_ptr e) {
+                            if (e) {
+                                Logger::log("Coroutine error in register_", "ERROR");
+                            }
+                        }
+                    );
+                },
+                pipeline
+            );
+
+            Router::post("/login", [usercontroller, &io](const Router::Request& req, Router::Response& res, const std::unordered_map<std::string, std::string>& params){
                 boost::asio::co_spawn(
                     io, 
                     usercontroller->login(req, res),
@@ -80,7 +88,8 @@ public:
                         }
                     }
                 );
-            });
+            },
+            pipeline);
 
             Router::get("/profile", [usercontroller, &io](const Router::Request& req, Router::Response& res){
                 boost::asio::co_spawn(

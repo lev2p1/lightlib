@@ -42,7 +42,6 @@ boost::asio::awaitable<void> UserController::register_(const Request& req, Respo
         if (!body.contains("username") || !body.contains("password") || !body.contains("email")) {
             res.result(http::status::bad_request);
             res.body() = "Missing required fields";
-            setCorsHeaders(res);
             co_return;
         }
 
@@ -53,7 +52,6 @@ boost::asio::awaitable<void> UserController::register_(const Request& req, Respo
         if (!Validator::password(password) || !Validator::email(email)) {
             res.result(http::status::bad_request);
             res.body() = "Invalid password or email";
-            setCorsHeaders(res);
             co_return;
         }
 
@@ -75,12 +73,10 @@ boost::asio::awaitable<void> UserController::register_(const Request& req, Respo
 
         res.result(http::status::ok);
         res.body() = "All data received";
-        setCorsHeaders(res);
     }
     catch (const std::exception& e) {
         res.result(http::status::internal_server_error);
         res.body() = "Internal error";
-        setCorsHeaders(res);
     }
 }
 
@@ -93,21 +89,18 @@ boost::asio::awaitable<void> UserController::login(const Request& req, Response&
         } catch (const std::exception& e) {
             res.result(http::status::bad_request);
             res.body() = "Invalid JSON format";
-            setCorsHeaders(res);
             co_return;
         }
 
         if (!body.contains("username") || !body.contains("password")) {
             res.result(http::status::bad_request);
             res.body() = "Missing required fields: username or password";
-            setCorsHeaders(res);
             co_return;
         }
 
         if (!body["username"].is_string() || !body["password"].is_string()) {
             res.result(http::status::bad_request);
             res.body() = "Fields must be strings";
-            setCorsHeaders(res);
             co_return;
         }
 
@@ -128,7 +121,6 @@ boost::asio::awaitable<void> UserController::login(const Request& req, Response&
         
         if(co_await Hash::awaitableVerify(password, hexHashedPassword, salt)){
             std::string token = co_await AuthService::createRefreshToken_async(user->getAttribute("id"));
-            this->setCors(req, res);
             res.result(http::status::accepted);
             std::map<std::string, std::string> cookies = {
                 { "id", user->getAttribute("id") },
@@ -140,11 +132,9 @@ boost::asio::awaitable<void> UserController::login(const Request& req, Response&
 
         res.result(http::status::unauthorized);
         res.body() = "Invalid password";
-        setCorsHeaders(res);
     }
     catch(std::exception &e){
         res.result(http::status::internal_server_error);
-        setCorsHeaders(res);
     }
 }
 
