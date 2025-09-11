@@ -116,7 +116,24 @@ public:
             },
             pipeline);
 
+            Router::post("/logout", [usercontroller, &io](const Router::Request& req, Router::Response& res, const std::unordered_map<std::string, std::string>& params){
+                boost::asio::co_spawn(
+                    io, 
+                    usercontroller->logout(req, res),
+                    [](std::exception_ptr e){
+                        if (e) {
+                            Logger::log("Coroutine error in logout", "ERROR");
+                        }
+                    }
+                );
+            },
+            pipeline);
+
             Router::options("/verify", [usercontroller](const Router::Request& req, Router::Response& res){
+                usercontroller->setCors(req, res);
+            });
+
+            Router::options("/logout", [usercontroller](const Router::Request& req, Router::Response& res){
                 usercontroller->setCors(req, res);
             });
 
