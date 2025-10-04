@@ -6,6 +6,7 @@
 #include "../App/Http/Controllers/HelloController.hpp"
 #include "../App/Http/Controllers/HashController.hpp"
 #include "../App/Http/Controllers/UserController.hpp"
+#include "../App/Http/Controllers/ResetPasswordController.hpp"
 #include "../vendor/Debug/Logger.hpp"
 
 typedef const std::unordered_map<std::string, std::string>& Params;
@@ -22,6 +23,7 @@ public:
             auto helloController = std::make_shared<HelloController>();
             auto hashcontroller = std::make_shared<HashController>();
             auto usercontroller = std::make_shared<UserController>();
+            auto resetPasswordController = std::make_shared<ResetPasswordController>();
 
             Router::get("/users/{id}/{name}", [](const Router::Request& req, Router::Response& res, Params params) {
                 std::string userId = params.at("id");
@@ -102,8 +104,40 @@ public:
                 );
             });
 
+            Router::post("/login/reset", [resetPasswordController, &io](const Router::Request& req, Router::Response& res){
+                boost::asio::co_spawn(
+                    io, 
+                    resetPasswordController->createToken(req, res),
+                    [](std::exception_ptr e){
+                        if (e) {
+                            Logger::log("Coroutine error in profile", "ERROR");
+                        }
+                    }
+                );
+            });
+
+            Router::post("/login/by-code", [resetPasswordController, &io](const Router::Request& req, Router::Response& res){
+                boost::asio::co_spawn(
+                    io, 
+                    resetPasswordController->authIfValid(req, res),
+                    [](std::exception_ptr e){
+                        if (e) {
+                            Logger::log("Coroutine error in profile", "ERROR");
+                        }
+                    }
+                );
+            });
+
             Router::options("/new-login", [usercontroller](const Router::Request& req, Router::Response& res){
                 usercontroller->setCors(req, res);
+            });
+
+            Router::options("/login/by-code", [resetPasswordController](const Router::Request& req, Router::Response& res){
+                resetPasswordController->setCors(req, res);
+            });
+
+            Router::options("/login/reset", [resetPasswordController](const Router::Request& req, Router::Response& res){
+                resetPasswordController->setCors(req, res);
             });
 
 
