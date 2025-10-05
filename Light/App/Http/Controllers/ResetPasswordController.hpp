@@ -34,8 +34,8 @@ boost::asio::awaitable<void> ResetPasswordController::createToken(const Request&
         json body = json::parse(req.body());
     
         if (!body.contains("email") || !Validator::email(body["email"])) {
-            res.result(http::status::bad_request);
             setCorsHeaders(res);
+            res.result(http::status::bad_request);
             co_return;
         }
         std::random_device rd;
@@ -48,6 +48,9 @@ boost::asio::awaitable<void> ResetPasswordController::createToken(const Request&
 
         Cache::set("reset_email_" + std::string(body["email"]), code_str, 360);
         Logger::log("reset_email_" + std::string(body["email"]) + " code: " + code_str, "INFO");
+
+        setCorsHeaders(res);
+        res.result(http::status::accepted);
 
         co_return;
     }
@@ -73,7 +76,8 @@ boost::asio::awaitable<void> ResetPasswordController::authIfValid(const Request&
         std::string code_from_cache = co_await Cache::get_async(key);
         
         if(code != code_from_cache){
-            res.result(http::status::unauthorized);
+            setCorsHeaders(res);
+            res.result(http::status::bad_request);
             co_return;
         }else{
             auto user = User::findByEmail(std::string(body["email"]));
@@ -89,6 +93,8 @@ boost::asio::awaitable<void> ResetPasswordController::authIfValid(const Request&
                 { "id", user->getAttribute("id") },
                 { "token", token }
             };  
+
+            setCorsHeaders(res);
             Cookie::set(res, cookies);
             co_return;
         }
