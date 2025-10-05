@@ -87,8 +87,6 @@ boost::asio::awaitable<void> ResetPasswordController::authIfValid(const Request&
                 co_return;
             }
 
-            Logger::log(user->getAttribute("id"), "INFO");
-
             std::string token = co_await AuthService::createRefreshToken_async(user->getAttribute("id")); 
             res.result(http::status::accepted);
             std::map<std::string, std::string> cookies = {
