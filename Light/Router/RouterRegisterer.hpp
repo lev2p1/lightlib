@@ -52,9 +52,9 @@ public:
                 helloController->store(req, res);
                 });
 
-            Router::post("/login", [helloController](const Router::Request& req, Router::Response& res) {
-                helloController->login(req, res);
-                });
+            //Router::post("/login", [helloController](const Router::Request& req, Router::Response& res) {
+            //    helloController->login(req, res);
+            //    });
 
             Router::get("/test-queue", [helloController](const Router::Request& req, Router::Response& res) {
                 helloController->testQueue(req, res);
@@ -63,12 +63,12 @@ public:
             Router::get("/test-cache", [helloController](const Router::Request& req, Router::Response& res) {
                 helloController->testCache(req, res);
                 });
+            
+            //Router::post("/register", [helloController](const Router::Request& req, Router::Response& res) {
+            //    helloController->reg(req, res);
+            //});
 
-            Router::post("/register", [helloController](const Router::Request& req, Router::Response& res) {
-                helloController->reg(req, res);
-            });
-
-            Router::post("/new-register", [usercontroller, &io](const Router::Request& req, Router::Response& res){
+            Router::post("/register", [usercontroller, &io](const Router::Request& req, Router::Response& res){
                   boost::asio::co_spawn(
                     io,
                     usercontroller->register_(req, res),
@@ -80,13 +80,37 @@ public:
                 );
             });
 
-            Router::post("/new-login", [usercontroller, &io](const Router::Request& req, Router::Response& res){
+            Router::post("/verify", [usercontroller, &io](const Router::Request& req, Router::Response& res){
+                boost::asio::co_spawn(
+                    io, 
+                    usercontroller->verify(req, res),
+                    [](std::exception_ptr e){
+                        if (e) {
+                            Logger::log("Coroutine error in profile", "ERROR");
+                        }
+                    }
+                );
+            });
+
+            Router::post("/login", [usercontroller, &io](const Router::Request& req, Router::Response& res){
                 boost::asio::co_spawn(
                     io, 
                     usercontroller->login(req, res),
                     [](std::exception_ptr e){
                         if (e) {
                             Logger::log("Coroutine error in login", "ERROR");
+                        }
+                    }
+                );
+            });
+
+            Router::post("/logout", [usercontroller, &io](const Router::Request& req, Router::Response& res){
+                boost::asio::co_spawn(
+                    io, 
+                    usercontroller->logout(req, res),
+                    [](std::exception_ptr e){
+                        if (e) {
+                            Logger::log("Coroutine error in logout", "ERROR");
                         }
                     }
                 );
@@ -128,7 +152,15 @@ public:
                 );
             });
 
-            Router::options("/new-login", [usercontroller](const Router::Request& req, Router::Response& res){
+            Router::options("/verify", [usercontroller](const Router::Request& req, Router::Response& res){
+                usercontroller->setCors(req, res);
+            });
+
+            Router::options("/login", [usercontroller](const Router::Request& req, Router::Response& res){
+                usercontroller->setCors(req, res);
+            });
+
+            Router::options("/logout", [usercontroller](const Router::Request& req, Router::Response& res){
                 usercontroller->setCors(req, res);
             });
 

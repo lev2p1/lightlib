@@ -33,7 +33,7 @@ public:
 
     static inline void set(Response &res, std::map<std::string, std::string> cookies){
         for (const auto& [name, value] : cookies) {
-            res.insert(http::field::set_cookie, name + "=" + value + "; Path=/; HttpOnly; Secure; SameSite=None");
+            res.insert(http::field::set_cookie, name + "=" + value + "; Path=/; HttpOnly; Secure; SameSite=None"); // HTTPS: add Secure; to cookie 
         }
     }
 };

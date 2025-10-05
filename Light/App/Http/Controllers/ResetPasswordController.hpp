@@ -87,6 +87,8 @@ boost::asio::awaitable<void> ResetPasswordController::authIfValid(const Request&
                 co_return;
             }
 
+            Logger::log(user->getAttribute("id"), "INFO");
+
             std::string token = co_await AuthService::createRefreshToken_async(user->getAttribute("id")); 
             res.result(http::status::accepted);
             std::map<std::string, std::string> cookies = {
@@ -107,14 +109,15 @@ boost::asio::awaitable<void> ResetPasswordController::authIfValid(const Request&
 }
 
 void ResetPasswordController::setCorsHeaders(Response& res) {
-    res.set(http::field::access_control_allow_origin, "*");
+    res.set(http::field::access_control_allow_origin, "http://localhost:3000");
     res.set(http::field::access_control_allow_methods, "GET, POST, PUT, DELETE, OPTIONS");
     res.set(http::field::access_control_allow_headers, "Content-Type, Authorization, X-Requested-With");
     res.set(http::field::access_control_allow_credentials, "true");
 }
 
 void ResetPasswordController::setCors(const Request& req, Response& res) {
-    res.set(http::field::access_control_allow_origin, "*");
+    res.set(http::field::access_control_allow_credentials, "true");
+    res.set(http::field::access_control_allow_origin, "http://localhost:3000");
     res.set(http::field::access_control_allow_methods, "POST, GET, OPTIONS");
     res.set(http::field::access_control_allow_headers, "Content-Type, Authorization");
     res.result(http::status::ok);
