@@ -80,7 +80,7 @@ public:
                 );
             });
 
-            Router::post("/verify", [usercontroller, &io](const Router::Request& req, Router::Response& res){
+            Router::get("/verify", [usercontroller, &io](const Router::Request& req, Router::Response& res){
                 boost::asio::co_spawn(
                     io, 
                     usercontroller->verify(req, res),
@@ -104,7 +104,7 @@ public:
                 );
             });
 
-            Router::post("/logout", [usercontroller, &io](const Router::Request& req, Router::Response& res){
+            Router::get("/logout", [usercontroller, &io](const Router::Request& req, Router::Response& res){
                 boost::asio::co_spawn(
                     io, 
                     usercontroller->logout(req, res),
@@ -150,10 +150,6 @@ public:
                         }
                     }
                 );
-            });
-
-            Router::options("/verify", [usercontroller](const Router::Request& req, Router::Response& res){
-                usercontroller->setCors(req, res);
             });
 
             Router::options("/login", [usercontroller](const Router::Request& req, Router::Response& res){

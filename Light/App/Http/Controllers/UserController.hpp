@@ -84,6 +84,7 @@ boost::asio::awaitable<void> UserController::register_(const Request& req, Respo
 
 boost::asio::awaitable<void> UserController::login(const Request& req, Response& res){
     try{
+        setCorsHeaders(res);
         json body;
 
         try {
@@ -94,22 +95,22 @@ boost::asio::awaitable<void> UserController::login(const Request& req, Response&
             co_return;
         }
 
-        if (!body.contains("username") || !body.contains("password")) {
+        if (!body.contains("email") || !body.contains("password")) {
             res.result(http::status::bad_request);
-            res.body() = "Missing required fields: username or password";
+            res.body() = "Missing required fields: email and password";
             co_return;
         }
 
-        if (!body["username"].is_string() || !body["password"].is_string()) {
+        if (!body["email"].is_string() || !body["password"].is_string()) {
             res.result(http::status::bad_request);
             res.body() = "Fields must be strings";
             co_return;
         }
 
-        std::string username = body["username"];
+        std::string email = body["email"];
         std::string password = body["password"];
 
-        auto user = User::findByUsername(username);
+        auto user = User::findByEmail(email);
 
         if(user == nullptr){
             res.result(http::status::not_found);
@@ -123,7 +124,6 @@ boost::asio::awaitable<void> UserController::login(const Request& req, Response&
 
         if(co_await Hash::awaitableVerify(password, hexHashedPassword, salt)){
             std::string token = co_await AuthService::createRefreshToken_async(user->getAttribute("id"));
-            setCorsHeaders(res);
             res.result(http::status::accepted);
             std::map<std::string, std::string> cookies = {
                 { "id", user->getAttribute("id") },
