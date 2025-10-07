@@ -152,11 +152,23 @@ public:
                 );
             });
 
+            Router::post("/login/reset-password", [resetPasswordController, &io](const Router::Request& req, Router::Response& res){
+                boost::asio::co_spawn(
+                    io, 
+                    resetPasswordController->resetPassword(req, res),
+                    [](std::exception_ptr e){
+                        if (e) {
+                            Logger::log("Coroutine error in profile", "ERROR");
+                        }
+                    }
+                );
+            });
+
             Router::options("/login", [usercontroller](const Router::Request& req, Router::Response& res){
                 usercontroller->setCors(req, res);
             });
 
-            Router::options("/logout", [usercontroller](const Router::Request& req, Router::Response& res){
+            Router::options("/verify", [usercontroller](const Router::Request& req, Router::Response& res){
                 usercontroller->setCors(req, res);
             });
 
@@ -165,6 +177,10 @@ public:
             });
 
             Router::options("/login/reset", [resetPasswordController](const Router::Request& req, Router::Response& res){
+                resetPasswordController->setCors(req, res);
+            });
+
+            Router::options("/login/reset-password", [resetPasswordController](const Router::Request& req, Router::Response& res){
                 resetPasswordController->setCors(req, res);
             });
 
