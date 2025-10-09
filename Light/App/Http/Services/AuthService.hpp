@@ -37,6 +37,17 @@ public:
         return refreshToken;
     }
 
+    static boost::asio::awaitable<bool> deleteRefreshToken_async(const std::string& userId, const std::string& refreshToken) {
+        bool valid = co_await AuthService::validateRefreshToken_async(userId, refreshToken);
+
+        if(valid) {
+            Cache::del("refresh:" + userId);
+            co_return true;
+        }
+
+        co_return false;
+    }
+
     static bool validateRefreshToken(const std::string& userId, const std::string& refreshToken) {
         try {
             std::string storedToken = Cache::get("refresh:" + userId);

@@ -5,7 +5,7 @@
 class Validator {
 public:
     static inline bool password(const std::string& password) {
-        if (password.size() < 8) return false;
+        if (password.size() < 8 && password.size() > 20) return false;
 
         bool hasDigit = false;
         bool hasUpper = false;
