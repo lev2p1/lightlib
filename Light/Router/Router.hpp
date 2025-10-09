@@ -8,11 +8,20 @@
 #include <iostream>
 #include "../App/Http/Controllers/Controller.hpp"
 #include "../App/Http/Middlewares/MiddlwarePipeline.hpp"
+#include "../App/Http/Middlewares/CorsMiddleware.hpp"
 
 namespace beast = boost::beast;
 namespace http = beast::http;
 
 class Router {
+    static inline std::shared_ptr<MiddlewarePipeline> mainPipeline =
+        std::make_shared<MiddlewarePipeline>(
+            std::vector<std::shared_ptr<Middleware>>{
+                std::make_shared<CorsMiddleware>()
+            }
+        );
+
+
 public:
     using Request = http::request<http::string_body>;
     using Response = http::response<http::string_body>;
@@ -96,6 +105,8 @@ public:
     static void handle_request(Request& req, Response& res) {
         auto method = req.method();
         std::string target = req.target();
+
+        if(!Router::mainPipeline->run(req, res)) return; 
 
         if (static_routes_.find(method) != static_routes_.end()) {
             auto& method_routes = static_routes_[method];

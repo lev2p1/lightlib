@@ -18,10 +18,10 @@ public:
         chain.push_back(mw);
     }
 
-    void run(Request& req, Response& res) {
+    bool run(Request& req, Response& res) {
         for (auto& mw : chain) {
-            mw->handle(req, res);
-            if (res.result() != http::status::unknown) return;
+            if(!mw->handle(req, res)) return false;  
         }
+        return true;
     }
 };
