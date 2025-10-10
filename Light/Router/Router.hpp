@@ -7,21 +7,11 @@
 #include <regex>
 #include <iostream>
 #include "../App/Http/Controllers/Controller.hpp"
-#include "../App/Http/Middlewares/MiddlwarePipeline.hpp"
-#include "../App/Http/Middlewares/CorsMiddleware.hpp"
 
 namespace beast = boost::beast;
 namespace http = beast::http;
 
 class Router {
-    static inline std::shared_ptr<MiddlewarePipeline> mainPipeline =
-        std::make_shared<MiddlewarePipeline>(
-            std::vector<std::shared_ptr<Middleware>>{
-                std::make_shared<CorsMiddleware>()
-            }
-        );
-
-
 public:
     using Request = http::request<http::string_body>;
     using Response = http::response<http::string_body>;
@@ -44,10 +34,10 @@ public:
         static_routes_[http::verb::post][path] = handler;
     }
 
-    static void post(const std::string& path, Handler handler, const MiddlewarePipeline& middlewareChain = MiddlewarePipeline{}) {
+    static void post(const std::string& path, Handler handler) {
         std::regex pathRegex = convertPathToRegex(path);
         std::vector<std::string> paramNames = extractParamNames(path);
-        dynamic_routes_[http::verb::post].emplace_back(pathRegex, RouteInfo{ handler, paramNames, middlewareChain });
+        dynamic_routes_[http::verb::post].emplace_back(pathRegex, RouteInfo{ handler, paramNames });
     }
 
     static void patch(const std::string& path, SimpleHandler handler) {
@@ -102,11 +92,9 @@ public:
             });
     }
 
-    static void handle_request(Request& req, Response& res) {
+    static void handle_request(const Request& req, Response& res) {
         auto method = req.method();
         std::string target = req.target();
-
-        if(!Router::mainPipeline->run(req, res)) return; 
 
         if (static_routes_.find(method) != static_routes_.end()) {
             auto& method_routes = static_routes_[method];
@@ -117,14 +105,13 @@ public:
         }
 
         if (dynamic_routes_.find(method) != dynamic_routes_.end()) {
-            for (auto& route : dynamic_routes_[method]) {
+            for (const auto& route : dynamic_routes_[method]) {
                 std::smatch match;
                 if (std::regex_match(target, match, route.first)) {
                     std::unordered_map<std::string, std::string> params;
                     for (size_t i = 1; i < match.size(); ++i) {
                         params[route.second.paramNames[i - 1]] = match[i];
                     }
-                    route.second.middleware.run(req, res);
                     route.second.handler(req, res, params);
                     return;
                 }
@@ -133,7 +120,6 @@ public:
 
         res.result(http::status::not_found);
         res.body() = "Error 404: Page not found.";
-        return;
     }
 
     static void clearRoutes() {
@@ -145,7 +131,6 @@ private:
     struct RouteInfo {
         Handler handler;
         std::vector<std::string> paramNames;
-        MiddlewarePipeline middleware;
     };
 
     static std::regex convertPathToRegex(const std::string& path) {
