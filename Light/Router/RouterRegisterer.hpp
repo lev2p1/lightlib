@@ -54,6 +54,10 @@ public:
                 helloController->store(req, res);
                 });
 
+            //Router::post("/login", [helloController](const Router::Request& req, Router::Response& res) {
+            //    helloController->login(req, res);
+            //    });
+
             Router::get("/test-queue", [helloController](const Router::Request& req, Router::Response& res) {
                 helloController->testQueue(req, res);
                 });
@@ -80,7 +84,19 @@ public:
                 pipeline
             );
 
-            Router::post("/login", [usercontroller, &io](const Router::Request& req, Router::Response& res, const std::unordered_map<std::string, std::string>& params){
+            Router::get("/verify", [usercontroller, &io](const Router::Request& req, Router::Response& res){
+                boost::asio::co_spawn(
+                    io, 
+                    usercontroller->verify(req, res),
+                    [](std::exception_ptr e){
+                        if (e) {
+                            Logger::log("Coroutine error in profile", "ERROR");
+                        }
+                    }
+                );
+            });
+
+            Router::post("/login", [usercontroller, &io](const Router::Request& req, Router::Response& res){
                 boost::asio::co_spawn(
                     io, 
                     usercontroller->login(req, res),
@@ -90,8 +106,19 @@ public:
                         }
                     }
                 );
-            },
-            pipeline);
+            });
+
+            Router::get("/logout", [usercontroller, &io](const Router::Request& req, Router::Response& res){
+                boost::asio::co_spawn(
+                    io, 
+                    usercontroller->logout(req, res),
+                    [](std::exception_ptr e){
+                        if (e) {
+                            Logger::log("Coroutine error in logout", "ERROR");
+                        }
+                    }
+                );
+            });
 
             Router::get("/profile", [usercontroller, &io](const Router::Request& req, Router::Response& res){
                 boost::asio::co_spawn(
@@ -129,65 +156,23 @@ public:
                 );
             });
 
-            Router::post("/login/reset", [resetPasswordController, &io](const Router::Request& req, Router::Response& res){
+            Router::post("/login/reset-password", [resetPasswordController, &io](const Router::Request& req, Router::Response& res){
                 boost::asio::co_spawn(
                     io, 
-                    resetPasswordController->createToken(req, res),
+                    resetPasswordController->resetPassword(req, res),
                     [](std::exception_ptr e){
                         if (e) {
                             Logger::log("Coroutine error in profile", "ERROR");
                         }
                     }
                 );
-            });
-
-            Router::post("/login/by-code", [resetPasswordController, &io](const Router::Request& req, Router::Response& res){
-                boost::asio::co_spawn(
-                    io, 
-                    resetPasswordController->authIfValid(req, res),
-                    [](std::exception_ptr e){
-                        if (e) {
-                            Logger::log("Coroutine error in profile", "ERROR");
-                        }
-                    }
-                );
-            });
-
-            Router::post("/verify", [usercontroller, &io](const Router::Request& req, Router::Response& res, const std::unordered_map<std::string, std::string>& params){
-                boost::asio::co_spawn(
-                    io, 
-                    usercontroller->verify(req, res),
-                    [](std::exception_ptr e){
-                        if (e) {
-                            Logger::log("Coroutine error in verify", "ERROR");
-                        }
-                    }
-                );
-            },
-            pipeline);
-
-            Router::post("/logout", [usercontroller, &io](const Router::Request& req, Router::Response& res, const std::unordered_map<std::string, std::string>& params){
-                boost::asio::co_spawn(
-                    io, 
-                    usercontroller->logout(req, res),
-                    [](std::exception_ptr e){
-                        if (e) {
-                            Logger::log("Coroutine error in logout", "ERROR");
-                        }
-                    }
-                );
-            },
-            pipeline);
-
-            Router::options("/verify", [usercontroller](const Router::Request& req, Router::Response& res){
-                usercontroller->setCors(req, res);
-            });
-
-            Router::options("/logout", [usercontroller](const Router::Request& req, Router::Response& res){
-                usercontroller->setCors(req, res);
             });
 
             Router::options("/login", [usercontroller](const Router::Request& req, Router::Response& res){
+                usercontroller->setCors(req, res);
+            });
+
+            Router::options("/verify", [usercontroller](const Router::Request& req, Router::Response& res){
                 usercontroller->setCors(req, res);
             });
 
@@ -196,6 +181,10 @@ public:
             });
 
             Router::options("/login/reset", [resetPasswordController](const Router::Request& req, Router::Response& res){
+                resetPasswordController->setCors(req, res);
+            });
+
+            Router::options("/login/reset-password", [resetPasswordController](const Router::Request& req, Router::Response& res){
                 resetPasswordController->setCors(req, res);
             });
 

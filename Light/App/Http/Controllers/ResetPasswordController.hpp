@@ -21,6 +21,7 @@ public:
 
     boost::asio::awaitable<void> createToken(const Request& req, Response& res);
     boost::asio::awaitable<void> authIfValid(const Request& req, Response& res);
+    boost::asio::awaitable<void> resetPassword(const Request& req, Response& res);
     void setCors(const Request& req, Response& res);
     
 private:
@@ -34,8 +35,8 @@ boost::asio::awaitable<void> ResetPasswordController::createToken(const Request&
         json body = json::parse(req.body());
     
         if (!body.contains("email") || !Validator::email(body["email"])) {
-            res.result(http::status::bad_request);
             setCorsHeaders(res);
+            res.result(http::status::bad_request);
             co_return;
         }
         std::random_device rd;
@@ -48,6 +49,9 @@ boost::asio::awaitable<void> ResetPasswordController::createToken(const Request&
 
         Cache::set("reset_email_" + std::string(body["email"]), code_str, 360);
         Logger::log("reset_email_" + std::string(body["email"]) + " code: " + code_str, "INFO");
+
+        setCorsHeaders(res);
+        res.result(http::status::accepted);
 
         co_return;
     }
@@ -73,7 +77,8 @@ boost::asio::awaitable<void> ResetPasswordController::authIfValid(const Request&
         std::string code_from_cache = co_await Cache::get_async(key);
         
         if(code != code_from_cache){
-            res.result(http::status::unauthorized);
+            setCorsHeaders(res);
+            res.result(http::status::bad_request);
             co_return;
         }else{
             auto user = User::findByEmail(std::string(body["email"]));
@@ -89,6 +94,8 @@ boost::asio::awaitable<void> ResetPasswordController::authIfValid(const Request&
                 { "id", user->getAttribute("id") },
                 { "token", token }
             };  
+
+            setCorsHeaders(res);
             Cookie::set(res, cookies);
             co_return;
         }
@@ -100,15 +107,78 @@ boost::asio::awaitable<void> ResetPasswordController::authIfValid(const Request&
     }
 }
 
+boost::asio::awaitable<void> ResetPasswordController::resetPassword(const Request& req, Response& res){
+    try{
+        std::string token, id;
+        setCorsHeaders(res);
+
+        json body = json::parse(req.body());
+    
+        if (!body.contains("password") || !Validator::password(body["password"])) {
+            res.result(http::status::bad_request);
+            co_return;
+        }
+
+        try {
+            auto cookieHeader = req.base().find(http::field::cookie);
+            
+            if (cookieHeader != req.base().end()) {
+                std::string rawCookies = std::string(cookieHeader->value());
+                auto cookies = Cookie::parseCookies(rawCookies);
+
+                if (cookies.contains("token") && cookies.contains("id")) {
+                    token = cookies["token"];
+                    id = cookies["id"];
+                }
+                else{
+                    res.result(http::status::unauthorized);
+                }
+            }
+
+        } catch (const std::exception& e) {
+            res.result(http::status::bad_request);
+            co_return;
+        }
+
+        bool valid = co_await AuthService::validateRefreshToken_async(id, token);
+
+        if(!valid){
+            res.result(http::status::unauthorized);
+            co_return;
+        }
+
+        int idStr = std::stoi(id);
+        auto user = User::find(idStr);
+
+        std::string password = body["password"];
+
+        auto [hashedPassword, salt] = co_await Hash::awaitableHash(password);
+        std::string hexSalt = Hash::bytesToHexString(salt);
+
+        User::update(idStr, {
+            {"password", hashedPassword},
+            {"salt", hexSalt}
+        });
+
+        res.result(http::status::ok);
+    }
+    catch(std::exception &e){
+        setCorsHeaders(res);
+        res.result(http::status::internal_server_error);
+        res.body() = "Something went wrong";
+    }
+}
+
 void ResetPasswordController::setCorsHeaders(Response& res) {
-    res.set(http::field::access_control_allow_origin, "*");
+    res.set(http::field::access_control_allow_origin, "http://localhost:3000");
     res.set(http::field::access_control_allow_methods, "GET, POST, PUT, DELETE, OPTIONS");
     res.set(http::field::access_control_allow_headers, "Content-Type, Authorization, X-Requested-With");
     res.set(http::field::access_control_allow_credentials, "true");
 }
 
 void ResetPasswordController::setCors(const Request& req, Response& res) {
-    res.set(http::field::access_control_allow_origin, "*");
+    res.set(http::field::access_control_allow_credentials, "true");
+    res.set(http::field::access_control_allow_origin, "http://localhost:3000");
     res.set(http::field::access_control_allow_methods, "POST, GET, OPTIONS");
     res.set(http::field::access_control_allow_headers, "Content-Type, Authorization");
     res.result(http::status::ok);
