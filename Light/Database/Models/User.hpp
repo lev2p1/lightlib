@@ -18,4 +18,15 @@ public:
             return nullptr;
         }
     }
+
+    static std::shared_ptr<User> findByEmail(std::string email){
+        auto users = User::where("email = '" + email + "'");
+
+        if(users.size() > 0){
+            return users[0];
+        }
+        else{
+            return nullptr;
+        }
+    }
 };
