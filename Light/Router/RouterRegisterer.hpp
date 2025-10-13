@@ -1,9 +1,9 @@
-#pragma once 
+﻿#pragma once 
 #include <memory>
 #include "Router.hpp"
 #include <boost/asio/io_context.hpp>
-#include "App/Http/Controllers/UserController.hpp"
-#include "App/Http/Controllers/ResetPasswordController.hpp"
+#include "../App/Http/Controllers/UserController.hpp"
+#include "../App/Http/Controllers/ResetPasswordController.hpp"
 
 class RouterRegisterer {
     using Request = http::request<http::string_body>;
