@@ -4,6 +4,7 @@
 #include <boost/asio/io_context.hpp>
 #include "App/Http/Controllers/UserController.hpp"
 #include "App/Http/Controllers/ResetPasswordController.hpp"
+#include "types.hpp"
 
 class RouterRegisterer {
     using Request = http::request<http::string_body>;
@@ -15,77 +16,77 @@ public:
         auto userController = std::make_shared<UserController>();
         auto resetPasswordController = std::make_shared<ResetPasswordController>();
 
-        Router::add(http::verb::get, "/index-from-router2", 
+        Router::add(GET, "/index-from-router2", 
             [](const Request& req, Response& res, const Params& params) -> boost::asio::awaitable<void> {
                 UserController controller;
                 co_await controller.index(req, res);
             });
 
-        Router::add(http::verb::post, "/register", 
+        Router::add(POST, "/register", 
             [userController](const Request& req, Response& res, const Params& params) -> boost::asio::awaitable<void> {
                 co_await userController->register_(req, res);
             });
 
-        Router::add(http::verb::get, "/verify", 
+        Router::add(GET, "/verify", 
             [userController](const Request& req, Response& res, const Params& params) -> boost::asio::awaitable<void> {
                 co_await userController->verify(req, res);
             });
 
-        Router::add(http::verb::post, "/login", 
+        Router::add(POST, "/login", 
             [userController](const Request& req, Response& res, const Params& params) -> boost::asio::awaitable<void> {
                 co_await userController->login(req, res);
             });
 
-        Router::add(http::verb::get, "/logout", 
+        Router::add(GET, "/logout", 
             [userController](const Request& req, Response& res, const Params& params) -> boost::asio::awaitable<void> {
                 co_await userController->logout(req, res);
             });
 
-        Router::add(http::verb::get, "/new-profile", 
+        Router::add(GET, "/new-profile", 
             [userController](const Request& req, Response& res, const Params& params) -> boost::asio::awaitable<void> {
                 co_await userController->profile(req, res);
             });
 
-        Router::add(http::verb::post, "/login/reset", 
+        Router::add(POST, "/login/reset", 
             [resetPasswordController](const Request& req, Response& res, const Params& params) -> boost::asio::awaitable<void> {
                 co_await resetPasswordController->createToken(req, res);
             });
 
-        Router::add(http::verb::post, "/login/by-code", 
+        Router::add(POST, "/login/by-code", 
             [resetPasswordController](const Request& req, Response& res, const Params& params) -> boost::asio::awaitable<void> {
                 co_await resetPasswordController->authIfValid(req, res);
             });
 
-        Router::add(http::verb::post, "/login/reset-password", 
+        Router::add(POST, "/login/reset-password", 
             [resetPasswordController](const Request& req, Response& res, const Params& params) -> boost::asio::awaitable<void> {
                 co_await resetPasswordController->resetPassword(req, res);
             });
 
-        Router::add(http::verb::options, "/login", 
+        Router::add(OPTIONS, "/login", 
             [userController](const Request& req, Response& res, const Params& params) -> boost::asio::awaitable<void> {
                 userController->setCors(req, res);
                 co_return;
             });
 
-        Router::add(http::verb::options, "/verify", 
+        Router::add(OPTIONS, "/verify", 
             [userController](const Request& req, Response& res, const Params& params) -> boost::asio::awaitable<void> {
                 userController->setCors(req, res);
                 co_return;
             });
 
-        Router::add(http::verb::options, "/login/by-code", 
+        Router::add(OPTIONS, "/login/by-code", 
             [resetPasswordController](const Request& req, Response& res, const Params& params) -> boost::asio::awaitable<void> {
                 resetPasswordController->setCors(req, res);
                 co_return;
             });
 
-        Router::add(http::verb::options, "/login/reset", 
+        Router::add(OPTIONS, "/login/reset", 
             [resetPasswordController](const Request& req, Response& res, const Params& params) -> boost::asio::awaitable<void> {
                 resetPasswordController->setCors(req, res);
                 co_return;
             });
 
-        Router::add(http::verb::options, "/login/reset-password", 
+        Router::add(OPTIONS, "/login/reset-password", 
             [resetPasswordController](const Request& req, Response& res, const Params& params) -> boost::asio::awaitable<void> {
                 resetPasswordController->setCors(req, res);
                 co_return;
