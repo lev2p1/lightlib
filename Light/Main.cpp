@@ -8,12 +8,13 @@
 #include <boost/asio/use_awaitable.hpp>
 #include <boost/asio/steady_timer.hpp>
 #include <boost/config.hpp>
-#include "Router/RouterRegisterer.hpp"
 #include "vendor/Handlers/ENV.hpp"
 #include "Database/Queue.hpp"
 #include "Database/Cache.hpp"
 #include "Database/Migrations/MigrationManager.hpp"
 #include "App/Http/Services/AuthService.hpp"
+#include "Router/RouterRegisterer.hpp"
+#include "Router/Router.hpp"
 
 namespace beast = boost::beast;
 namespace http = beast::http;
@@ -37,7 +38,7 @@ net::awaitable<void> handle_connection(tcp::socket socket) {
         res.version(req.version());
         res.keep_alive(req.keep_alive());
 
-        Router::handle_request(req, res);
+        co_await Router::handle_request(req, res);
 
         co_await http::async_write(socket, res, net::use_awaitable);
         beast::error_code ec;

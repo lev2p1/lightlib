@@ -8,6 +8,7 @@
 #include "../Helpers/Validator.hpp"
 #include "../Services/Service.hpp"
 #include "../Helpers/Cookie.hpp"
+#include "../Services/AuthService.hpp"
 
 namespace beast = boost::beast;
 namespace http = beast::http;
@@ -22,6 +23,7 @@ public:
     boost::asio::awaitable<void> profile(const Request& req, Response& res);
     boost::asio::awaitable<void> verify(const Request& req, Response &res);
     boost::asio::awaitable<void> logout(const Request& req, Response &res);
+    boost::asio::awaitable<void> index(const Request& req, Response &res);
     void setCors(const Request& req, Response& res);
 
 private:
@@ -283,6 +285,13 @@ boost::asio::awaitable<void> UserController::profile(const Request& req, Respons
         res.body() = "Something went wrong";
         setCorsHeaders(res);
     }
+}
+
+boost::asio::awaitable<void> UserController::index(const Request& req, Response &res){
+    res.result(http::status::ok);
+    res.body() = "Index from router2";
+    res.prepare_payload();
+    co_return;
 }
 
 void UserController::setCors(const Request& req, Response& res) {

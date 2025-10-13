@@ -6,7 +6,7 @@
 namespace beast = boost::beast;
 namespace http = beast::http;
 
-typedef const std::unordered_map<std::string, std::string>& Params;
+using Params = std::unordered_map<std::string, std::string>;
 
 class Controller {
 public: 
