@@ -67,6 +67,13 @@ public:
                 userController->setCors(req, res);
                 co_return;
             });
+        
+        Router::add(OPTIONS, "/logout", 
+            [userController](const Request& req, Response& res, const Params& params) -> boost::asio::awaitable<void> {
+                userController->setCors(req, res);
+                co_return;
+            }
+        );
 
         Router::add(OPTIONS, "/verify", 
             [userController](const Request& req, Response& res, const Params& params) -> boost::asio::awaitable<void> {
