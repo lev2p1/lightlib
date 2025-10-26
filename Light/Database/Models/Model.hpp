@@ -112,6 +112,7 @@ public:
 
     static std::shared_ptr<Derived> find(int id) {
         try {
+            auto model = std::make_shared<Derived>();
             auto results = query().Where("id = " + std::to_string(id)).Limit(1).get();
             if (results.empty()) {
                 Logger::log("No data found by id", "WARNING");
@@ -125,6 +126,7 @@ public:
         }
         catch (const std::exception& e) {
             Logger::log("Finding error: " + std::string(e.what()), "ERROR");
+            return nullptr;
         }
     }
 
@@ -179,7 +181,102 @@ public:
         }
     }
 
+    static void deleteById(int id) {
+        try {
+            auto database = std::make_shared<Database>();
+            PGconn* conn = database->getConnection();
+            if (!conn) {
+                Logger::log("Failed to get database connection", "ERROR");
+                return;
+            }
+            SQLQueryBuilder builder(Derived::table_name);
+            builder.Delete().Where("id = " + SQLString::EscapeString(conn, std::to_string(id)));
+            std::string query = builder.get();
+            database->execute(query);
+        }
+        catch (const std::exception& e) {
+            Logger::log("Delete by ID failed: " + std::string(e.what()), "ERROR");
+        }
+	}   
+
+    static bool deleteWhere(const std::string& condition) {
+        try {
+            auto database = std::make_shared<Database>();
+            PGconn* conn = database->getConnection();
+            if (!conn) {
+                Logger::log("Failed to get database connection", "ERROR");
+                return false;
+            }
+            SQLQueryBuilder builder(Derived::table_name);
+            builder.Delete().Where(condition);
+            std::string query = builder.get();
+            database->execute(query);
+
+            return true;
+        }
+        catch (const std::exception& e) {
+            Logger::log("Delete where failed: " + std::string(e.what()), "ERROR");
+            return false;
+        }
+	}
+
     static std::vector<std::shared_ptr<Derived>> where(const std::string& condition) {
         return query().Where(condition).get();
+    }
+
+    static bool saveMany(const std::vector<std::shared_ptr<Derived>>& models) {
+        auto database = std::make_shared<Database>();
+        PGconn* conn = database->getConnection();
+
+        if (!conn) {
+            Logger::log("Failed to get database connection", "ERROR");
+            return false;
+        }
+
+        if (models.empty()) {
+            Logger::log("No models to save", "WARNING");
+            return false;
+        }
+
+        const auto& first = models.front();
+
+        std::vector<std::string> columns;
+        for (const auto& key : first->fields) {
+            if(!first->getAttribute(key).empty())
+                columns.push_back(key);
+        }
+
+        std::ostringstream valuesStream;
+        for (size_t i = 0; i < models.size(); ++i) {
+            const auto& model = models[i];
+            std::ostringstream rowStream;
+            rowStream << "(";
+            for (size_t j = 0; j < columns.size(); ++j) {
+                const std::string& col = columns[j];
+                std::string escaped = SQLString::EscapeString(conn, model->getAttribute(col));
+                rowStream << escaped;
+                if (j < columns.size() - 1) rowStream << ", ";
+            }
+            rowStream << ")";
+            valuesStream << rowStream.str();
+            if (i < models.size() - 1) valuesStream << ", ";
+        }
+
+        std::ostringstream queryStream;
+        queryStream << "INSERT INTO " << Derived::table_name << " (";
+        for (size_t i = 0; i < columns.size(); ++i) {
+            queryStream << columns[i];
+            if (i < columns.size() - 1) queryStream << ", ";
+        }
+        queryStream << ") VALUES " << valuesStream.str() << ";";
+
+        try {
+            database->execute(queryStream.str());
+            return true;
+        }
+        catch (const std::exception& e) {
+            Logger::log("Batch insert error: " + std::string(e.what()), "ERROR");
+            return false;
+        }
     }
 };

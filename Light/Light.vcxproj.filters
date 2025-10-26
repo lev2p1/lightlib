@@ -173,6 +173,15 @@
     <ClInclude Include="Database\Models\Organization.hpp">
       <Filter>Файлы заголовков</Filter>
     </ClInclude>
+    <ClInclude Include="App\Http\Helpers\Cookie.hpp">
+      <Filter>Файлы заголовков</Filter>
+    </ClInclude>
+    <ClInclude Include="App\Http\Helpers\Validator.hpp">
+      <Filter>Файлы заголовков</Filter>
+    </ClInclude>
+    <ClInclude Include="Database\Migrations\migration_backup_codes_table.hpp">
+      <Filter>Файлы заголовков</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include=".env" />

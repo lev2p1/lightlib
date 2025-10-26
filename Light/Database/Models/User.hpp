@@ -83,7 +83,7 @@ public:
     json toJson() {
         json j;
         for (const auto& field : fields) {
-            j[field] = attributes[field];
+            j[field] = this->getAttribute(field);
         }
         return j;
 	}

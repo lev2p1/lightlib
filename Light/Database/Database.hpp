@@ -39,7 +39,7 @@ private:
 inline Database::Database() {
     std::string connection_string = "host=" + ENV::env_variables["DB_HOST"] + " user=" + ENV::env_variables["DB_USERNAME"] + " password=" + ENV::env_variables["DB_PASSWORD"] + " dbname=" + ENV::env_variables["DB_DATABASE"] + " client_encoding=UTF8";
     conn_ = PQconnectdb(connection_string.c_str());
-    Logger::log("Successfully connected to database " + ENV::env_variables["DB_DATABASE"], "SUCCESS");
+   Logger::log("Successfully connected to database " + ENV::env_variables["DB_DATABASE"], "SUCCESS");
     if (PQstatus(conn_) != CONNECTION_OK) {
         Logger::log("Connection failed: " + std::string(PQerrorMessage(conn_)), "ERROR");
         throw std::runtime_error("Connection failed: " + std::string(PQerrorMessage(conn_)));

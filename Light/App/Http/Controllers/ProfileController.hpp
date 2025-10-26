@@ -8,6 +8,8 @@
 #include "../Services/Service.hpp"
 #include "../Helpers/Cookie.hpp"
 #include "../Services/AuthService.hpp"
+#include "../Helpers/Code.hpp"
+#include "../../../Database/Models/BackupCode.hpp"
 
 namespace beast = boost::beast;
 namespace http = beast::http;
@@ -123,11 +125,18 @@ boost::asio::awaitable<void> ProfileController::update(const Request& req, Respo
         if (body.contains("email") && Validator::email(body["email"])) {
             updates["email"] = body["email"];
         }
-        if (body.contains("password") && Validator::password(body["password"])) {
-            auto [hashedPassword, salt] = co_await Hash::awaitableHash(body["password"]);
-            updates["password"] = hashedPassword;
-            updates["salt"] = Hash::bytesToHexString(salt);
+        if (body.contains("picture")) {
+            updates["picture"] = body["picture"];
+		}
+        if (body.contains("timezone")) {
+            updates["timezone"] = body["timezone"];
+		}
+        if (body.contains("language")) {
+            updates["language"] = body["language"];
         }
+        if (body.contains("country")) {
+            updates["country"] = body["country"];
+		}
         User::update(idStr, updates);
         res.result(http::status::ok);
         res.body() = "Profile updated successfully";
@@ -251,9 +260,12 @@ boost::asio::awaitable<void> ProfileController::generate_backup_codes(const Requ
             res.body() = "Unauthorized";
             co_return;
         }
-        // Placeholder for actual backup code generation logic
+        
+		std::vector<std::string> newCodes = Code::generateMultipleCodes(10, 8, true);
+		BackupCode::createBackupCodes(std::stoi(id), newCodes);
+
         json responseJson = {
-            {"backup_codes", {"new_code1", "new_code2", "new_code3"}}
+            {"backup_codes", newCodes}
         };
         res.result(http::status::ok);
         res.body() = responseJson.dump();
@@ -574,7 +586,42 @@ boost::asio::awaitable<void> ProfileController::change_password(const Request& r
             res.body() = "Unauthorized";
             co_return;
         }
-        // Placeholder for actual password change logic
+        
+        json body = json::parse(req.body());
+		int idStr = std::stoi(id);
+        auto user = User::find(idStr);
+        if (!user) {
+            res.result(http::status::unauthorized);
+            res.body() = "Unauthorized";
+            co_return;
+        }
+        if (!body.contains("current_password") || !Validator::password(body["current_password"])) {
+            res.result(http::status::bad_request);
+            res.body() = "Invalid current password format";
+            co_return;
+        }
+        if (!body.contains("new_password") || !Validator::password(body["new_password"])) {
+            res.result(http::status::bad_request);
+            res.body() = "Invalid password format";
+            co_return;
+        }
+		bool passwordMatch = Hash::verify(body["current_password"], user->getAttribute("password"), Hash::hexStringToBytes(user->getAttribute("salt")));
+        if (!passwordMatch) {
+            res.result(http::status::bad_request);
+            res.body() = "Current password is incorrect";
+            co_return;
+		}
+        if (body["current_password"] == body["new_password"]) {
+            res.result(http::status::bad_request);
+            res.body() = "New password cannot be the same as the current password";
+            co_return;
+        }
+		auto [hashedPassword, salt] = co_await Hash::awaitableHash(body["new_password"]);
+		std::map<std::string, std::string> updates;
+		updates["password"] = hashedPassword;
+		updates["salt"] = Hash::bytesToHexString(salt);
+		User::update(idStr, updates);
+
         res.result(http::status::ok);
         res.body() = "Password changed successfully";
         co_return;

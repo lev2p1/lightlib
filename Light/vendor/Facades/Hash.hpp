@@ -105,7 +105,10 @@ public:
 
         auto stored_bytes = Hash::hexStringToBytes(stored_hash);
         auto new_bytes = Hash::hexStringToBytes(new_hash);
-
+		Logger::log("Stored hash bytes size: " + std::to_string(stored_bytes.size()), "DEBUG");
+		Logger::log("New hash bytes size: " + std::to_string(new_bytes.size()), "DEBUG");   
+		Logger::log("Stored hash: " + stored_hash, "DEBUG");
+		Logger::log("New hash: " + new_hash, "DEBUG");
         bool match = stored_bytes == new_bytes;
 
         return match;

@@ -64,9 +64,81 @@ public:
                 co_await resetPasswordController->resetPassword(req, res);
             });
 
+        Router::add(PUT, "/profile",
+            [profileController](const Request& req, Response& res, const Params& params) -> boost::asio::awaitable<void> {
+                co_await profileController->update(req, res);
+			});
+
+        Router::add(DELETE_, "/profile",
+            [profileController](const Request& req, Response& res, const Params& params) -> boost::asio::awaitable<void> {
+                co_await profileController->delete_account(req, res);
+			});
+
+        Router::add(POST, "/profile/change-password",
+            [profileController](const Request& req, Response& res, const Params& params) -> boost::asio::awaitable<void> {
+                co_await profileController->change_password(req, res);
+			});
+
+        Router::add(POST, "/profile/change-email",
+            [profileController](const Request& req, Response& res, const Params& params) -> boost::asio::awaitable<void> {
+				co_await profileController->change_email(req, res);
+			});
+
+        Router::add(GET, "/profile/backup-codes",
+            [profileController](const Request& req, Response& res, const Params& params) -> boost::asio::awaitable<void> {
+                co_await profileController->show_backup_codes(req, res);
+			});
+
+        Router::add(DELETE_, "/profile/backup-codes",
+            [profileController](const Request& req, Response& res, const Params& params) -> boost::asio::awaitable<void> {
+				co_await profileController->remove_backup_codes(req, res);
+			});
+
+        Router::add(POST, "/profile/backup-codes",
+			[profileController](const Request& req, Response& res, const Params& params) -> boost::asio::awaitable<void> {
+				co_await profileController->generate_backup_codes(req, res);
+			});
+
+        Router::add(POST, "/profile/2fa/enable",
+            [profileController](const Request& req, Response& res, const Params& params) -> boost::asio::awaitable<void> {
+				co_await profileController->enable_2fa(req, res);
+			});
+
+        Router::add(POST, "/profile/2fa/disable",
+			[profileController](const Request& req, Response& res, const Params& params) -> boost::asio::awaitable<void> {
+				co_await profileController->disable_2fa(req, res);
+			});
+
+        Router::add(POST, "/profile/2fa/verify",
+			[profileController](const Request& req, Response& res, const Params& params) -> boost::asio::awaitable<void> {
+				co_await profileController->verify_2fa_code(req, res);
+			});
+
+		Router::add(POST, "/profile/2fa/regenerate-secret",
+			[profileController](const Request& req, Response& res, const Params& params) -> boost::asio::awaitable<void> {
+				co_await profileController->regenerate_2fa_secret(req, res);
+			});
+
+        Router::add(POST, "/profile/disable-account",
+			[profileController](const Request& req, Response& res, const Params& params) -> boost::asio::awaitable<void> {
+				co_await profileController->disable_account(req, res);
+			});
+
+		Router::add(POST, "/profile/delete-account",
+			[profileController](const Request& req, Response& res, const Params& params) -> boost::asio::awaitable<void> {
+				co_await profileController->delete_account(req, res);
+			});
+
+
         Router::add(GET, "/profile",
             [profileController](const Request& req, Response& res, const Params& params) -> boost::asio::awaitable<void> {
                 co_await profileController->profile(req, res);
+            });
+        
+        Router::add(OPTIONS, "/profile/backup-codes",
+            [profileController](const Request& req, Response& res, const Params& params) -> boost::asio::awaitable<void> {
+                profileController->setCors(req, res);
+                co_return;
             });
 
         Router::add(OPTIONS, "/login", 
