@@ -147,6 +147,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="App\Http\Controllers\ProfileController.hpp" />
     <ClCompile Include="Database\Cache.hpp" />
     <ClCompile Include="Database\Models\User.hpp" />
     <ClCompile Include="Main.cpp" />
@@ -156,14 +157,20 @@
     <ClInclude Include="App\Http\Controllers\Controller.hpp" />
     <ClInclude Include="App\Http\Controllers\HelloController.hpp" />
     <ClInclude Include="App\Http\Controllers\HomeController.hpp" />
+    <ClInclude Include="App\Http\Controllers\ResetPasswordController.hpp" />
+    <ClInclude Include="App\Http\Controllers\UserController.hpp" />
     <ClInclude Include="App\Http\Middlewares\AuthMiddleware.hpp" />
     <ClInclude Include="App\Http\Middlewares\CorsHandler.hpp" />
+    <ClInclude Include="App\Http\Middlewares\CorsMiddleware.hpp" />
     <ClInclude Include="App\Http\Middlewares\DefaultCorsHandler.hpp" />
     <ClInclude Include="App\Http\Middlewares\LoggingMiddleware.hpp" />
     <ClInclude Include="App\Http\Middlewares\Middleware.hpp" />
     <ClInclude Include="App\Http\Middlewares\MiddlewareChain.hpp" />
+    <ClInclude Include="App\Http\Middlewares\MiddlwarePipeline.hpp" />
     <ClInclude Include="App\Http\Middlewares\RandomBlockMiddleware.hpp" />
     <ClInclude Include="App\Http\Middlewares\ValidationMiddleware.hpp" />
+    <ClInclude Include="App\Http\Services\AuthService.hpp" />
+    <ClInclude Include="App\Http\Services\Service.hpp" />
     <ClInclude Include="Controllers\Controller.hpp" />
     <ClInclude Include="Controllers\HelloController.hpp" />
     <ClInclude Include="Controllers\HomeController.hpp" />
@@ -177,6 +184,7 @@
     <ClInclude Include="Database\Migrations\migration_users_create.hpp" />
     <ClInclude Include="Database\Models\Model.hpp" />
     <ClInclude Include="Database\Models\ModelQueryBuilder.hpp" />
+    <ClInclude Include="Database\Models\Organization.hpp" />
     <ClInclude Include="Database\Models\Post.hpp" />
     <ClInclude Include="Database\Queue.hpp" />
     <ClInclude Include="Database\SQLBuilder.hpp" />

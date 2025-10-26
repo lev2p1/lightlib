@@ -4,6 +4,7 @@
 #include <boost/asio/io_context.hpp>
 #include "../App/Http/Controllers/UserController.hpp"
 #include "../App/Http/Controllers/ResetPasswordController.hpp"
+#include "../App/Http/Controllers/ProfileController.hpp"
 #include "types.hpp"
 
 class RouterRegisterer {
@@ -15,6 +16,7 @@ public:
     static void init(boost::asio::io_context& io) {
         auto userController = std::make_shared<UserController>();
         auto resetPasswordController = std::make_shared<ResetPasswordController>();
+		auto profileController = std::make_shared<ProfileController>();
 
         Router::add(GET, "/index-from-router2", 
             [](const Request& req, Response& res, const Params& params) -> boost::asio::awaitable<void> {
@@ -57,9 +59,14 @@ public:
                 co_await resetPasswordController->authIfValid(req, res);
             });
 
-        Router::add(POST, "/login/reset-password", 
+        Router::add(POST, "/login/reset-password",
             [resetPasswordController](const Request& req, Response& res, const Params& params) -> boost::asio::awaitable<void> {
                 co_await resetPasswordController->resetPassword(req, res);
+            });
+
+        Router::add(GET, "/profile",
+            [profileController](const Request& req, Response& res, const Params& params) -> boost::asio::awaitable<void> {
+                co_await profileController->profile(req, res);
             });
 
         Router::add(OPTIONS, "/login", 
@@ -91,5 +98,11 @@ public:
                 resetPasswordController->setCors(req, res);
                 co_return;
             });
+
+        Router::add(OPTIONS, "/logout", 
+            [userController](const Request& req, Response& res, const Params& params) -> boost::asio::awaitable<void> {
+                userController->setCors(req, res);
+                co_return;
+			});
     }
 };

@@ -66,7 +66,12 @@ boost::asio::awaitable<void> UserController::register_(const Request& req, Respo
             {"username", username},
             {"password", hashedPassword},
             {"email", email},
-            {"salt", hexSalt}
+            {"salt", hexSalt},
+            {"role", "user"},
+            {"status", "active"},
+            {"timezone", "2025-10-12 00:00:00"},
+            {"language", "ru"},
+            {"country", "RU"}
         })->save();
 
         if(!success){
@@ -115,7 +120,7 @@ boost::asio::awaitable<void> UserController::login(const Request& req, Response&
         auto user = User::findByEmail(email);
 
         if(user == nullptr){
-            res.result(http::status::not_found);
+            res.result(http::status::bad_request);
             res.body() = "User not found";
             co_return;
         }
