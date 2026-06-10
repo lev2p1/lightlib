@@ -19,12 +19,19 @@
  */
 
 #include "../include/lightlib/vendor/Storage/Storage.hpp"
+#include <boost/asio/post.hpp>
 
 namespace lightlib {
 
     Storage& Storage::getInstance() {
         static Storage instance;
         return instance;
+    }
+
+    void Storage::initAsync(size_t threadCount) {
+        if (!ioPool_) {
+            ioPool_ = std::make_shared<boost::asio::thread_pool>(threadCount);
+        }
     }
 
     void Storage::setRootPath(const std::string& path) {
@@ -91,4 +98,81 @@ namespace lightlib {
         fs::rename(rootPath_ + "/" + source, rootPath_ + "/" + destination);
     }
 
+    boost::asio::awaitable<void> Storage::putAsync(const std::string& path, const std::string& content) {
+        if (!ioPool_) {
+            throw std::runtime_error("Storage not initialized for async operations. Call initAsync() first.");
+        }
+
+        auto executor = co_await boost::asio::this_coro::executor;
+
+        co_await boost::asio::post(executor, boost::asio::use_awaitable);
+
+        co_await boost::asio::post(*ioPool_, boost::asio::use_awaitable);
+
+        try {
+            put(path, content);
+        }
+        catch (const std::exception& e) {
+            throw;
+        }
+
+        co_return;
+    }
+
+    boost::asio::awaitable<std::string> Storage::getAsync(const std::string& path) {
+        if (!ioPool_) {
+            throw std::runtime_error("Storage not initialized for async operations. Call initAsync() first.");
+        }
+
+        co_await boost::asio::post(*ioPool_, boost::asio::use_awaitable);
+
+        std::string result;
+        try {
+            result = get(path);
+        }
+        catch (const std::exception& e) {
+            throw;
+        }
+
+        co_return result;
+    }
+
+    boost::asio::awaitable<bool> Storage::existsAsync(const std::string& path) const {
+        if (!ioPool_) {
+            throw std::runtime_error("Storage not initialized for async operations. Call initAsync() first.");
+        }
+
+        co_await boost::asio::post(*ioPool_, boost::asio::use_awaitable);
+        co_return exists(path);
+    }
+
+    boost::asio::awaitable<void> Storage::deleteFileAsync(const std::string& path) {
+        if (!ioPool_) {
+            throw std::runtime_error("Storage not initialized for async operations. Call initAsync() first.");
+        }
+
+        co_await boost::asio::post(*ioPool_, boost::asio::use_awaitable);
+        deleteFile(path);
+        co_return;
+    }
+
+    boost::asio::awaitable<void> Storage::copyAsync(const std::string& source, const std::string& destination) {
+        if (!ioPool_) {
+            throw std::runtime_error("Storage not initialized for async operations. Call initAsync() first.");
+        }
+
+        co_await boost::asio::post(*ioPool_, boost::asio::use_awaitable);
+        copy(source, destination);
+        co_return;
+    }
+
+    boost::asio::awaitable<void> Storage::moveAsync(const std::string& source, const std::string& destination) {
+        if (!ioPool_) {
+            throw std::runtime_error("Storage not initialized for async operations. Call initAsync() first.");
+        }
+
+        co_await boost::asio::post(*ioPool_, boost::asio::use_awaitable);
+        move(source, destination);
+        co_return;
+    }
 }

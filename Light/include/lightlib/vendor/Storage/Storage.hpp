@@ -24,6 +24,13 @@
 #include <fstream>
 #include <stdexcept>
 #include <filesystem>
+#include <boost/asio/awaitable.hpp>
+#include <boost/asio/co_spawn.hpp>
+#include <boost/asio/detached.hpp>
+#include <boost/asio/use_awaitable.hpp>
+#include <thread>
+#include <future>
+#include <boost/asio/thread_pool.hpp>
 
 namespace lightlib {
 
@@ -36,10 +43,11 @@ namespace lightlib {
         Storage& operator=(const Storage&) = delete;
 
         std::string rootPath_;
+        std::shared_ptr<boost::asio::thread_pool> ioPool_;
 
     public:
         static Storage& getInstance();
-
+        void initAsync(size_t threadCount = std::thread::hardware_concurrency());
         void setRootPath(const std::string& path);
         std::string getRootPath() const;
 
@@ -49,6 +57,12 @@ namespace lightlib {
         void deleteFile(const std::string& path);
         void copy(const std::string& source, const std::string& destination);
         void move(const std::string& source, const std::string& destination);
+        boost::asio::awaitable<void> putAsync(const std::string& path, const std::string& content);
+        boost::asio::awaitable<std::string> getAsync(const std::string& path);
+        boost::asio::awaitable<bool> existsAsync(const std::string& path) const;
+        boost::asio::awaitable<void> deleteFileAsync(const std::string& path);
+        boost::asio::awaitable<void> copyAsync(const std::string& source, const std::string& destination);
+        boost::asio::awaitable<void> moveAsync(const std::string& source, const std::string& destination);
     };
 
 }
