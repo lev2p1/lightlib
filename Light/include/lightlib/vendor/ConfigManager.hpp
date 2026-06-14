@@ -122,6 +122,17 @@ namespace lightlib {
         std::vector<std::string> getKeysNested() const;
         void loadFromJsonNested(const json& j);
         json getNestedJson(const std::string& prefix = "") const;
-    };
 
+        json getJson(const std::string& key) const;
+
+        template<typename T>
+        T getNested(const std::string& path, const T& defaultValue = T{});
+
+        template<typename T>
+        void setNested(const std::string& path, const T& value);
+
+        bool hasNestedPath(const std::string& path) const;
+        bool removeNested(const std::string& path);
+        std::vector<std::string> getKeysWithPrefix(const std::string& prefix) const;
+    };
 }

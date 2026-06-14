@@ -233,4 +233,179 @@ namespace lightlib {
         return unflattenMap(filtered);
     }
 
+    json ConfigManager::getJson(const std::string& key) const {
+        std::unordered_map<std::string, std::string> filtered;
+        std::string prefix = key;
+
+        for (const auto& [configKey, value] : config_) {
+            if (configKey == key) {
+                try {
+                    return json::parse(value);
+                }
+                catch (...) {
+                    return value;
+                }
+            }
+            else if (configKey.find(prefix + ".") == 0) {
+                std::string subKey = configKey.substr(prefix.length() + 1);
+                filtered[subKey] = value;
+            }
+        }
+
+        if (!filtered.empty()) {
+            return unflattenMap(filtered);
+        }
+
+        return json::object();
+    }
+
+    template<typename T>
+    T ConfigManager::getNested(const std::string& path, const T& defaultValue) {
+        std::lock_guard<std::mutex> lock(mutex_);
+
+        auto it = config_.find(path);
+        if (it != config_.end()) {
+            try {
+                return fromString<T>(it->second);
+            }
+            catch (std::exception& e) {
+                Logger::log(e.what(), "ERROR");
+                return defaultValue;
+            }
+        }
+
+        std::string prefix = path + ".";
+        std::unordered_map<std::string, std::string> filtered;
+
+        for (const auto& [key, value] : config_) {
+            if (key.find(prefix) == 0) {
+                std::string subKey = key.substr(prefix.length());
+                filtered[subKey] = value;
+            }
+        }
+
+        if (!filtered.empty()) {
+            json nestedJson = unflattenMap(filtered);
+            try {
+                if constexpr (std::is_same_v<T, json>) {
+                    return nestedJson;
+                }
+                else if constexpr (std::is_same_v<T, std::string>) {
+                    return nestedJson.dump(4);
+                }
+                else {
+                    return nestedJson.get<T>();
+                }
+            }
+            catch (...) {
+                return defaultValue;
+            }
+        }
+
+        return defaultValue;
+    }
+
+    template<typename T>
+    void ConfigManager::setNested(const std::string& path, const T& value) {
+        std::lock_guard<std::mutex> lock(mutex_);
+
+        if constexpr (std::is_same_v<T, json>) {
+            json j = value;
+
+            std::vector<std::string> toRemove;
+            for (const auto& [key, _] : config_) {
+                if (key == path || key.find(path + ".") == 0) {
+                    toRemove.push_back(key);
+                }
+            }
+            for (const auto& key : toRemove) {
+                config_.erase(key);
+            }
+
+            flattenJson(path, j, config_);
+        }
+        else {
+            config_[path] = toString(value);
+        }
+
+        if (autoSave_) {
+            save();
+        }
+    }
+
+    bool ConfigManager::hasNestedPath(const std::string& path) const {
+        std::lock_guard<std::mutex> lock(mutex_);
+
+        if (config_.find(path) != config_.end()) {
+            return true;
+        }
+
+        std::string prefix = path + ".";
+        for (const auto& [key, _] : config_) {
+            if (key.find(prefix) == 0) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    bool ConfigManager::removeNested(const std::string& path) {
+        std::lock_guard<std::mutex> lock(mutex_);
+
+        std::vector<std::string> toRemove;
+        for (const auto& [key, _] : config_) {
+            if (key == path || key.find(path + ".") == 0) {
+                toRemove.push_back(key);
+            }
+        }
+
+        if (toRemove.empty()) {
+            return false;
+        }
+
+        for (const auto& key : toRemove) {
+            config_.erase(key);
+        }
+
+        if (autoSave_) {
+            save();
+        }
+
+        return true;
+    }
+
+    std::vector<std::string> ConfigManager::getKeysWithPrefix(const std::string& prefix) const {
+        std::lock_guard<std::mutex> lock(mutex_);
+
+        std::vector<std::string> keys;
+        if (prefix.empty()) {
+            keys.reserve(config_.size());
+            for (const auto& [key, _] : config_) {
+                keys.push_back(key);
+            }
+        }
+        else {
+            for (const auto& [key, _] : config_) {
+                if (key.find(prefix) == 0) {
+                    keys.push_back(key);
+                }
+            }
+        }
+
+        return keys;
+    }
+
+    template std::string ConfigManager::getNested<std::string>(const std::string&, const std::string&);
+    template int ConfigManager::getNested<int>(const std::string&, const int&);
+    template bool ConfigManager::getNested<bool>(const std::string&, const bool&);
+    template double ConfigManager::getNested<double>(const std::string&, const double&);
+    template json ConfigManager::getNested<json>(const std::string&, const json&);
+
+    template void ConfigManager::setNested<std::string>(const std::string&, const std::string&);
+    template void ConfigManager::setNested<int>(const std::string&, const int&);
+    template void ConfigManager::setNested<bool>(const std::string&, const bool&);
+    template void ConfigManager::setNested<double>(const std::string&, const double&);
+    template void ConfigManager::setNested<json>(const std::string&, const json&);
+
 }

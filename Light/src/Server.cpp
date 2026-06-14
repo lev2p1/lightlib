@@ -34,20 +34,29 @@ bool lightlib::Server::initialize() {
         Logger::registerSignalHandlers();
         AuthService::secret = ENV::env_variables["AUTH_SECRET"];
 
-        auto rootDriver = std::make_shared<lightlib::FileDriver>();
-        rootDriver->setRootPath("./");
-        rootDriver->initAsync();
+        auto configDriver = std::make_shared<lightlib::FileDriver>();
+        configDriver->setRootPath("./");
+        configDriver->initAsync();
 
-        auto localDriver = std::make_shared<lightlib::FileDriver>();
-        localDriver->setRootPath("./");
-        localDriver->initAsync();
-
-        StorageManager::getInstance().registerDriver("root", rootDriver);
-        StorageManager::getInstance().registerDriver("local", localDriver);
-        StorageManager::getInstance().setDefaultDriver("local");
-
-        global_config = std::make_shared<ConfigManager>("config.json", "root");
+        global_config = std::make_shared<ConfigManager>("config.json", configDriver);
         global_config->load();
+
+        json drivers = global_config->getJson("filesystem.drivers");
+
+        for (auto& [name, cfg] : drivers.items()) {
+            if (name == "default") continue;
+
+            auto driver = std::make_shared<lightlib::FileDriver>();
+            driver->setRootPath(cfg.value("root", "./"));
+            driver->initAsync();
+
+            StorageManager::getInstance().registerDriver(name, driver);
+        }
+
+        std::string def = global_config->getNested<std::string>("filesystem.default", "local");
+        if (StorageManager::getInstance().hasDriver(def)) {
+            StorageManager::getInstance().setDefaultDriver(def);
+        }
 
         initializeConnections();
         RouterRegisterer::init(io_);
