@@ -1,0 +1,96 @@
+name: Test Failure
+description: Report failing tests in CI/CD pipeline
+title: "[TEST]: "
+labels: ["testing", "needs-triage"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Flaky or failing tests block development and deployment.
+
+  - type: input
+    id: test_name
+    attributes:
+      label: Test Name
+      placeholder: "should handle POST requests correctly"
+    validations:
+      required: true
+
+  - type: dropdown
+    id: test_type
+    attributes:
+      label: Test Type
+      options:
+        - Unit test
+        - Integration test
+        - E2E test
+        - Performance test
+        - Security test
+        - CI pipeline
+    validations:
+      required: true
+
+  - type: textarea
+    id: failure_output
+    attributes:
+      label: Failure Output
+      description: Paste the test failure output
+      render: shell
+      placeholder: |
+        FAIL tests/api.test.js
+        Expected: 200
+        Received: 500
+    validations:
+      required: true
+
+  - type: textarea
+    id: reproduction
+    attributes:
+      label: Reproduction Command
+      description: How to run the failing test
+      placeholder: "npm test -- tests/api.test.js"
+    validations:
+      required: true
+
+  - type: dropdown
+    id: flakiness
+    attributes:
+      label: Flakiness
+      options:
+        - Always fails
+        - Intermittently fails
+        - Fails on specific environment
+        - Fails on specific branch
+    validations:
+      required: true
+
+  - type: input
+    id: ci_run
+    attributes:
+      label: CI Run URL
+      description: Link to CI run (GitHub Actions, Jenkins, etc.)
+      placeholder: "https://github.com/.../actions/runs/12345"
+    validations:
+      required: false
+
+  - type: textarea
+    id: environment
+    attributes:
+      label: Environment
+      description: Where did the test fail?
+      placeholder: |
+        - Node.js: v18.17.0
+        - OS: Ubuntu 22.04
+        - Database: PostgreSQL 15
+        - CI: GitHub Actions
+    validations:
+      required: false
+
+  - type: textarea
+    id: investigation
+    attributes:
+      label: Investigation Notes
+      description: What have you tried to fix it?
+      placeholder: "Tried rerunning test, cleared cache, updated dependencies..."
+    validations:
+      required: false

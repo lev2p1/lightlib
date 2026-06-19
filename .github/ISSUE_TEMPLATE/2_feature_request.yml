@@ -1,0 +1,97 @@
+name: Feature Request
+description: Propose a new feature or enhancement
+title: "[FEATURE]: "
+labels: ["enhancement", "needs-triage"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Help us understand your needs and how this feature will benefit the project.
+
+  - type: dropdown
+    id: feature_type
+    attributes:
+      label: Feature Category
+      options:
+        - New API endpoint
+        - Performance improvement
+        - Security enhancement
+        - Developer experience
+        - Configuration option
+        - Middleware/Plugin
+        - Documentation
+        - Testing tooling
+        - Build/Deployment
+        - Other
+    validations:
+      required: true
+
+  - type: textarea
+    id: problem
+    attributes:
+      label: Problem Statement
+      description: What problem does this solve? What are you trying to achieve?
+      placeholder: "Currently, doing X requires multiple steps and is error-prone because..."
+    validations:
+      required: true
+
+  - type: textarea
+    id: solution
+    attributes:
+      label: Proposed Solution
+      description: Describe your ideal solution
+      placeholder: "Add a method that accepts Y and returns Z, simplifying the workflow..."
+    validations:
+      required: true
+
+  - type: textarea
+    id: api_design
+    attributes:
+      label: API Design
+      description: How would the API look? Provide examples
+      render: typescript
+      placeholder: |
+        ```typescript
+        app.use(middleware({
+          option: value,
+          handler: (req, res) => {}
+        }));
+        ```
+    validations:
+      required: false
+
+  - type: textarea
+    id: alternatives
+    attributes:
+      label: Alternative Solutions
+      description: What other approaches have you considered?
+      placeholder: "I could also use X, but it has limitations Y and Z..."
+    validations:
+      required: false
+
+  - type: textarea
+    id: use_case
+    attributes:
+      label: Use Case
+      description: Describe a concrete use case for this feature
+      placeholder: "In a microservices architecture, we need to..."
+    validations:
+      required: false
+
+  - type: textarea
+    id: impact
+    attributes:
+      label: Impact and Scope
+      description: How many users would benefit? Is this a breaking change?
+      placeholder: "This would affect all users using authentication middleware..."
+    validations:
+      required: false
+
+  - type: checkboxes
+    id: contribution
+    attributes:
+      label: Contribution
+      options:
+        - label: I would like to implement this feature
+        - label: I need guidance on implementation
+        - label: I can help with testing

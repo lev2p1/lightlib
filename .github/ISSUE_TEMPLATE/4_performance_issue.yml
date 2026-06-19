@@ -1,0 +1,97 @@
+name: Performance Issue
+description: Report performance problems like slow responses or high memory usage
+title: "[PERF]: "
+labels: ["performance", "needs-triage"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Performance issues are critical. Please provide as much data as possible.
+
+  - type: input
+    id: version
+    attributes:
+      label: Version
+      placeholder: "v1.2.3"
+    validations:
+      required: true
+
+  - type: textarea
+    id: description
+    attributes:
+      label: Performance Description
+      description: Describe the performance issue
+      placeholder: "Response time increased from 100ms to 2s when handling requests..."
+    validations:
+      required: true
+
+  - type: textarea
+    id: metrics
+    attributes:
+      label: Metrics
+      description: Provide specific numbers
+      placeholder: |
+        - Response time: 2500ms (was 150ms)
+        - Memory usage: 512MB (was 128MB)
+        - CPU usage: 80% (was 20%)
+        - Requests per second: 50 (was 500)
+    validations:
+      required: true
+
+  - type: textarea
+    id: reproduction
+    attributes:
+      label: Reproduction Steps
+      description: How to reproduce the performance issue
+      placeholder: |
+        1. Send 1000 concurrent requests
+        2. Observe memory growth
+        3. ...
+    validations:
+      required: true
+
+  - type: textarea
+    id: load
+    attributes:
+      label: Load Profile
+      description: Describe the test environment and load
+      placeholder: |
+        - Concurrent users: 100
+        - Request rate: 1000 req/s
+        - Data size: 100KB per request
+        - Duration: 10 minutes
+    validations:
+      required: false
+
+  - type: textarea
+    id: environment
+    attributes:
+      label: Environment
+      description: System and infrastructure details
+      placeholder: |
+        - CPU: 4 cores
+        - RAM: 16GB
+        - Storage: SSD
+        - Network: 1Gbps
+        - OS: Linux 5.15
+    validations:
+      required: true
+
+  - type: textarea
+    id: profiling
+    attributes:
+      label: Profiling Data
+      description: Attach CPU profiles, heap dumps, or flame graphs
+      placeholder: "CPU profile: [link]"
+    validations:
+      required: false
+
+  - type: textarea
+    id: code
+    attributes:
+      label: Code Snippet
+      description: Show the code that is causing performance issues
+      render: javascript
+      placeholder: "app.use(heavyMiddleware());"
+    validations:
+      required: false

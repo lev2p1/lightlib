@@ -1,0 +1,66 @@
+name: Deprecation Notice
+description: Track deprecated features and plan removal
+title: "[DEPRECATE]: "
+labels: ["deprecation"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Track features that are deprecated and scheduled for removal.
+
+  - type: input
+    id: feature
+    attributes:
+      label: Feature to Deprecate
+      placeholder: "app.useOldAPI()"
+    validations:
+      required: true
+
+  - type: dropdown
+    id: deprecation_type
+    attributes:
+      label: Deprecation Type
+      options:
+        - Remove feature
+        - Replace with new API
+        - Mark as legacy
+        - Move to plugin
+    validations:
+      required: true
+
+  - type: textarea
+    id: reason
+    attributes:
+      label: Reason for Deprecation
+      description: Why is this being deprecated?
+      placeholder: "This API is replaced by a more efficient and type-safe alternative..."
+    validations:
+      required: true
+
+  - type: textarea
+    id: alternative
+    attributes:
+      label: Recommended Alternative
+      description: What should users use instead?
+      placeholder: "Use app.useAPI() instead"
+    validations:
+      required: true
+
+  - type: input
+    id: version
+    attributes:
+      label: Deprecated Since
+      placeholder: "v1.5.0"
+    validations:
+      required: true
+
+  - type: textarea
+    id: migration_guide
+    attributes:
+      label: Migration Guide
+      description: Provide instructions for migration
+      placeholder: |
+        1. Replace app.oldMethod() with app.newMethod()
+        2. Update configuration...
+    validations:
+      required: false

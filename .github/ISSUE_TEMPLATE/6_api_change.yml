@@ -1,0 +1,97 @@
+name: API Change
+description: Propose changes to the public API
+title: "[API]: "
+labels: ["api", "needs-triage"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        API changes affect all users. Please provide clear rationale and migration path.
+
+  - type: dropdown
+    id: change_type
+    attributes:
+      label: Change Type
+      options:
+        - New API
+        - Deprecation
+        - Breaking Change
+        - Enhancement
+        - Performance improvement
+    validations:
+      required: true
+
+  - type: textarea
+    id: current_api
+    attributes:
+      label: Current API
+      description: Describe the current API
+      render: typescript
+      placeholder: |
+        ```typescript
+        app.use(middleware: Function): void
+        ```
+    validations:
+      required: false
+
+  - type: textarea
+    id: proposed_api
+    attributes:
+      label: Proposed API
+      description: Describe the new API
+      render: typescript
+      placeholder: |
+        ```typescript
+        app.use(middleware: Middleware, options?: MiddlewareOptions): void
+        ```
+    validations:
+      required: true
+
+  - type: textarea
+    id: rationale
+    attributes:
+      label: Rationale
+      description: Why is this change needed?
+      placeholder: "The current API doesn't support configuration options, limiting use cases..."
+    validations:
+      required: true
+
+  - type: textarea
+    id: migration
+    attributes:
+      label: Migration Path
+      description: How should users migrate their code?
+      placeholder: |
+        Before:
+        app.use(middleware);
+         
+        After:
+        app.use(middleware, { option: true });
+    validations:
+      required: false
+
+  - type: textarea
+    id: compatibility
+    attributes:
+      label: Backward Compatibility
+      description: Will this break existing code? How to handle it?
+      placeholder: "This is a breaking change for users who use middleware with custom config..."
+    validations:
+      required: true
+
+  - type: textarea
+    id: examples
+    attributes:
+      label: Usage Examples
+      description: Provide examples of the new API in action
+      render: typescript
+      placeholder: |
+        ```typescript
+        const app = new Framework();
+        app.use(authMiddleware, { 
+          session: true,
+          timeout: 3000 
+        });
+        ```
+    validations:
+      required: false

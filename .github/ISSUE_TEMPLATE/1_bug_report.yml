@@ -1,0 +1,119 @@
+name: Bug Report
+description: Report a bug or unexpected behavior
+title: "[BUG]: "
+labels: ["bug", "needs-triage"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Before submitting:
+        - Check if this bug already exists in Issues
+        - Update to the latest version
+        - Provide minimal reproduction steps
+
+  - type: input
+    id: version
+    attributes:
+      label: Version
+      description: Which version are you using?
+      placeholder: "v1.2.3"
+    validations:
+      required: true
+
+  - type: dropdown
+    id: severity
+    attributes:
+      label: Severity
+      options:
+        - Critical (crash, data loss)
+        - Major (feature broken)
+        - Minor (annoyance)
+        - Cosmetic (UI/typo)
+    validations:
+      required: true
+
+  - type: textarea
+    id: description
+    attributes:
+      label: Problem Description
+      description: Clear and concise description of the issue
+      placeholder: "When I try to perform X, Y happens instead of Z"
+    validations:
+      required: true
+
+  - type: textarea
+    id: reproduction
+    attributes:
+      label: Steps To Reproduce
+      description: Step by step instructions
+      placeholder: |
+        1. Clone repository
+        2. Run '.\build.bat'
+        3. Invoke 'exampleMethod()'
+        4. Observe error at line 42
+    validations:
+      required: true
+
+  - type: textarea
+    id: expected
+    attributes:
+      label: Expected Behavior
+      description: What should have happened?
+      placeholder: "Application should start without errors"
+    validations:
+      required: true
+
+  - type: textarea
+    id: actual
+    attributes:
+      label: Actual Behavior
+      description: What actually happened?
+      placeholder: "Error: TypeError - Cannot read property..."
+    validations:
+      required: true
+
+  - type: textarea
+    id: logs
+    attributes:
+      label: Logs and Stack Trace
+      description: Paste relevant logs or stack traces
+      render: shell
+      placeholder: "Error: ...\n    at ..."
+    validations:
+      required: false
+
+  - type: textarea
+    id: environment
+    attributes:
+      label: Environment
+      description: System information
+      placeholder: |
+        - OS: Ubuntu 22.04 / macOS 14 / Windows 11
+        - Generator: Visual Studio 18 2026
+        - CMake: 4.13
+        - Browser: Chrome 120 (if applicable)
+        - Database: PostgreSQL 15
+    validations:
+      required: true
+
+  - type: textarea
+    id: code
+    attributes:
+      label: Minimal Reproduction Code
+      description: Provide a minimal code example that reproduces the issue
+      render: cpp
+      placeholder: "res.set(http::field::content_type, \"text/plain\");\nres.body() = \"Example text body\";"
+    validations:
+      required: false
+
+  - type: checkboxes
+    id: checks
+    attributes:
+      label: Verification
+      options:
+        - label: I have searched for existing issues
+          required: true
+        - label: I am using the latest version
+          required: true
+        - label: I have provided a minimal reproduction
+          required: true

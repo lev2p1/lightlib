@@ -1,0 +1,69 @@
+name: Question / Support
+description: Ask a question about using the framework
+title: "[QUESTION]: "
+labels: ["question", "support"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        For quick questions, consider using Discussions.
+
+  - type: dropdown
+    id: question_type
+    attributes:
+      label: Question Category
+      options:
+        - How to use feature
+        - Configuration help
+        - Best practices
+        - Architecture decision
+        - Integration help
+        - Error understanding
+        - General question
+    validations:
+      required: true
+
+  - type: textarea
+    id: question
+    attributes:
+      label: Question
+      description: Describe what you're trying to accomplish
+      placeholder: "How can I implement authentication with JWT and session management?"
+    validations:
+      required: true
+
+  - type: textarea
+    id: code
+    attributes:
+      label: Code Example
+      description: Show what you've tried
+      render: javascript
+      placeholder: |
+        ```javascript
+        const app = new Framework();
+        // I tried this...
+        app.use(authMiddleware());
+        ```
+    validations:
+      required: false
+
+  - type: textarea
+    id: attempted
+    attributes:
+      label: What I've Tried
+      description: What solutions have you already tried?
+      placeholder: "I've read the docs at X, tried Y and Z, but..."
+    validations:
+      required: false
+
+  - type: textarea
+    id: context
+    attributes:
+      label: Context
+      description: Provide context about your project
+      placeholder: |
+        - Project type: REST API
+        - Framework version: v1.2.0
+        - Use case: Building e-commerce backend
+    validations:
+      required: false

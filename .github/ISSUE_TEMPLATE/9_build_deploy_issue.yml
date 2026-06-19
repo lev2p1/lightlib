@@ -1,0 +1,105 @@
+name: Build/Deployment Issue
+description: Report problems with building or deploying the application
+title: "[BUILD]: "
+labels: ["build", "deployment", "needs-triage"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Build and deployment issues prevent releases and development.
+
+  - type: input
+    id: version
+    attributes:
+      label: Version/Tag
+      placeholder: "v1.2.3"
+    validations:
+      required: true
+
+  - type: dropdown
+    id: issue_type
+    attributes:
+      label: Issue Type
+      options:
+        - Build fails
+        - Deployment fails
+        - Dependency conflict
+        - Environment variable issue
+        - Configuration problem
+        - CLI tool issue
+    validations:
+      required: true
+
+  - type: textarea
+    id: description
+    attributes:
+      label: Problem Description
+      description: What happens during build/deployment?
+      placeholder: "Docker build fails at step 12 with 'module not found'..."
+    validations:
+      required: true
+
+  - type: textarea
+    id: error_log
+    attributes:
+      label: Error Logs
+      description: Paste the full error output
+      render: shell
+      placeholder: |
+        Error: Cannot find module 'some-package'
+        Require stack:
+        - /app/index.js
+    validations:
+      required: true
+
+  - type: textarea
+    id: reproduction
+    attributes:
+      label: Reproduction Steps
+      description: How to reproduce the build issue
+      placeholder: |
+        1. git checkout master
+        2. npm install
+        3. npm run build
+        4. ...
+    validations:
+      required: true
+
+  - type: textarea
+    id: environment
+    attributes:
+      label: Build Environment
+      description: System and tool versions
+      placeholder: |
+        - Node.js: v18.17.0
+        - NPM: 9.6.7
+        - Docker: 24.0.0
+        - OS: Ubuntu 22.04
+        - Build tool: Webpack 5.75
+    validations:
+      required: true
+
+  - type: textarea
+    id: dependencies
+    attributes:
+      label: Dependency Information
+      description: List relevant dependencies
+      placeholder: |
+        - fmt
+        - hiredis
+        - jwt-cpp
+        - libpq
+        - nlohmann-json
+        - zlib
+        - picojson
+    validations:
+      required: false
+
+  - type: textarea
+    id: attempted_fixes
+    attributes:
+      label: Attempted Fixes
+      description: What have you already tried?
+      placeholder: "Cleaned node_modules, reinstalled, cleared cache..."
+    validations:
+      required: false

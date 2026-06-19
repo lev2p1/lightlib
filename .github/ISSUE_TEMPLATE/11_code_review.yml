@@ -1,0 +1,109 @@
+name: Code Review Request
+description: Request a code review for a specific change
+title: "[REVIEW]: "
+labels: ["review", "needs-review"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Request a structured code review for your pull request.
+
+  - type: input
+    id: pr_number
+    attributes:
+      label: Pull Request Number
+      placeholder: "#123"
+    validations:
+      required: true
+
+  - type: input
+    id: pr_title
+    attributes:
+      label: PR Title
+      placeholder: "Add authentication middleware"
+    validations:
+      required: true
+
+  - type: dropdown
+    id: review_type
+    attributes:
+      label: Review Type
+      options:
+        - Architecture review
+        - Security review
+        - Performance review
+        - Code quality review
+        - Documentation review
+        - Full review
+    validations:
+      required: true
+
+  - type: textarea
+    id: changes
+    attributes:
+      label: Changes Overview
+      description: What does this PR change?
+      placeholder: |
+        - Adds new authentication middleware
+        - Updates routing logic
+        - Adds unit tests
+    validations:
+      required: true
+
+  - type: textarea
+    id: focus_areas
+    attributes:
+      label: Focus Areas
+      description: What should reviewers pay special attention to?
+      placeholder: |
+        - Security of token validation
+        - Performance under load
+        - Edge cases with expired tokens
+    validations:
+      required: false
+
+  - type: textarea
+    id: testing
+    attributes:
+      label: Testing Approach
+      description: What tests have been added or updated?
+      placeholder: |
+        - Added unit tests for auth middleware
+        - Added integration tests with mock API
+        - Test coverage: 95%
+    validations:
+      required: false
+
+  - type: textarea
+    id: breaking_changes
+    attributes:
+      label: Breaking Changes
+      description: Does this introduce breaking changes?
+      placeholder: "Changes JWT verification to be stricter - existing tokens may fail"
+    validations:
+      required: false
+
+  - type: textarea
+    id: migration
+    attributes:
+      label: Migration Notes
+      description: How should users migrate their code?
+      placeholder: "Users need to update their token generation to include new claims"
+    validations:
+      required: false
+
+  - type: checkboxes
+    id: checklist
+    attributes:
+      label: Pre-review Checklist
+      options:
+        - label: Code compiles without errors
+          required: true
+        - label: All tests pass
+          required: true
+        - label: Documentation is updated
+          required: true
+        - label: Changelog is updated
+          required: true
+        - label: No sensitive data in code
+          required: true
