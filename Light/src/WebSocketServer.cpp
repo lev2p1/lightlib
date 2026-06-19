@@ -181,7 +181,6 @@ namespace lightlib {
         if (!websocket::is_upgrade(req)) {
             http::response<http::string_body> res{ http::status::bad_request, req.version() };
             res.set(http::field::content_type, "text/plain");
-            res.body() = "WebSocket upgrade required";
             res.prepare_payload();
             co_await http::async_write(socket, res, net::use_awaitable);
             co_return;
