@@ -27,18 +27,15 @@
 #include <boost/asio/ip/tcp.hpp>
 #include <boost/asio/awaitable.hpp>
 #include <boost/asio/ssl.hpp>
+#include <boost/asio/co_spawn.hpp>
+#include <boost/asio/detached.hpp>
+#include <boost/asio/use_awaitable.hpp>
+#include <boost/asio/this_coro.hpp>
 #include <nlohmann/json.hpp>
 #include <regex>
-#include <boost/beast/core/stream_traits.hpp>
-#include <boost/beast/ssl/ssl_stream.hpp>
-#include <boost/beast/version.hpp>
-#include <boost/beast/core/tcp_stream.hpp>
-#include <boost/asio/steady_timer.hpp>
-#include <boost/asio/connect.hpp>
 #include <iomanip>
 #include <sstream>
 #include <cctype>
-
 
 namespace lightlib {
 
@@ -55,10 +52,15 @@ namespace lightlib {
         using json = nlohmann::json;
 
         HttpClient();
-        Response get(const std::string& url, const json& body = json{});
-        Response post(const std::string& url, const json& body);
-        Response put(const std::string& url, const json& body);
-        Response del(const std::string& url, const json& body = json{});
+        ~HttpClient() = default;
+
+        net::awaitable<Response> get(const std::string& url, const json& body = json{});
+        net::awaitable<Response> post(const std::string& url, const json& body);
+        net::awaitable<Response> put(const std::string& url, const json& body);
+        net::awaitable<Response> del(const std::string& url, const json& body = json{});
+
+        void set_timeout(const std::chrono::milliseconds& timeout);
+        bool is_success(const Response& res) const;
 
     private:
         ssl::context ctx_;
@@ -69,17 +71,19 @@ namespace lightlib {
             std::string host;
             std::string port;
             std::string path;
+            std::string query;
         };
 
         UrlParts parse_url(const std::string& url);
-        Response send_request(const std::string& url, http::verb method, const json& body);
-        Response send_http_request(const UrlParts& url_parts, http::verb method, const json& body);
-        Response send_https_request(const UrlParts& url_parts, http::verb method, const json& body);
+
+        net::awaitable<Response> send_request(const std::string& url, http::verb method, const json& body);
+        net::awaitable<Response> send_http_request(const UrlParts& url_parts, http::verb method, const json& body);
+        net::awaitable<Response> send_https_request(const UrlParts& url_parts, http::verb method, const json& body);
+
         void setup_common_headers(Request& req, const std::string& host);
         std::string json_to_query_string(const json& j);
         std::string encode_url(const std::string& value);
-        void set_timeout(const std::chrono::milliseconds& timeout);
-        bool is_success(const Response& res);
 
+        Response create_error_response(const std::string& error_message, http::status status = http::status::internal_server_error);
     };
 }
