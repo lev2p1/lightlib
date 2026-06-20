@@ -19,7 +19,7 @@
             // private key members
             crypt_int p;
             crypt_int q;
-            crypt_int phi; // ϕ of m
+            crypt_int phi; // ϕ(m)
 
             // public key members
             crypt_int m;
@@ -41,7 +41,7 @@
 
         public:
             RSA() = delete;
-            RSA(crypt_int p, crypt_int q, crypt_int r);
+            RSA(const crypt_int &p, const crypt_int &q, const crypt_int &r);
             ~RSA() override;
 
             publicKey* getPublicKey() const;

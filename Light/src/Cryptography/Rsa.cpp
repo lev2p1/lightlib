@@ -26,8 +26,8 @@ namespace lightlib::crypto {
         }
     }
 
-    RSA::RSA(crypt_int p, crypt_int q, crypt_int r)
-        : p(0), q(0), m(0), phi(0), r(0), public_key(nullptr), private_key(nullptr)
+    RSA::RSA(const crypt_int &p, const crypt_int &q, const crypt_int &r)
+        : p(0), q(0), phi(0), m(0), r(0), private_key(nullptr), public_key(nullptr)
     {
         try {
             setParameters(p, q, r);
