@@ -32,6 +32,7 @@
 #include "ModelQueryBuilder.hpp"
 #include "../SQLQueryBuilder.hpp"
 #include "../SQLString.hpp"
+#include "../Collection.hpp"
 
 namespace lightlib {
 
@@ -260,8 +261,8 @@ namespace lightlib {
             }
         }
 
-        static std::vector<std::shared_ptr<Derived>> where(const std::string& condition) {
-            return query().Where(condition).get();
+        static Collection<Derived> where(const std::string& condition) {
+            return Collection<Derived>(query().Where(condition).get());
         }
 
         static bool saveMany(const std::vector<std::shared_ptr<Derived>>& models) {
@@ -402,7 +403,7 @@ namespace lightlib {
             return true;
         }
 
-        static std::vector<std::shared_ptr<Derived>> all() {
+        static Collection<Derived> all() {
             return Derived::where("1 = 1");
         }
 
@@ -517,7 +518,7 @@ namespace lightlib {
             return RelatedModel::where(foreignKey + " = " + localValue);
         }
 
-        static std::pair<std::vector<std::shared_ptr<Derived>>, int> paginate(
+        static std::pair<Collection<Derived>, int> paginate(
             int page,
             int perPage,
             const std::string& condition = "1=1"
@@ -537,13 +538,17 @@ namespace lightlib {
             int total = countQuery.empty() ? 0 :
                 std::stoi(countQuery[0]->getAttribute("total"));
 
-            return { items, total };
+            return { Collection<Derived>(items), total };
         }
 
         void debugAttributes() {
             for (const auto& field : fields) {
                 Logger::log("Field: " + field + " = " + this->getAttribute(field), "DEBUG");
             }
+        }
+
+        static Collection<Derived> collect(const std::vector<std::shared_ptr<Derived>>& items) {
+            return Collection<Derived>(items);
         }
     };
 }

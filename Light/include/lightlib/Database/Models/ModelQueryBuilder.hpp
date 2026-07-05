@@ -35,6 +35,14 @@ namespace lightlib {
             SQLQueryBuilder::Select(columns);
             return *this;
         }
+        ModelQueryBuilder& Select(const std::string column) {
+            SQLQueryBuilder::Select({ column });
+            return *this;
+        }
+        ModelQueryBuilder& Select(const char* column) {
+            SQLQueryBuilder::Select({ std::string(column) });
+            return *this;
+        }
         ModelQueryBuilder& Where(const std::string& condition, const std::string& logicalOperator = "AND") {
             SQLQueryBuilder::Where(condition, logicalOperator);
             return *this;
