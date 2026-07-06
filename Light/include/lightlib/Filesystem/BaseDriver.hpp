@@ -22,6 +22,7 @@
 
 #include <string>
 #include <memory>
+#include <thread>
 #include <boost/asio/awaitable.hpp>
 
 namespace lightlib {

@@ -22,6 +22,7 @@
 
 #include "BaseDriver.hpp"
 #include <filesystem>
+#include <thread>
 #include <boost/asio/thread_pool.hpp>
 #include <boost/asio/awaitable.hpp>
 #include <boost/asio/use_awaitable.hpp>
