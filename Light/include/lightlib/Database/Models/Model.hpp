@@ -32,6 +32,7 @@
 #include "ModelQueryBuilder.hpp"
 #include "../SQLQueryBuilder.hpp"
 #include "../SQLString.hpp"
+#include "../Collection.hpp"
 
 namespace lightlib {
 
@@ -260,10 +261,17 @@ namespace lightlib {
             }
         }
 
-        static std::vector<std::shared_ptr<Derived>> where(const std::string& condition) {
-            return query().Where(condition).get();
+        static Collection<Derived> where(const std::string& condition) {
+            return Collection<Derived>(query().Where(condition).get());
         }
 
+
+        /*
+			@brief Save multiple models to the database in a single operation.
+			@param models A vector of shared pointers to the models to be saved.
+			@return True if all models were saved successfully, false otherwise.
+			@note This method will attempt to batch insert and update models based on their primary key. If a model has a primary key, it will be updated; otherwise, it will be inserted.
+        */
         static bool saveMany(const std::vector<std::shared_ptr<Derived>>& models) {
             auto database = std::make_shared<Database>();
             PGconn* conn = database->getConnection();
@@ -402,7 +410,7 @@ namespace lightlib {
             return true;
         }
 
-        static std::vector<std::shared_ptr<Derived>> all() {
+        static Collection<Derived> all() {
             return Derived::where("1 = 1");
         }
 
@@ -419,6 +427,13 @@ namespace lightlib {
             return model;
         }
 
+        /*
+			@brief Finds the first model matching the given attributes or creates a new one if none exists.
+			@param attributes A map of attribute names and values to search for.
+			@param values A map of attribute names and values to set on the new model if it is created (default is an empty map).
+			@return A shared pointer to the found or newly created model.
+			@note This method first constructs a SQL condition based on the provided attributes and attempts to find an existing model that matches. If a matching model is found, it is returned. If no matching model exists, a new model is created with the provided attributes and values, and then returned.
+        */
         static std::shared_ptr<Derived> firstOrCreate(
             const std::map<std::string, std::string>& attributes,
             const std::map<std::string, std::string>& values = {}
@@ -497,6 +512,13 @@ namespace lightlib {
             return j;
         }
 
+        /*
+			@brief Defines a belongs-to relationship between the current model and a related model.
+			@param foreignKey The foreign key in the current model that references the related model.
+			@param ownerKey The primary key in the related model that is referenced by the foreign key (default is the primary key of the related model).
+			@return A shared pointer to the related model that is associated with the current model, or nullptr if no related model is found.
+			@note This method retrieves the first instance of the related model where the owner key matches the value of the foreign key in the current model. If the foreign key value is empty, it returns nullptr.
+        */
         template<typename RelatedModel>
         std::shared_ptr<RelatedModel> belongsTo(
             const std::string& foreignKey,
@@ -507,6 +529,13 @@ namespace lightlib {
             return RelatedModel::where(ownerKey + " = " + foreignValue).front();
         }
 
+        /*
+			@brief Defines a one-to-many relationship between the current model and a related model.
+			@param foreignKey The foreign key in the related model that references the current model.
+			@param localKey The local key in the current model that is referenced by the foreign key (default is the primary key of the current model).
+			@return A vector of shared pointers to the related models that are associated with the current model.
+			@note This method retrieves all instances of the related model where the foreign key matches the value of the local key in the current model. If the local key value is empty, it returns an empty vector.
+        */
         template<typename RelatedModel>
         std::vector<std::shared_ptr<RelatedModel>> hasMany(
             const std::string& foreignKey,
@@ -517,7 +546,15 @@ namespace lightlib {
             return RelatedModel::where(foreignKey + " = " + localValue);
         }
 
-        static std::pair<std::vector<std::shared_ptr<Derived>>, int> paginate(
+        /*
+			@brief Paginate the results of a query.
+			@param page The page number to retrieve (1-based index).
+			@param perPage The number of items per page.
+			@param condition Optional SQL condition to filter the results (default is "1=1" which means no filtering).
+			@return A pair containing a Collection of the paginated results and the total count of items matching the condition.
+			@note This method calculates the offset based on the page number and items per page, retrieves the corresponding items, and also counts the total number of items that match the given condition.
+        */
+        static std::pair<Collection<Derived>, int> paginate(
             int page,
             int perPage,
             const std::string& condition = "1=1"
@@ -537,13 +574,17 @@ namespace lightlib {
             int total = countQuery.empty() ? 0 :
                 std::stoi(countQuery[0]->getAttribute("total"));
 
-            return { items, total };
+            return { Collection<Derived>(items), total };
         }
 
         void debugAttributes() {
             for (const auto& field : fields) {
                 Logger::log("Field: " + field + " = " + this->getAttribute(field), "DEBUG");
             }
+        }
+
+        static Collection<Derived> collect(const std::vector<std::shared_ptr<Derived>>& items) {
+            return Collection<Derived>(items);
         }
     };
 }

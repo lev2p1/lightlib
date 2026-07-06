@@ -12,3 +12,4 @@
 #include "Database/Migrations/MigrationManager.hpp"
 #include "Database/Migrations/Migrations.hpp"
 #include "Database/Migrations/migration_migrations_table.hpp"
+#include "Database/Collection.hpp"
