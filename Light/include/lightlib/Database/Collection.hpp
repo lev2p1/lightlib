@@ -44,7 +44,6 @@ namespace lightlib {
 
 		bool save() {
 			if (this->empty()) {
-				Logger::log("Collection is empty, nothing to save", "WARNING");
 				return false;
 			}
 			return ModelType::saveMany(*this);
@@ -52,7 +51,6 @@ namespace lightlib {
 
 		bool delete_() {
 			if (this->empty()) {
-				Logger::log("Collection is empty, nothing to delete", "WARNING");
 				return false;
 			}
 
@@ -110,15 +108,6 @@ namespace lightlib {
 
 		operator std::vector<std::shared_ptr<ModelType>>() const {
 			return *this;
-		}
-
-		void debugPrint() const {
-			std::cout << "COLLECTION (" << this->size() << " items)\n";
-			for (size_t i = 0; i < this->size(); ++i) {
-				std::cout << "Item " << i << ":\n";
-				(*this)[i]->debugPrintAttributes();
-				std::cout << "---\n";
-			}
 		}
 	};
 }
