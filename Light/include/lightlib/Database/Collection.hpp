@@ -83,6 +83,12 @@ namespace lightlib {
 			return this->empty() ? nullptr : this->back();
 		}
 
+		/*
+			@brief Filters the collection based on a predicate function.
+			@param predicate A function that takes a shared pointer to ModelType and returns a boolean.
+			@return A new Collection containing only the elements that satisfy the predicate.
+			@note This method does not modify the original collection; it returns a new filtered collection.
+		*/
 		Collection<ModelType> filter(std::function<bool(std::shared_ptr<ModelType>)> predicate) const {
 			Collection<ModelType> result;
 			std::copy_if(this->begin(), this->end(), std::back_inserter(result), predicate);
