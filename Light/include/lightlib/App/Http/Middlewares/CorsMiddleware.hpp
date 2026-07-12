@@ -20,36 +20,44 @@
 
 #pragma once
 #include "Middleware.hpp"
+#include "../../../mixins/CorsDecorator.hpp"
+#include "../../../mixins/Chainable.hpp"
 
 namespace lightlib {
 
-	class CorsMiddleware : public Middleware {
+    class CorsMiddleware : public Middleware,
+        public mixins::CORSDecorator<CorsMiddleware>,
+        public mixins::Chainable<CorsMiddleware> {
 
-		std::vector<std::string> allowed_domains;
-		std::string allow_origin;
+        Request req;
+        Response res;
 
-	public:
-		bool handle(Request& req, Response& res) {
-			std::string origin = std::string(req[http::field::origin]);
-			bool allowed = this->allowed_domains.empty() ||
-				std::find(allowed_domains.begin(), allowed_domains.end(), origin) != allowed_domains.end();
+    public:
+        bool handle(Request& request, Response& response) override {
+            req = std::move(request);
+            res = Response{ http::status::ok, req.version() };
 
-			if (!allowed) {
-				res.result(http::status::forbidden);
-				res.body() = "CORS: Origin not allowed";
-				res.set(http::field::access_control_allow_origin, "null");
-				res.prepare_payload();
-				return false;
-			}
+            auto wrapped = this->wrap([&]() -> bool {
+                Logger::log("CORS: Processing request", "CORSMiddleware");
 
-			this->setCors(req, res);
+                return this->processAndPass(req, res, [&]() -> bool {
+                    if (!this->hasNext()) {
+                        res.body() = "OK";
+                        res.prepare_payload();
+                    }
+                    return true;
+                    });
+                });
 
-			if (req.method() == http::verb::options) {
-				res.result(http::status::ok);
-				res.body() = "CORS preflight";
-				res.prepare_payload();
-				return true;
-			}
-		}
-	};
+            bool result = wrapped();
+
+            response = std::move(res);
+            request = std::move(req);
+
+            return result;
+        }
+
+        Request& getRequest() { return req; }
+        Response& getResponse() { return res; }
+    };
 }

@@ -18,21 +18,32 @@
  * along with lightlib; if not, see <https://www.gnu.org/licenses/>.
  */
 
-#pragma once
-#include <boost/beast/http.hpp>
+#include <functional>
 
-namespace lightlib {
+namespace lightlib::mixins {
 
-    namespace beast = boost::beast;
-    namespace http = beast::http;
+	template<typename Derived>
+    class Decorator {
+    protected:
 
-    class Middleware {
+        virtual void decorate() {}
+
     public:
-        using Request = http::request<http::string_body>;
-        using Response = http::response<http::string_body>;
 
-        virtual bool handle(Request& req, Response& res) = 0;
+        template<typename Func>
+        auto wrap(Func&& func) {
+            return [this, func = std::forward<Func>(func)](auto&&... args) {
+                static_cast<Derived*>(this)->before();
+                auto result = func(std::forward<decltype(args)>(args)...);
+                static_cast<Derived*>(this)->after();
 
-        virtual ~Middleware() = default;
+                return result;
+                };
+        }
+
+        virtual void before() {}
+        virtual void after() {}
+
+        virtual ~Decorator() = default;
     };
 }

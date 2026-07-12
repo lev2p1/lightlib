@@ -18,21 +18,6 @@
  * along with lightlib; if not, see <https://www.gnu.org/licenses/>.
  */
 
-#pragma once
-#include <boost/beast/http.hpp>
-
-namespace lightlib {
-
-    namespace beast = boost::beast;
-    namespace http = beast::http;
-
-    class Middleware {
-    public:
-        using Request = http::request<http::string_body>;
-        using Response = http::response<http::string_body>;
-
-        virtual bool handle(Request& req, Response& res) = 0;
-
-        virtual ~Middleware() = default;
-    };
-}
+#include "Decorator.hpp"
+#include "CorsDecorator.hpp"
+#include "Chainable.hpp"
