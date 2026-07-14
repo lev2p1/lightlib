@@ -48,19 +48,19 @@ namespace lightlib {
         static inline std::string primary_key = "id";
 
         std::shared_ptr<Database> database;
-        static inline std::shared_ptr<Database> default_database = std::make_shared<Database>();
+
+        static std::shared_ptr<Database> getDefaultDatabase() {
+            static auto db = std::make_shared<Database>();
+            return db;
+        }
 
     public:
-        explicit Model(const std::shared_ptr<Database>& db = default_database) : database(db) {}
+        explicit Model(const std::shared_ptr<Database>& db = getDefaultDatabase()) : database(db) {}
 
         virtual ~Model() = default;
 
         void setDatabase(const std::shared_ptr<Database>& db) {
             this->database = db;
-        }
-
-        static void setDefaultDatabase(const std::shared_ptr<Database>& db) {
-            default_database = db;
         }
 
         static ModelQueryBuilder<Derived> query() {
@@ -103,7 +103,7 @@ namespace lightlib {
             }
 
             if (!database) {
-                database = default_database;
+                database = getDefaultDatabase();
             }
 
             if (attributes.empty()) {
@@ -149,7 +149,7 @@ namespace lightlib {
             return std::find(Derived::fields.begin(), Derived::fields.end(), field) != Derived::fields.end();
         }
 
-        static std::shared_ptr<Derived> create(const std::map<std::string, std::string>& data, bool withFields = false, const std::shared_ptr<Database>& db = default_database) {
+        static std::shared_ptr<Derived> create(const std::map<std::string, std::string>& data, bool withFields = false, const std::shared_ptr<Database>& db = getDefaultDatabase()) {
             auto model = std::make_shared<Derived>(db);
             for (const auto& [key, value] : data) {
                 if (!isField(key)) {
@@ -167,7 +167,7 @@ namespace lightlib {
             return model;
         }
 
-        static std::shared_ptr<Derived> find(int id, const std::shared_ptr<Database>& db = default_database) {
+        static std::shared_ptr<Derived> find(int id, const std::shared_ptr<Database>& db = getDefaultDatabase()) {
             try {
                 auto model = std::make_shared<Derived>();
                 auto results = query().Where(Derived::primary_key + " = " + std::to_string(id)).Limit(1).get();
@@ -189,7 +189,7 @@ namespace lightlib {
             }
         }
 
-        static void update(int id, const std::map<std::string, std::string>& data, const std::shared_ptr<Database>& db = default_database) {
+        static void update(int id, const std::map<std::string, std::string>& data, const std::shared_ptr<Database>& db = getDefaultDatabase()) {
             try {
                 PGconn* conn = db->getConnection();
                 if (!conn) {
@@ -217,7 +217,7 @@ namespace lightlib {
 
         void delete_() {
             try {
-                if (!database) database = default_database;
+                if (!database) database = getDefaultDatabase();
                 PGconn* conn = database->getConnection();
                 if (!conn) {
                     Logger::log("Failed to get database connection", "ERROR");
@@ -238,7 +238,7 @@ namespace lightlib {
             }
         }
 
-        static void deleteById(int id, const std::shared_ptr<Database>& db = default_database) {
+        static void deleteById(int id, const std::shared_ptr<Database>& db = getDefaultDatabase()) {
             try {
                 PGconn* conn = db->getConnection();
                 if (!conn) {
@@ -248,14 +248,14 @@ namespace lightlib {
                 SQLQueryBuilder builder(Derived::table_name);
                 builder.Delete().Where("id = " + SQLString::EscapeString(conn, std::to_string(id)));
                 std::string query = builder.get();
-                database->execute(query);
+                db->execute(query);
             }
             catch (const std::exception& e) {
                 Logger::log("Delete by ID failed: " + std::string(e.what()), "ERROR");
             }
         }
 
-        static bool deleteWhere(const std::string& condition, const std::shared_ptr<Database>& db = default_database) {
+        static bool deleteWhere(const std::string& condition, const std::shared_ptr<Database>& db = getDefaultDatabase()) {
             try {
                 PGconn* conn = db->getConnection();
                 if (!conn) {
@@ -265,7 +265,7 @@ namespace lightlib {
                 SQLQueryBuilder builder(Derived::table_name);
                 builder.Delete().Where(condition);
                 std::string query = builder.get();
-                database->execute(query);
+                db->execute(query);
 
                 return true;
             }
@@ -275,7 +275,7 @@ namespace lightlib {
             }
         }
 
-        static Collection<Derived> where(const std::string& condition, const std::shared_ptr<Database>& db = default_database) {
+        static Collection<Derived> where(const std::string& condition, const std::shared_ptr<Database>& db = getDefaultDatabase()) {
             auto items = query().Where(condition).get();
             for (const auto& item : items) {
                 item->setDatabase(db);
@@ -290,7 +290,7 @@ namespace lightlib {
 			@return True if all models were saved successfully, false otherwise.
 			@note This method will attempt to batch insert and update models based on their primary key. If a model has a primary key, it will be updated; otherwise, it will be inserted.
         */
-        static bool saveMany(const std::vector<std::shared_ptr<Derived>>& models, const std::shared_ptr<Database>& db = default_database) {
+        static bool saveMany(const std::vector<std::shared_ptr<Derived>>& models, const std::shared_ptr<Database>& db = getDefaultDatabase()) {
             PGconn* conn = db->getConnection();
 
             if (!conn) {
@@ -362,7 +362,7 @@ namespace lightlib {
                 std::string finalQuery = batchQuery.str();
                 if (!finalQuery.empty()) {
                     try {
-                        database->execute(finalQuery);
+                        db->execute(finalQuery);
                     }
                     catch (const std::exception& e) {
                         Logger::log("Batch update error: " + std::string(e.what()), "ERROR");
@@ -416,7 +416,7 @@ namespace lightlib {
 
                 try {
                     Logger::log("INSERT Query: " + query, "INFO");
-                    database->execute(query);
+                    db->execute(query);
                 }
                 catch (const std::exception& e) {
                     Logger::log("Batch insert error: " + std::string(e.what()), "ERROR");
@@ -427,18 +427,18 @@ namespace lightlib {
             return true;
         }
 
-        static Collection<Derived> all(const std::shared_ptr<Database>& db = default_database) {
+        static Collection<Derived> all(const std::shared_ptr<Database>& db = getDefaultDatabase()) {
             return Derived::where("1 = 1", db);
         }
 
-        static std::shared_ptr<Derived> first(const std::shared_ptr<Database>& db = default_database) {
+        static std::shared_ptr<Derived> first(const std::shared_ptr<Database>& db = getDefaultDatabase()) {
             auto results = query().Limit(1).get();
             if (results.empty()) return nullptr;
             results.front->setDatabase(db);
             return results.front();
         }
 
-        static std::shared_ptr<Derived> findOrFail(int id, const std::shared_ptr<Database>& db = default_database) {
+        static std::shared_ptr<Derived> findOrFail(int id, const std::shared_ptr<Database>& db = getDefaultDatabase()) {
             auto model = find(id, db);
             if (!model) {
                 throw std::runtime_error("Model with id " + std::to_string(id) + " not found");
@@ -456,7 +456,7 @@ namespace lightlib {
         static std::shared_ptr<Derived> firstOrCreate(
             const std::map<std::string, std::string>& attributes,
             const std::map<std::string, std::string>& values = {},
-            const std::shared_ptr<Database>& db = default_database
+            const std::shared_ptr<Database>& db = getDefaultDatabase()
         ) {
             std::string condition;
             for (const auto& [key, value] : attributes) {
@@ -488,7 +488,7 @@ namespace lightlib {
             return attributes.find(key) != attributes.end();
         }
 
-        static int count(const std::string& condition = "1=1", const std::shared_ptr<Database>& db = default_database) {
+        static int count(const std::string& condition = "1=1", const std::shared_ptr<Database>& db = getDefaultDatabase()) {
             auto results = query()
                 .Select("COUNT(*) as total")
                 .Where(condition)
@@ -500,7 +500,7 @@ namespace lightlib {
                 std::stoi(results[0]->getAttribute("total"));
         }
 
-        static int max(const std::string& column, const std::string& condition = "1=1", const std::shared_ptr<Database>& db = default_database) {
+        static int max(const std::string& column, const std::string& condition = "1=1", const std::shared_ptr<Database>& db = getDefaultDatabase()) {
             auto results = query()
                 .Select("MAX(" + column + ") as max")
                 .Where(condition)
@@ -511,7 +511,7 @@ namespace lightlib {
                 std::stoi(results[0]->getAttribute("max"));
         }
 
-        static int sum(const std::string& column, const std::string& condition = "1=1", const std::shared_ptr<Database>& db = default_database) {
+        static int sum(const std::string& column, const std::string& condition = "1=1", const std::shared_ptr<Database>& db = getDefaultDatabase()) {
             auto results = query()
                 .Select("SUM(" + column + ") as sum")
                 .Where(condition)
@@ -582,7 +582,7 @@ namespace lightlib {
             int page,
             int perPage,
             const std::string& condition = "1=1",
-            const std::shared_ptr<Database>& db = default_database
+            const std::shared_ptr<Database>& db = getDefaultDatabase()
         ) {
             int offset = (page - 1) * perPage;
             auto items = query()
