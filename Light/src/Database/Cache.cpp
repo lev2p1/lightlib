@@ -50,7 +50,7 @@ void Cache::disconnect() {
     if (context_) {
         redisFree(context_);
         context_ = nullptr;
-        std::cout << "Disconnected from Redis." << std::endl;
+        Logger::log("Disconnected from Redis.", "INFO");
     }
 }
 
@@ -69,8 +69,8 @@ void Cache::set(const std::string& key, const std::string& value, int expire_sec
     }
 
     if (reply == nullptr) {
-        Logger::log("Failed to execute Redis command.", "ERROR");
-        throw std::runtime_error("Failed to execute Redis command.");
+		Logger::log("Failed to execute SET command.", "ERROR");
+        throw std::runtime_error("Failed to execute SET command.");
     }
 
     freeReplyObject(reply);
@@ -85,8 +85,8 @@ std::string Cache::get(const std::string& key) {
 
     redisReply* reply = (redisReply*)redisCommand(context_, "GET %s", key.c_str());
     if (reply == nullptr) {
-        Logger::log("Failed to execute Redis command.", "ERROR");
-        throw std::runtime_error("Failed to execute Redis command.");
+        Logger::log("Failed to execute GET command.", "ERROR");
+        throw std::runtime_error("Failed to execute GET command.");
     }
 
     std::string result;
@@ -115,8 +115,8 @@ void Cache::del(const std::string& key) {
 
     redisReply* reply = (redisReply*)redisCommand(context_, "DEL %s", key.c_str());
     if (reply == nullptr) {
-        Logger::log("Failed to execute Redis command.", "ERROR");
-        throw std::runtime_error("Failed to execute Redis command.");
+        Logger::log("Failed to execute DEL command.", "ERROR");
+        throw std::runtime_error("Failed to execute DEL command.");
     }
 
     freeReplyObject(reply);
@@ -131,8 +131,8 @@ void Cache::expire(const std::string& key, int expire_seconds) {
 
     redisReply* reply = (redisReply*)redisCommand(context_, "EXPIRE %s %d", key.c_str(), expire_seconds);
     if (reply == nullptr) {
-        Logger::log("Failed to execute Redis command.", "ERROR");
-        throw std::runtime_error("Failed to execute Redis command.");
+        Logger::log("Failed to execute EXPIRE command.", "ERROR");
+        throw std::runtime_error("Failed to execute EXPIRE command.");
     }
 
     freeReplyObject(reply);

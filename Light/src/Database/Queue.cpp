@@ -62,8 +62,8 @@ void Queue::push(const std::string& queue_name, const std::string& value) {
 
     redisReply* reply = (redisReply*)redisCommand(context_, "RPUSH %s %s", queue_name.c_str(), value.c_str());
     if (reply == nullptr) {
-        Logger::log("Failed to execute Redis command.", "ERROR");
-        throw std::runtime_error("Failed to execute Redis command.");
+        Logger::log("Failed to execute RPUSH command.", "ERROR");
+        throw std::runtime_error("Failed to execute RPUSH command.");
     }
 
     freeReplyObject(reply);
@@ -78,8 +78,8 @@ std::string Queue::pop(const std::string& queue_name) {
 
     redisReply* reply = (redisReply*)redisCommand(context_, "LPOP %s", queue_name.c_str());
     if (reply == nullptr) {
-        Logger::log("Failed to execute Redis command.", "ERROR");
-        throw std::runtime_error("Failed to execute Redis command.");
+        Logger::log("Failed to execute LPOP command.", "ERROR");
+        throw std::runtime_error("Failed to execute LPOP command.");
     }
 
     std::string result;
@@ -108,8 +108,8 @@ int Queue::length(const std::string& queue_name) {
 
     redisReply* reply = (redisReply*)redisCommand(context_, "LLEN %s", queue_name.c_str());
     if (reply == nullptr) {
-        Logger::log("Failed to execute Redis command.", "ERROR");
-        throw std::runtime_error("Failed to execute Redis command.");
+        Logger::log("Failed to execute LLEN command.", "ERROR");
+        throw std::runtime_error("Failed to execute LLEN command.");
     }
 
     int len = reply->integer;
